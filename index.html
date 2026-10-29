@@ -37,20 +37,21 @@ input,textarea,select,#simple{-webkit-user-select:text;user-select:text;touch-ac
 /* ---------- intro: an invitation in an envelope, closed with a wax seal ---------- */
 #intro{inset:0;display:grid;place-items:center;padding:16px;background:radial-gradient(80% 70% at 50% 55%,rgba(11,22,34,.15),rgba(11,22,34,.55));transition:opacity .7s ease,visibility 0s .7s}
 #intro.gone{opacity:0;visibility:hidden;pointer-events:none}
-.env{position:relative;width:min(440px,90vw);aspect-ratio:1.42;perspective:1400px;filter:drop-shadow(0 24px 40px rgba(8,16,26,.45))}
+.env{position:relative;width:min(440px,90vw);aspect-ratio:.78;width:min(420px,92vw,calc(70vh*.78));perspective:1400px;transition:transform .9s cubic-bezier(.2,.8,.2,1) .5s;filter:drop-shadow(0 24px 40px rgba(8,16,26,.45))}
 .env .back,.env .front,.env .flap{position:absolute;inset:0;border-radius:6px}
 .paper{background:#efe6d6 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .38 0 0 0 0 .28 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E")}
 .env .back{background-color:#e6dbc8}
-.env .front{clip-path:polygon(0 0,50% 52%,100% 0,100% 100%,0 100%);z-index:3;box-shadow:inset 0 -1px 0 rgba(0,0,0,.05)}
+.env .front{clip-path:polygon(0 0,50% 40%,100% 0,100% 100%,0 100%);z-index:3;box-shadow:inset 0 -1px 0 rgba(0,0,0,.05)}
 .env .front::before{content:"";position:absolute;inset:0;background:linear-gradient(155deg,transparent 49.6%,rgba(90,70,40,.12) 50%,transparent 50.6%),linear-gradient(25deg,transparent 49.6%,rgba(90,70,40,.12) 50%,transparent 50.6%)}
-.env .flap{clip-path:polygon(0 0,100% 0,50% 58%);transform-origin:50% 0;z-index:4;transition:transform .9s cubic-bezier(.6,.05,.3,1),z-index 0s .45s;background-color:#eadfcb;box-shadow:inset 0 1px 0 rgba(255,255,255,.4)}
+.env .flap{clip-path:polygon(0 0,100% 0,50% 46%);transform-origin:50% 0;z-index:4;transition:transform .9s cubic-bezier(.6,.05,.3,1),z-index 0s .45s;background-color:#eadfcb;box-shadow:inset 0 1px 0 rgba(255,255,255,.4)}
 .env.open .flap{transform:rotateX(178deg);z-index:1}
 .invite{position:absolute;left:5%;right:5%;top:6%;height:88%;z-index:2;border-radius:4px;background:#fffdf8;color:var(--ink);text-align:center;display:grid;align-content:center;gap:6px;padding:18px 16px;
   box-shadow:0 2px 10px rgba(30,20,10,.15),inset 0 0 0 7px #fffdf8,inset 0 0 0 8.5px #c9a24a;transition:transform 1s cubic-bezier(.2,.8,.2,1) .55s,height 1s cubic-bezier(.2,.8,.2,1) .55s}
 .env:not(.open) .invite{overflow:hidden}
-.env.open .invite{transform:translateY(-62%);height:150%;z-index:6;transition:transform 1s cubic-bezier(.2,.8,.2,1) .55s,height 1s cubic-bezier(.2,.8,.2,1) .55s,z-index 0s 1.25s}
+.env.open{transform:translateY(min(9vh,70px))}
+.env.open .invite{transform:translateY(-40%);height:92%;z-index:6;transition:transform 1s cubic-bezier(.2,.8,.2,1) .55s,height 1s cubic-bezier(.2,.8,.2,1) .55s,z-index 0s 1.25s}
 .invite .eyebrow{font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:#6f531a;font-weight:600}
-.invite h1{font-family:var(--serif);font-weight:300;font-size:clamp(30px,8.4vw,44px);line-height:1.02;letter-spacing:-.01em}
+.invite h1{font-family:var(--serif);font-weight:300;font-size:clamp(34px,10vw,50px);line-height:1.02;letter-spacing:-.01em}
 .invite h1 span{display:block;font-size:.5em;color:#b81d5b;margin:.15em 0}
 .invite p{font-size:15px;font-weight:500;color:var(--ink2)}
 .invite p b{color:var(--ink)}
@@ -59,7 +60,7 @@ input,textarea,select,#simple{-webkit-user-select:text;user-select:text;touch-ac
 #picks .btn{min-height:52px;font-size:16px;width:100%}
 #picks .btn.alt{background:#fff;color:var(--sea);box-shadow:inset 0 0 0 2px var(--sea)}
 #picks .btn[disabled]{opacity:.55;cursor:progress}
-#seal{position:absolute;left:50%;top:58%;z-index:5;width:86px;height:86px;margin:-43px;border-radius:50%;display:grid;place-items:center;color:#f3d9c2;font-family:var(--serif);font-size:24px;font-weight:500;letter-spacing:.02em;
+#seal{position:absolute;left:50%;top:45%;z-index:5;width:86px;height:86px;margin:-43px;border-radius:50%;display:grid;place-items:center;color:#f3d9c2;font-family:var(--serif);font-size:24px;font-weight:500;letter-spacing:.02em;
   background:radial-gradient(circle at 35% 30%,#c43a46,#8e1f2a 55%,#5e1219);box-shadow:0 4px 10px rgba(0,0,0,.35),inset 0 -4px 8px rgba(0,0,0,.35),inset 0 3px 6px rgba(255,255,255,.25);
   transition:transform .5s cubic-bezier(.3,1.6,.5,1),opacity .4s ease;animation:breathe 2.4s ease-in-out infinite}
 #seal::before{content:"";position:absolute;inset:7px;border-radius:50%;border:2px dashed rgba(255,220,200,.35)}
@@ -74,7 +75,7 @@ input,textarea,select,#simple{-webkit-user-select:text;user-select:text;touch-ac
 .langs button[aria-pressed=true]{background:var(--paper);color:var(--ink)}
 #load{position:fixed;left:50%;top:calc(70px + env(safe-area-inset-top));transform:translateX(-50%);width:140px;height:3px;background:rgba(255,255,255,.3);border-radius:2px;overflow:hidden;transition:opacity .4s}
 #load i{display:block;height:100%;width:0;background:#fff;transition:width .3s ease}
-@media (max-height:640px){.env.open .invite{transform:translateY(-55%);height:140%}}
+@media (max-height:640px){.env.open .invite{transform:translateY(-36%)}}
 
 /* ---------- HUD ---------- */
 #hud{inset:0;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .6s ease .3s}
@@ -91,6 +92,10 @@ body.ride #joy{display:block!important}
 #prog{display:inline-flex;gap:4px}
 #prog i{width:8px;height:8px;border-radius:50%;background:var(--line)}
 #prog i.on{background:var(--bloom)}
+#prog{align-items:center}#prog b{font-size:13px;font-weight:700;margin-right:2px}
+#prog .lk{width:14px;height:14px;stroke:var(--ink2);fill:none;stroke-width:2.2;margin-left:2px}#prog .lk.open{stroke:var(--bloom)}
+#list .back{display:inline-flex;align-items:center;min-height:40px;padding:0 12px;margin:0 0 8px 2px;border-radius:20px;background:var(--paper2);font-size:14px;font-weight:600;color:var(--sea)}
+#list li.final{border-top:1px dashed var(--line);margin-top:4px;padding-top:4px}
 #obj{position:absolute;left:50%;top:calc(70px + env(safe-area-inset-top));transform:translateX(-50%);background:rgba(20,39,58,.86);color:#fff;border-radius:12px;padding:9px 15px;font-size:15px;font-weight:500;
   max-width:calc(100vw - 24px);text-align:center;pointer-events:none;transition:opacity .3s}
 #obj b{font-weight:700}
@@ -236,7 +241,7 @@ body.cardopen #joy,body.ride #joy{display:none}
   </div>
   <div id="obj" role="status" aria-live="polite"></div>
   <div id="labels"></div>
-  <nav id="list" class="panel shut" aria-label="Στάσεις"><h2 data-t="stopsH">Οι στάσεις σου</h2><ol id="listOl"></ol>
+  <nav id="list" class="panel shut" aria-label="Στάσεις"><button type="button" id="listBack" class="back"></button><h2 id="listH">Οι στάσεις σου</h2><ol id="listOl"></ol>
     <div class="foot"><span class="demo" style="margin:0" data-t="tapGo">Πάτα μια στάση για να πας εκεί</span><button type="button" id="bSimple" data-t="simple">Απλή έκδοση</button></div></nav>
   <nav id="dest" class="panel shut" aria-label="Vespa"><h2 data-t="vespaH">Πού πάμε;</h2><ul id="destUl"></ul></nav>
   <section id="card" class="panel shut" role="dialog" aria-modal="false" aria-labelledby="cardH">

@@ -142,3 +142,8 @@ ro:{dogName:"Cățelușul nostru",dpie:{pet:"Mângâie-l",dead:"Fă-te mort",bar
   camOn:"Intră și tu în poză",camShot:"Fă poza",camNo:"Camera nu s-a deschis. Poza îi arată doar pe miri.",danceHint:"Dansați! Pentru muzică mergi la DJ.",
   driveHint:"Condu cu joystick-ul sau atinge drumul."}};
 for(const l in MORE3)Object.assign(T[l],MORE3[l]);
+Object.assign(T.el,{backPlaza:"Πίσω στην πλατεία",tasksOf:"αποστολές",lock6:"Ξεκλειδώνει με 5/5",pickG:"Ευάγγελος · με τα πόδια",pickB:"Κωνσταντίνα · με τη Vespa",shout:"ΕΙΣΑΙ ΝΟΟΟΟΒ!"});
+Object.assign(T.en,{backPlaza:"Back to the plaza",tasksOf:"tasks",lock6:"Unlocks at 5/5",pickG:"Evangelos · on foot",pickB:"Konstantina · on the Vespa",shout:"YOU'RE A NOOOOB!"});
+Object.assign(T.de,{backPlaza:"Zurück zum Platz",tasksOf:"Aufgaben",lock6:"Öffnet bei 5/5",pickG:"Evangelos · zu Fuß",pickB:"Konstantina · mit der Vespa",shout:"DU NOOOOB!"});
+Object.assign(T.ro,{backPlaza:"Înapoi în piață",tasksOf:"misiuni",lock6:"Se deblochează la 5/5",pickG:"Evangelos · pe jos",pickB:"Konstantina · cu Vespa",shout:"EȘTI NOOOOB!"});
+for(const l in T){T[l].pie.shout=T[l].shout}
