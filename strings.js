@@ -5,7 +5,7 @@ export const CONTENT={
   venue:{name:"Κτήμα (DEMO)",addr:"Κορωπί, Αττική",maps:"https://www.google.com/maps/search/?api=1&query=Koropi"},
   schedule:[["19:00","arrive"],["19:30","ceremony"],["21:00","dinner"],["23:30","party"]],
   /* photos for "how we got here": put files in assets/photos and set src, null = drawn placeholder */
-  story:[{city:"Θήβα",src:null},{city:"Αθήνα",src:null},{city:"Frankfurt",src:null},{city:"Stuttgart",src:null},{city:"Κορωπί",src:null}],
+  story:[{city:"Θήβα",src:"assets/photo-1.jpg",stamp:"2011"},{city:"Αθήνα",src:"assets/photo-2.jpg"},{city:"Frankfurt",src:"assets/photo-3.jpg"},{city:"Stuttgart",src:"assets/photo-4.jpg"},{city:"Κορωπί",src:"assets/photo-5.jpg"}],
   honey:["santorini","bali","kyoto"],
   backend:{projectId:"",apiKey:""},                                    /* Firestore; empty = demo, answers stay on the device */
   demo:true,

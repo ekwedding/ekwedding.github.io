@@ -130,7 +130,7 @@ const CARDS={
       else $("#rsvp").addEventListener("submit",e=>{e.preventDefault();const name=$("#nm").value.trim();if(!name)return;
         const att=document.querySelector("input[name=att]:checked").value==="yes";state.ans=state.ans||{};state.ans.rsvp={name,att,count:+$("#gs").value};save();
         store("rsvp",{name,attending:att,count:+$("#gs").value,notes:"",lang}).then(r=>{const o=$("#rOk");o.hidden=false;o.textContent=r?x.thanks:x.thanksLocal;complete("date")})})});cardFn=()=>CARDS.estate(tab)},
-  gallery(i=0){const x=tx(),s=CONTENT.story[i];openCard(x.P.gallery+` · ${i+1}/${CONTENT.story.length}`,s.city,`<img class="photo" alt="${esc(s.city)}" src="${s.src||photoURL(i)}"><p>${x.storyT[i]}</p>${s.src?"":`<p class="demo">${x.photoDemo}</p>`}
+  gallery(i=0){const x=tx(),s=CONTENT.story[i];openCard(x.P.gallery+` · ${i+1}/${CONTENT.story.length}`,s.city,`<div class="ph"><img class="photo" alt="${esc(s.city)}" src="${s.src||photoURL(i)}">${s.stamp?`<span class="stamp">${s.stamp}</span>`:""}</div><p>${x.storyT[i]}</p>${s.src?"":`<p class="demo">${x.photoDemo}</p>`}
     <div class="pnav"><button class="btn ghost" type="button" id="pPrev" ${i?"":"disabled"}>←</button><span>${i+1} / ${CONTENT.story.length}</span><button class="btn" type="button" id="pNext">${i<CONTENT.story.length-1?x.next+" →":x.close}</button></div>`,()=>{
       $("#pPrev").addEventListener("click",()=>CARDS.gallery(i-1));$("#pNext").addEventListener("click",()=>{if(i<CONTENT.story.length-1)CARDS.gallery(i+1);else{complete("story");closeCard()}});
       if(i===CONTENT.story.length-1)complete("story")});cardFn=()=>CARDS.gallery(i)},
