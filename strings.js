@@ -1,0 +1,125 @@
+/* ================= CONTENT: everything the couple edits lives here (DEMO = placeholder) ================= */
+export const CONTENT={
+  names:{el:["Ευάγγελος","Κωνσταντίνα"],en:["Evangelos","Konstantina"],de:["Evangelos","Konstantina"],ro:["Evangelos","Konstantina"]},
+  startUTC:"20270820T160000Z",endUTC:"20270821T000000Z",            /* 19:00–03:00 Athens time */
+  venue:{name:"Κτήμα (DEMO)",addr:"Κορωπί, Αττική",maps:"https://www.google.com/maps/search/?api=1&query=Koropi"},
+  schedule:[["19:00","arrive"],["19:30","ceremony"],["21:00","dinner"],["23:30","party"]],
+  /* photos for "how we got here": put files in assets/photos and set src, null = drawn placeholder */
+  story:[{city:"Θήβα",src:null},{city:"Αθήνα",src:null},{city:"Frankfurt",src:null},{city:"Stuttgart",src:null},{city:"Κορωπί",src:null}],
+  honey:["santorini","bali","kyoto"],
+  backend:{projectId:"",apiKey:""},                                    /* Firestore; empty = demo, answers stay on the device */
+  demo:true
+};
+
+export const T={
+el:{when:"Παρασκευή",koropi:"Κορωπί",playG:"Παίξε ως",playB:"Παίξε ως",loading:"Φόρτωση…",stops:"Στάσεις",stopsH:"Οι στάσεις σου",tapGo:"Πάτα μια στάση για να πας εκεί",simple:"Απλή έκδοση",vespaH:"Πού πάμε;",
+ go:"Πήγαινε",done:"Έγινε",locked:"Κλειστό",close:"Κλείσιμο",exit:"Έξοδος",hint:"Πάτα στο έδαφος για να περπατήσεις ή πάτα μια ετικέτα. Σύρε για να γυρίσεις την κάμερα.",
+ next:"Επόμενο",nextStop:"Επόμενη στάση",allDone:"Τα έκανες όλα. Το πρακτορείο ταξιδιών άνοιξε!",lockedMsg:"Το πρακτορείο ανοίγει όταν τελειώσεις όλες τις άλλες στάσεις.",
+ wave:"Πάμε!",
+ P:{estate:"Το κτήμα",gallery:"Η γκαλερί",chapel:"Η εκκλησία",club:"Το club",post:"Το ταχυδρομείο",agency:"Πρακτορείο ταξιδιών"},
+ Q:{date:["Κράτα την ημερομηνία","Βάλε τον γάμο στο ημερολόγιο"],story:["Πώς φτάσαμε εδώ","Δες τις φωτογραφίες μας"],bless:["Η ευχή του παπά","Πάρε την ευλογία"],dance:["Χόρεψε μαζί μας","Στο club"],wish:["Στείλε μας ευχές","Γράψε μας δυο λόγια"],honey:["Ταξίδι του μέλιτος","Ψήφισε κρυφά πού θα πάμε"]},
+ dateH:"Παρασκευή 20 Αυγούστου 2027",dateP:"Ο γάμος μας στο Κορωπί. Με ένα πάτημα μπαίνουν όλα στο ημερολόγιό σου: ώρα, τοποθεσία, πρόγραμμα και υπενθύμιση μια εβδομάδα πριν.",
+ addCal:"Στο ημερολόγιο",gcal:"Google Calendar",maps:"Χάρτης",rsvpH:"Θα έρθεις;",yourName:"Το όνομά σου",yes:"Ναι, θα έρθω",no:"Δυστυχώς όχι",guests:"Πόσα άτομα",send:"Αποστολή",thanks:"Ευχαριστούμε! Το λάβαμε.",thanksLocal:"Ευχαριστούμε! Αποθηκεύτηκε σε αυτή τη συσκευή (δοκιμαστική έκδοση).",
+ sched:{arrive:"Υποδοχή",ceremony:"Τελετή",dinner:"Δείπνο",party:"Πάρτι"},
+ storyH:"Πώς φτάσαμε εδώ",storyT:["Γνωριστήκαμε σε ένα μαγαζί στη Θήβα.","Μετά ζήσαμε μαζί στην Αθήνα.","Η Φρανκφούρτη μας έμαθε τον χειμώνα.","Στη Στουτγάρδη φτιάξαμε σπίτι.","Και στο Κορωπί λέμε το «ναι»."],
+ blessH:"Η ευχή του παπά",blessP:"«Να ζήσετε, να γεράσετε μαζί, με αγάπη και υγεία. Και όσοι ήρθατε, να είστε πάντα καλά.» Η τελετή αρχίζει στις 19:30.",blessBtn:"Πάρε την ευχή",
+ danceH:"Η πίστα είναι δική σας",danceP:"Οι φίλοι μας ήδη χορεύουν. Το πάρτι αρχίζει στις 23:30.",danceBtn:"Χόρεψε!",
+ wishH:"Στείλε μας ευχές",wishP:"Γράψε μας ό,τι θέλεις. Θα τις διαβάσουμε μετά τον γάμο.",wishText:"Η ευχή σου",
+ honeyH:"Πού να πάμε ταξίδι του μέλιτος;",honeyP:"Η ψήφος σου μένει κρυφή μέχρι τον γάμο. Φαίνεται μόνο πόσοι ψήφισαν.",voted:"ψήφισαν",vote:"Ψήφισε",honeyDone:"Η ψήφος σου μετρήθηκε. Τα αποτελέσματα στο πάρτι!",
+ opt:{santorini:"Σαντορίνη",bali:"Μπαλί",kyoto:"Κιότο"},demoNote:"Δοκιμαστικά στοιχεία, θα αλλάξουν.",photoDemo:"Η φωτογραφία θα μπει σύντομα.",calTitle:"Γάμος Ευάγγελου & Κωνσταντίνας",back:"Πίσω στο παιχνίδι",music:"Μουσική"},
+en:{when:"Friday",koropi:"Koropi",playG:"Play as",playB:"Play as",loading:"Loading…",stops:"Stops",stopsH:"Your stops",tapGo:"Tap a stop to go there",simple:"Simple version",vespaH:"Where to?",
+ go:"Go",done:"Done",locked:"Closed",close:"Close",exit:"Exit",hint:"Tap the ground or a label to walk. Drag to turn the camera.",
+ next:"Next",nextStop:"Next stop",allDone:"You did them all. The travel agency is open!",lockedMsg:"The travel agency opens once you finish every other stop.",
+ wave:"Let's go!",
+ P:{estate:"The estate",gallery:"The gallery",chapel:"The chapel",club:"The club",post:"The post office",agency:"Travel agency"},
+ Q:{date:["Save the date","Put the wedding in your calendar"],story:["How we got here","See our photos"],bless:["The priest's blessing","Receive the blessing"],dance:["Dance with us","At the club"],wish:["Send us wishes","Write us a few words"],honey:["Honeymoon","Secretly vote where we go"]},
+ dateH:"Friday 20 August 2027",dateP:"Our wedding in Koropi. One tap adds everything to your calendar: time, place, schedule and a reminder a week before.",
+ addCal:"Add to calendar",gcal:"Google Calendar",maps:"Map",rsvpH:"Will you come?",yourName:"Your name",yes:"Yes, I'll be there",no:"Sadly not",guests:"How many people",send:"Send",thanks:"Thank you! We got it.",thanksLocal:"Thank you! Saved on this device (demo version).",
+ sched:{arrive:"Welcome",ceremony:"Ceremony",dinner:"Dinner",party:"Party"},
+ storyH:"How we got here",storyT:["We met in a shop in Thiva.","Then we lived together in Athens.","Frankfurt taught us winter.","In Stuttgart we made a home.","And in Koropi we say yes."],
+ blessH:"The priest's blessing",blessP:"“Live long and grow old together, with love and health. And may all of you who came always be well.” The ceremony begins at 19:30.",blessBtn:"Receive the blessing",
+ danceH:"The dance floor is yours",danceP:"Our friends are already dancing. The party starts at 23:30.",danceBtn:"Dance!",
+ wishH:"Send us your wishes",wishP:"Write whatever you like. We'll read them after the wedding.",wishText:"Your wish",
+ honeyH:"Where should we go on honeymoon?",honeyP:"Your vote stays secret until the wedding. Only the number of voters is shown.",voted:"voted",vote:"Vote",honeyDone:"Your vote counts. Results at the party!",
+ opt:{santorini:"Santorini",bali:"Bali",kyoto:"Kyoto"},demoNote:"Demo details, will change.",photoDemo:"The photo is coming soon.",calTitle:"Wedding of Evangelos & Konstantina",back:"Back to the game",music:"Music"},
+de:{when:"Freitag",koropi:"Koropi",playG:"Spiele als",playB:"Spiele als",loading:"Lädt…",stops:"Stationen",stopsH:"Deine Stationen",tapGo:"Tippe auf eine Station, um hinzugehen",simple:"Einfache Version",vespaH:"Wohin?",
+ go:"Los",done:"Erledigt",locked:"Geschlossen",close:"Schließen",exit:"Ausgang",hint:"Tippe auf den Boden oder ein Schild, um zu gehen. Ziehen dreht die Kamera.",
+ next:"Weiter",nextStop:"Nächste Station",allDone:"Alles erledigt. Das Reisebüro hat geöffnet!",lockedMsg:"Das Reisebüro öffnet, wenn alle anderen Stationen erledigt sind.",
+ wave:"Los geht's!",
+ P:{estate:"Das Weingut",gallery:"Die Galerie",chapel:"Die Kirche",club:"Der Club",post:"Die Post",agency:"Reisebüro"},
+ Q:{date:["Termin speichern","Die Hochzeit in deinen Kalender"],story:["Wie wir hierher kamen","Sieh dir unsere Fotos an"],bless:["Der Segen des Priesters","Empfange den Segen"],dance:["Tanz mit uns","Im Club"],wish:["Schick uns Wünsche","Schreib uns ein paar Worte"],honey:["Flitterwochen","Stimme geheim über das Ziel ab"]},
+ dateH:"Freitag, 20. August 2027",dateP:"Unsere Hochzeit in Koropi. Ein Tipp trägt alles in deinen Kalender ein: Zeit, Ort, Ablauf und eine Erinnerung eine Woche vorher.",
+ addCal:"In den Kalender",gcal:"Google Kalender",maps:"Karte",rsvpH:"Kommst du?",yourName:"Dein Name",yes:"Ja, ich komme",no:"Leider nicht",guests:"Wie viele Personen",send:"Senden",thanks:"Danke! Angekommen.",thanksLocal:"Danke! Auf diesem Gerät gespeichert (Testversion).",
+ sched:{arrive:"Empfang",ceremony:"Trauung",dinner:"Abendessen",party:"Party"},
+ storyH:"Wie wir hierher kamen",storyT:["Wir haben uns in einem Laden in Theben kennengelernt.","Dann lebten wir zusammen in Athen.","Frankfurt hat uns den Winter gelehrt.","In Stuttgart haben wir ein Zuhause gefunden.","Und in Koropi sagen wir Ja."],
+ blessH:"Der Segen des Priesters",blessP:"„Lebt lange und werdet gemeinsam alt, in Liebe und Gesundheit. Und allen, die gekommen sind, soll es immer gut gehen.“ Die Trauung beginnt um 19:30.",blessBtn:"Segen empfangen",
+ danceH:"Die Tanzfläche gehört euch",danceP:"Unsere Freunde tanzen schon. Die Party beginnt um 23:30.",danceBtn:"Tanzen!",
+ wishH:"Schick uns deine Wünsche",wishP:"Schreib, was du möchtest. Wir lesen alles nach der Hochzeit.",wishText:"Dein Wunsch",
+ honeyH:"Wohin sollen wir in die Flitterwochen?",honeyP:"Deine Stimme bleibt bis zur Hochzeit geheim. Nur die Zahl der Stimmen ist sichtbar.",voted:"haben abgestimmt",vote:"Abstimmen",honeyDone:"Deine Stimme zählt. Ergebnis auf der Party!",
+ opt:{santorini:"Santorini",bali:"Bali",kyoto:"Kyoto"},demoNote:"Testdaten, ändern sich noch.",photoDemo:"Das Foto kommt bald.",calTitle:"Hochzeit von Evangelos & Konstantina",back:"Zurück zum Spiel",music:"Musik"},
+ro:{when:"Vineri",koropi:"Koropi",playG:"Joacă ca",playB:"Joacă ca",loading:"Se încarcă…",stops:"Opriri",stopsH:"Opririle tale",tapGo:"Atinge o oprire ca să mergi acolo",simple:"Versiunea simplă",vespaH:"Unde mergem?",
+ go:"Mergi",done:"Gata",locked:"Închis",close:"Închide",exit:"Ieșire",hint:"Atinge solul sau o etichetă ca să mergi. Trage ca să rotești camera.",
+ next:"Următor",nextStop:"Următoarea oprire",allDone:"Le-ai făcut pe toate. Agenția de turism s-a deschis!",lockedMsg:"Agenția se deschide după ce termini toate celelalte opriri.",
+ wave:"Hai!",
+ P:{estate:"Domeniul",gallery:"Galeria",chapel:"Biserica",club:"Clubul",post:"Poșta",agency:"Agenție de turism"},
+ Q:{date:["Salvează data","Pune nunta în calendar"],story:["Cum am ajuns aici","Vezi fotografiile noastre"],bless:["Binecuvântarea preotului","Primește binecuvântarea"],dance:["Dansează cu noi","La club"],wish:["Trimite-ne urări","Scrie-ne câteva cuvinte"],honey:["Luna de miere","Votează în secret destinația"]},
+ dateH:"Vineri, 20 august 2027",dateP:"Nunta noastră în Koropi. O atingere adaugă totul în calendar: ora, locul, programul și o amintire cu o săptămână înainte.",
+ addCal:"În calendar",gcal:"Google Calendar",maps:"Hartă",rsvpH:"Vii?",yourName:"Numele tău",yes:"Da, vin",no:"Din păcate nu",guests:"Câte persoane",send:"Trimite",thanks:"Mulțumim! Am primit.",thanksLocal:"Mulțumim! Salvat pe acest dispozitiv (versiune de test).",
+ sched:{arrive:"Primire",ceremony:"Cununie",dinner:"Cină",party:"Petrecere"},
+ storyH:"Cum am ajuns aici",storyT:["Ne-am cunoscut într-un magazin din Teba.","Apoi am locuit împreună în Atena.","Frankfurtul ne-a învățat iarna.","În Stuttgart ne-am făcut un cămin.","Iar în Koropi spunem «da»."],
+ blessH:"Binecuvântarea preotului",blessP:"„Să trăiți mult și să îmbătrâniți împreună, cu dragoste și sănătate. Și toți cei veniți să fie mereu bine.” Cununia începe la 19:30.",blessBtn:"Primește binecuvântarea",
+ danceH:"Ringul e al vostru",danceP:"Prietenii noștri dansează deja. Petrecerea începe la 23:30.",danceBtn:"Dansează!",
+ wishH:"Trimite-ne urări",wishP:"Scrie ce vrei. Le citim după nuntă.",wishText:"Urarea ta",
+ honeyH:"Unde să mergem în luna de miere?",honeyP:"Votul tău rămâne secret până la nuntă. Se vede doar câți au votat.",voted:"au votat",vote:"Votează",honeyDone:"Votul tău contează. Rezultatele la petrecere!",
+ opt:{santorini:"Santorini",bali:"Bali",kyoto:"Kyoto"},demoNote:"Date de test, se vor schimba.",photoDemo:"Fotografia vine în curând.",calTitle:"Nunta lui Evangelos & Konstantina",back:"Înapoi la joc",music:"Muzică"}
+};
+
+
+/* strings added with the interiors, guests and chat */
+const MORE={
+el:{guide:{chapel:"Πήγαινε στον παπά για την ευχή του.",gallery:"Δες τις φωτογραφίες στον τοίχο.",estate:"Πήγαινε στο καβαλέτο με την πρόσκληση.",club:"Βγες στην πίστα και χόρεψε!",post:"Κάτσε στο γραφείο και γράψε μας μια ευχή.",agency:"Πήγαινε στο γραφείο του πράκτορα."},
+  spot:{chapel:"Ο παπάς",gallery:"Οι φωτογραφίες",estate:"Η πρόσκληση",club:"Η πίστα",post:"Βιβλίο ευχών",agency:"Ο πράκτορας"},exitLbl:"Έξοδος",exitHint:"Έξοδος: η πόρτα μπροστά",
+  priestSays:"Ο Θεός να ευλογεί το ζευγάρι και όλους εσάς!",chantOn:"Άνοιξε τον ήχο για να ακούσεις τον ψάλτη.",clubName:"Beach club"},
+en:{guide:{chapel:"Walk to the priest for his blessing.",gallery:"Look at the photos on the wall.",estate:"Walk to the easel with the invitation.",club:"Step onto the dance floor and dance!",post:"Sit at the desk and write us a wish.",agency:"Walk to the travel agent's desk."},
+  spot:{chapel:"The priest",gallery:"The photos",estate:"The invitation",club:"Dance floor",post:"Wish book",agency:"The agent"},exitLbl:"Exit",exitHint:"Exit: the door in front",
+  priestSays:"God bless the couple and all of you!",chantOn:"Turn the sound on to hear the chanter.",clubName:"Beach club"},
+de:{guide:{chapel:"Geh zum Priester für seinen Segen.",gallery:"Sieh dir die Fotos an der Wand an.",estate:"Geh zur Staffelei mit der Einladung.",club:"Ab auf die Tanzfläche!",post:"Setz dich an den Tisch und schreib uns einen Wunsch.",agency:"Geh zum Schreibtisch des Reisebüros."},
+  spot:{chapel:"Der Priester",gallery:"Die Fotos",estate:"Die Einladung",club:"Tanzfläche",post:"Wunschbuch",agency:"Reiseberater"},exitLbl:"Ausgang",exitHint:"Ausgang: die Tür vorne",
+  priestSays:"Gott segne das Paar und euch alle!",chantOn:"Schalte den Ton ein, um den Gesang zu hören.",clubName:"Beach club"},
+ro:{guide:{chapel:"Mergi la preot pentru binecuvântare.",gallery:"Privește fotografiile de pe perete.",estate:"Mergi la șevaletul cu invitația.",club:"Ieși pe ring și dansează!",post:"Stai la birou și scrie-ne o urare.",agency:"Mergi la biroul agentului."},
+  spot:{chapel:"Preotul",gallery:"Fotografiile",estate:"Invitația",club:"Ringul",post:"Cartea de urări",agency:"Agentul"},exitLbl:"Ieșire",exitHint:"Ieșire: ușa din față",
+  priestSays:"Dumnezeu să binecuvânteze mirii și pe voi toți!",chantOn:"Pornește sunetul ca să auzi cântarea.",clubName:"Beach club"}};
+for(const l in MORE)Object.assign(T[l],MORE[l]);
+
+/* secret windmill, teleports, Sims-style menus, moods, selfie, club music */
+CONTENT.secret={code:"",hash:"cd2c5a21",whatsapp:"306971817492"};   /* hash of the 4-digit code (fnv1a); change with tools/hash_code.py */
+const MORE2={
+el:{secretH:"Ένας μυστικός ανεμόμυλος",secretP:"Αυτή η πόρτα ανοίγει μόνο αν σου το επιτρέψει το ζευγάρι. Ο κωδικός έχει σχέση με το ζευγάρι.",codeLbl:"Κωδικός 4 ψηφίων",enter:"Μπες",wrong:"Λάθος κωδικός. Δοκίμασε ξανά ή πάρε τον γαμπρό.",
+  waBtn:"Πάρε τον γαμπρό στο WhatsApp",waText:"Βρήκα τον κρυφό ανεμόμυλο! Μου λες τον κωδικό;",denH:"Συγχαρητήρια! Βρήκες το κρυφό κτίριο",denP:"Εδώ είναι μόνο οι πολύ καλοί μας φίλοι. Καναπέδες, παιχνίδια, κουβέντα. Εδώ μπορούμε να είμαστε ο εαυτός μας.",denSpot:"Ο καναπές",denGuide:"Κάτσε στον καναπέ με την παρέα.",
+  teleport:"Τηλεμεταφορά",simpleStops:"Όλες οι στάσεις",simpleNote:"Πάτα «Τηλεμεταφορά» για να βρεθείς κατευθείαν μέσα στο κτίριο.",nextGo:"→",
+  pie:{kiss:"Φιλάκι",kisslong:"Αγκαλιά & φιλί",dance:"Χορός",chat:"Κουβέντα",selfie:"Selfie",wave:"Χαιρέτα",sit:"Κάτσε"},moods:{fun:"Κέφι",love:"Αγάπη",party:"Πάρτι"},
+  selfieH:"Η φωτογραφία σας",save:"Αποθήκευση",share:"Στείλ' τη",clubTracks:"Διάλεξε τραγούδι",credits:"Μουσική club: Kevin MacLeod (incompetech.com), CC BY 4.0"},
+en:{secretH:"A secret windmill",secretP:"This door opens only if the couple lets you in. The code has to do with the couple.",codeLbl:"4-digit code",enter:"Enter",wrong:"Wrong code. Try again or call the groom.",
+  waBtn:"Call the groom on WhatsApp",waText:"I found the secret windmill! What's the code?",denH:"Congratulations! You found the secret building",denP:"Only our closest friends are here. Sofas, games, good talk. Here we can be ourselves.",denSpot:"The sofa",denGuide:"Sit on the sofa with the gang.",
+  teleport:"Teleport",simpleStops:"All stops",simpleNote:"Tap “Teleport” to land straight inside the building.",nextGo:"→",
+  pie:{kiss:"Kiss",kisslong:"Hug & kiss",dance:"Dance",chat:"Chat",selfie:"Selfie",wave:"Wave",sit:"Sit"},moods:{fun:"Fun",love:"Love",party:"Party"},
+  selfieH:"Your photo",save:"Save",share:"Share",clubTracks:"Pick a song",credits:"Club music: Kevin MacLeod (incompetech.com), CC BY 4.0"},
+de:{secretH:"Eine geheime Windmühle",secretP:"Diese Tür öffnet sich nur, wenn das Paar es erlaubt. Der Code hat mit dem Paar zu tun.",codeLbl:"4-stelliger Code",enter:"Eintreten",wrong:"Falscher Code. Versuch es nochmal oder ruf den Bräutigam an.",
+  waBtn:"Bräutigam auf WhatsApp anrufen",waText:"Ich habe die geheime Windmühle gefunden! Wie lautet der Code?",denH:"Glückwunsch! Du hast das geheime Gebäude gefunden",denP:"Hier sind nur unsere engsten Freunde. Sofas, Spiele, gute Gespräche. Hier können wir ganz wir selbst sein.",denSpot:"Das Sofa",denGuide:"Setz dich mit der Clique aufs Sofa.",
+  teleport:"Teleport",simpleStops:"Alle Stationen",simpleNote:"Tippe auf „Teleport“, um direkt im Gebäude zu landen.",nextGo:"→",
+  pie:{kiss:"Küsschen",kisslong:"Umarmen & küssen",dance:"Tanzen",chat:"Plaudern",selfie:"Selfie",wave:"Winken",sit:"Setzen"},moods:{fun:"Spaß",love:"Liebe",party:"Party"},
+  selfieH:"Euer Foto",save:"Speichern",share:"Teilen",clubTracks:"Wähle ein Lied",credits:"Club-Musik: Kevin MacLeod (incompetech.com), CC BY 4.0"},
+ro:{secretH:"O moară de vânt secretă",secretP:"Ușa se deschide doar dacă te lasă mirii. Codul are legătură cu cuplul.",codeLbl:"Cod din 4 cifre",enter:"Intră",wrong:"Cod greșit. Încearcă din nou sau sună-l pe mire.",
+  waBtn:"Sună-l pe mire pe WhatsApp",waText:"Am găsit moara secretă! Care e codul?",denH:"Felicitări! Ai găsit clădirea secretă",denP:"Aici sunt doar prietenii noștri cei mai buni. Canapele, jocuri, povești. Aici putem fi noi înșine.",denSpot:"Canapeaua",denGuide:"Stai pe canapea cu gașca.",
+  teleport:"Teleportare",simpleStops:"Toate opririle",simpleNote:"Atinge „Teleportare” ca să ajungi direct în clădire.",nextGo:"→",
+  pie:{kiss:"Pupic",kisslong:"Îmbrățișare & sărut",dance:"Dans",chat:"Poveste",selfie:"Selfie",wave:"Salută",sit:"Stai jos"},moods:{fun:"Distracție",love:"Iubire",party:"Petrecere"},
+  selfieH:"Fotografia voastră",save:"Salvează",share:"Trimite",clubTracks:"Alege o melodie",credits:"Muzica din club: Kevin MacLeod (incompetech.com), CC BY 4.0"}};
+for(const l in MORE2){Object.assign(T[l],MORE2[l]);T[l].guide.den=T[l].denGuide;T[l].spot.den=T[l].denSpot}
+Object.assign(T.el,{plaza:"Η πλατεία",plazaSub:"Το σημείο συνάντησης · κάτσε σε ένα παγκάκι"});
+Object.assign(T.en,{plaza:"The plaza",plazaSub:"The meeting point · sit on a bench"});
+Object.assign(T.de,{plaza:"Der Platz",plazaSub:"Der Treffpunkt · setz dich auf eine Bank"});
+Object.assign(T.ro,{plaza:"Piața",plazaSub:"Locul de întâlnire · stai pe o bancă"});
+Object.assign(T.el,{inviteEyebrow:"Σας προσκαλούμε στον γάμο μας",sealHint:"Πάτα τη σφραγίδα για να ανοίξει",tabCal:"Ημερολόγιο",tabRsvp:"Θα έρθεις;"});
+Object.assign(T.en,{inviteEyebrow:"You are invited to our wedding",sealHint:"Tap the seal to open",tabCal:"Calendar",tabRsvp:"Will you come?"});
+Object.assign(T.de,{inviteEyebrow:"Wir laden euch zu unserer Hochzeit ein",sealHint:"Tippe auf das Siegel zum Öffnen",tabCal:"Kalender",tabRsvp:"Kommst du?"});
+Object.assign(T.ro,{inviteEyebrow:"Vă invităm la nunta noastră",sealHint:"Atinge sigiliul ca să deschizi",tabCal:"Calendar",tabRsvp:"Vii?"});
