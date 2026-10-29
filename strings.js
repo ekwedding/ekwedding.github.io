@@ -5,8 +5,12 @@ export const CONTENT={
   venue:{name:"Κτήμα (DEMO)",addr:"Κορωπί, Αττική",maps:"https://www.google.com/maps/search/?api=1&query=Koropi"},
   schedule:[["19:00","arrive"],["19:30","ceremony"],["21:00","dinner"],["23:30","party"]],
   /* photos for "how we got here": put files in assets/photos and set src, null = drawn placeholder */
-  story:[{city:"Θήβα",src:"assets/photo-1.jpg",stamp:"2011"},{city:"Αθήνα",src:"assets/photo-2.jpg"},{city:"Frankfurt",src:"assets/photo-3.jpg"},{city:"Stuttgart",src:"assets/photo-4.jpg"},{city:"Κορωπί",src:"assets/photo-5.jpg"}],
-  honey:["santorini","bali","kyoto"],
+  story:[{city:"Θήβα",src:"assets/photo-1.jpg",stamp:"2011"},{city:"Αθήνα",src:"assets/photo-2.jpg"},{city:"Κυψέλη",src:"assets/photo-3.jpg"},{city:"Frankfurt",src:"assets/photo-4.jpg"},{city:"Stuttgart",src:"assets/photo-5.jpg"}],
+  album:"https://photos.icloud.com/shared/album/022Ho8qTnPNUezFUi4fYDlXkw",
+  /* dinner menu at the estate. PLACEHOLDERS */
+  menu:{el:[["Ορεκτικά","Ποικιλία με τυριά, ντάκοι, φάβα (DEMO)"],["Σαλάτα","Χωριάτικη με κρίθινο παξιμάδι (DEMO)"],["Κυρίως","Μοσχαράκι ή λαβράκι (DEMO)"],["Γλυκό","Γαμήλια τούρτα (DEMO)"]],en:[["Starters","Cheeses, dakos, fava (DEMO)"],["Salad","Greek salad with barley rusk (DEMO)"],["Main","Veal or sea bass (DEMO)"],["Dessert","Wedding cake (DEMO)"]]},
+  drinks:["aperol","gin","mojito","whisky","wine","beer"],
+  honey:["namerica","samerica","oceania","antarctica"],      /* continents we have not been to yet */
   backend:{projectId:"",apiKey:""},                                    /* Firestore; empty = demo, answers stay on the device */
   demo:true,
   /* gifts (post office desk). PLACEHOLDERS: put the real details here; empty = row hidden */
@@ -29,12 +33,12 @@ el:{when:"Παρασκευή",koropi:"Κορωπί",playG:"Παίξε ως",play
  dateH:"Παρασκευή 20 Αυγούστου 2027",dateP:"Ο γάμος μας στο Κορωπί. Με ένα πάτημα μπαίνουν όλα στο ημερολόγιό σου: ώρα, τοποθεσία, πρόγραμμα και υπενθύμιση μια εβδομάδα πριν.",
  addCal:"Στο ημερολόγιο",gcal:"Google Calendar",maps:"Χάρτης",rsvpH:"Θα έρθεις;",yourName:"Το όνομά σου",yes:"Ναι, θα έρθω",no:"Δυστυχώς όχι",guests:"Πόσα άτομα",send:"Αποστολή",thanks:"Ευχαριστούμε! Το λάβαμε.",thanksLocal:"Ευχαριστούμε! Αποθηκεύτηκε σε αυτή τη συσκευή (δοκιμαστική έκδοση).",
  sched:{arrive:"Υποδοχή",ceremony:"Τελετή",dinner:"Δείπνο",party:"Πάρτι"},
- storyH:"Πώς φτάσαμε εδώ",storyT:["Γνωριστήκαμε σε ένα μαγαζί στη Θήβα.","Μετά ζήσαμε μαζί στην Αθήνα.","Η Φρανκφούρτη μας έμαθε τον χειμώνα.","Στη Στουτγάρδη φτιάξαμε σπίτι.","Και στο Κορωπί λέμε το «ναι»."],
+ storyH:"Πώς φτάσαμε εδώ",storyT:["Γνωριστήκαμε σε ένα μαγαζί στη Θήβα.","Μετά ζήσαμε μαζί στην Αθήνα.","Η Κυψέλη, η γειτονιά μας στην Αθήνα.","Η Φρανκφούρτη μας έμαθε τον χειμώνα.","Στη Στουτγάρδη φτιάξαμε σπίτι."],
  blessH:"Η ευχή του παπά",blessP:"«Να ζήσετε, να γεράσετε μαζί, με αγάπη και υγεία. Και όσοι ήρθατε, να είστε πάντα καλά.» Η τελετή αρχίζει στις 19:30.",blessBtn:"Πάρε την ευχή",
  danceH:"Η πίστα είναι δική σας",danceP:"Οι φίλοι μας ήδη χορεύουν. Το πάρτι αρχίζει στις 23:30.",danceBtn:"Χόρεψε!",
  wishH:"Στείλε μας ευχές",wishP:"Γράψε μας ό,τι θέλεις. Θα τις διαβάσουμε μετά τον γάμο.",wishText:"Η ευχή σου",
  honeyH:"Πού να πάμε ταξίδι του μέλιτος;",honeyP:"Η ψήφος σου μένει κρυφή μέχρι τον γάμο. Φαίνεται μόνο πόσοι ψήφισαν.",voted:"ψήφισαν",vote:"Ψήφισε",honeyDone:"Η ψήφος σου μετρήθηκε. Τα αποτελέσματα στο πάρτι!",
- opt:{santorini:"Σαντορίνη",bali:"Μπαλί",kyoto:"Κιότο"},demoNote:"Δοκιμαστικά στοιχεία, θα αλλάξουν.",photoDemo:"Η φωτογραφία θα μπει σύντομα.",calTitle:"Γάμος Ευάγγελου & Κωνσταντίνας",back:"Πίσω στο παιχνίδι",music:"Μουσική"},
+ opt:{namerica:"Βόρεια Αμερική",samerica:"Νότια Αμερική",oceania:"Ωκεανία",antarctica:"Ανταρκτική"},demoNote:"Δοκιμαστικά στοιχεία, θα αλλάξουν.",photoDemo:"Η φωτογραφία θα μπει σύντομα.",calTitle:"Γάμος Ευάγγελου & Κωνσταντίνας",back:"Πίσω στο παιχνίδι",music:"Μουσική"},
 en:{when:"Friday",koropi:"Koropi",playG:"Play as",playB:"Play as",loading:"Loading…",stops:"Stops",stopsH:"Your stops",tapGo:"Tap a stop to go there",simple:"Simple version",vespaH:"Where to?",
  go:"Go",done:"Done",locked:"Closed",close:"Close",exit:"Exit",hint:"Tap the ground or a label to walk. Drag to turn the camera.",
  next:"Next",nextStop:"Next stop",allDone:"You did them all. The travel agency is open!",lockedMsg:"The travel agency opens once you finish every other stop.",
@@ -44,12 +48,12 @@ en:{when:"Friday",koropi:"Koropi",playG:"Play as",playB:"Play as",loading:"Loadi
  dateH:"Friday 20 August 2027",dateP:"Our wedding in Koropi. One tap adds everything to your calendar: time, place, schedule and a reminder a week before.",
  addCal:"Add to calendar",gcal:"Google Calendar",maps:"Map",rsvpH:"Will you come?",yourName:"Your name",yes:"Yes, I'll be there",no:"Sadly not",guests:"How many people",send:"Send",thanks:"Thank you! We got it.",thanksLocal:"Thank you! Saved on this device (demo version).",
  sched:{arrive:"Welcome",ceremony:"Ceremony",dinner:"Dinner",party:"Party"},
- storyH:"How we got here",storyT:["We met in a shop in Thiva.","Then we lived together in Athens.","Frankfurt taught us winter.","In Stuttgart we made a home.","And in Koropi we say yes."],
+ storyH:"How we got here",storyT:["We met in a shop in Thiva.","Then we lived together in Athens.","Kypseli, our neighbourhood in Athens.","Frankfurt taught us winter.","In Stuttgart we made a home."],
  blessH:"The priest's blessing",blessP:"“Live long and grow old together, with love and health. And may all of you who came always be well.” The ceremony begins at 19:30.",blessBtn:"Receive the blessing",
  danceH:"The dance floor is yours",danceP:"Our friends are already dancing. The party starts at 23:30.",danceBtn:"Dance!",
  wishH:"Send us your wishes",wishP:"Write whatever you like. We'll read them after the wedding.",wishText:"Your wish",
  honeyH:"Where should we go on honeymoon?",honeyP:"Your vote stays secret until the wedding. Only the number of voters is shown.",voted:"voted",vote:"Vote",honeyDone:"Your vote counts. Results at the party!",
- opt:{santorini:"Santorini",bali:"Bali",kyoto:"Kyoto"},demoNote:"Demo details, will change.",photoDemo:"The photo is coming soon.",calTitle:"Wedding of Evangelos & Konstantina",back:"Back to the game",music:"Music"},
+ opt:{namerica:"North America",samerica:"South America",oceania:"Oceania",antarctica:"Antarctica"},demoNote:"Demo details, will change.",photoDemo:"The photo is coming soon.",calTitle:"Wedding of Evangelos & Konstantina",back:"Back to the game",music:"Music"},
 de:{when:"Freitag",koropi:"Koropi",playG:"Spiele als",playB:"Spiele als",loading:"Lädt…",stops:"Stationen",stopsH:"Deine Stationen",tapGo:"Tippe auf eine Station, um hinzugehen",simple:"Einfache Version",vespaH:"Wohin?",
  go:"Los",done:"Erledigt",locked:"Geschlossen",close:"Schließen",exit:"Ausgang",hint:"Tippe auf den Boden oder ein Schild, um zu gehen. Ziehen dreht die Kamera.",
  next:"Weiter",nextStop:"Nächste Station",allDone:"Alles erledigt. Das Reisebüro hat geöffnet!",lockedMsg:"Das Reisebüro öffnet, wenn alle anderen Stationen erledigt sind.",
@@ -59,12 +63,12 @@ de:{when:"Freitag",koropi:"Koropi",playG:"Spiele als",playB:"Spiele als",loading
  dateH:"Freitag, 20. August 2027",dateP:"Unsere Hochzeit in Koropi. Ein Tipp trägt alles in deinen Kalender ein: Zeit, Ort, Ablauf und eine Erinnerung eine Woche vorher.",
  addCal:"In den Kalender",gcal:"Google Kalender",maps:"Karte",rsvpH:"Kommst du?",yourName:"Dein Name",yes:"Ja, ich komme",no:"Leider nicht",guests:"Wie viele Personen",send:"Senden",thanks:"Danke! Angekommen.",thanksLocal:"Danke! Auf diesem Gerät gespeichert (Testversion).",
  sched:{arrive:"Empfang",ceremony:"Trauung",dinner:"Abendessen",party:"Party"},
- storyH:"Wie wir hierher kamen",storyT:["Wir haben uns in einem Laden in Theben kennengelernt.","Dann lebten wir zusammen in Athen.","Frankfurt hat uns den Winter gelehrt.","In Stuttgart haben wir ein Zuhause gefunden.","Und in Koropi sagen wir Ja."],
+ storyH:"Wie wir hierher kamen",storyT:["Wir haben uns in einem Laden in Theben kennengelernt.","Dann lebten wir zusammen in Athen.","Kypseli, unser Viertel in Athen.","Frankfurt hat uns den Winter gelehrt.","In Stuttgart haben wir ein Zuhause gefunden."],
  blessH:"Der Segen des Priesters",blessP:"„Lebt lange und werdet gemeinsam alt, in Liebe und Gesundheit. Und allen, die gekommen sind, soll es immer gut gehen.“ Die Trauung beginnt um 19:30.",blessBtn:"Segen empfangen",
  danceH:"Die Tanzfläche gehört euch",danceP:"Unsere Freunde tanzen schon. Die Party beginnt um 23:30.",danceBtn:"Tanzen!",
  wishH:"Schick uns deine Wünsche",wishP:"Schreib, was du möchtest. Wir lesen alles nach der Hochzeit.",wishText:"Dein Wunsch",
  honeyH:"Wohin sollen wir in die Flitterwochen?",honeyP:"Deine Stimme bleibt bis zur Hochzeit geheim. Nur die Zahl der Stimmen ist sichtbar.",voted:"haben abgestimmt",vote:"Abstimmen",honeyDone:"Deine Stimme zählt. Ergebnis auf der Party!",
- opt:{santorini:"Santorini",bali:"Bali",kyoto:"Kyoto"},demoNote:"Testdaten, ändern sich noch.",photoDemo:"Das Foto kommt bald.",calTitle:"Hochzeit von Evangelos & Konstantina",back:"Zurück zum Spiel",music:"Musik"},
+ opt:{namerica:"Nordamerika",samerica:"Südamerika",oceania:"Ozeanien",antarctica:"Antarktis"},demoNote:"Testdaten, ändern sich noch.",photoDemo:"Das Foto kommt bald.",calTitle:"Hochzeit von Evangelos & Konstantina",back:"Zurück zum Spiel",music:"Musik"},
 ro:{when:"Vineri",koropi:"Koropi",playG:"Joacă ca",playB:"Joacă ca",loading:"Se încarcă…",stops:"Opriri",stopsH:"Opririle tale",tapGo:"Atinge o oprire ca să mergi acolo",simple:"Versiunea simplă",vespaH:"Unde mergem?",
  go:"Mergi",done:"Gata",locked:"Închis",close:"Închide",exit:"Ieșire",hint:"Atinge solul sau o etichetă ca să mergi. Trage ca să rotești camera.",
  next:"Următor",nextStop:"Următoarea oprire",allDone:"Le-ai făcut pe toate. Agenția de turism s-a deschis!",lockedMsg:"Agenția se deschide după ce termini toate celelalte opriri.",
@@ -74,12 +78,12 @@ ro:{when:"Vineri",koropi:"Koropi",playG:"Joacă ca",playB:"Joacă ca",loading:"S
  dateH:"Vineri, 20 august 2027",dateP:"Nunta noastră în Koropi. O atingere adaugă totul în calendar: ora, locul, programul și o amintire cu o săptămână înainte.",
  addCal:"În calendar",gcal:"Google Calendar",maps:"Hartă",rsvpH:"Vii?",yourName:"Numele tău",yes:"Da, vin",no:"Din păcate nu",guests:"Câte persoane",send:"Trimite",thanks:"Mulțumim! Am primit.",thanksLocal:"Mulțumim! Salvat pe acest dispozitiv (versiune de test).",
  sched:{arrive:"Primire",ceremony:"Cununie",dinner:"Cină",party:"Petrecere"},
- storyH:"Cum am ajuns aici",storyT:["Ne-am cunoscut într-un magazin din Teba.","Apoi am locuit împreună în Atena.","Frankfurtul ne-a învățat iarna.","În Stuttgart ne-am făcut un cămin.","Iar în Koropi spunem «da»."],
+ storyH:"Cum am ajuns aici",storyT:["Ne-am cunoscut într-un magazin din Teba.","Apoi am locuit împreună în Atena.","Kypseli, cartierul nostru din Atena.","Frankfurtul ne-a învățat iarna.","În Stuttgart ne-am făcut un cămin."],
  blessH:"Binecuvântarea preotului",blessP:"„Să trăiți mult și să îmbătrâniți împreună, cu dragoste și sănătate. Și toți cei veniți să fie mereu bine.” Cununia începe la 19:30.",blessBtn:"Primește binecuvântarea",
  danceH:"Ringul e al vostru",danceP:"Prietenii noștri dansează deja. Petrecerea începe la 23:30.",danceBtn:"Dansează!",
  wishH:"Trimite-ne urări",wishP:"Scrie ce vrei. Le citim după nuntă.",wishText:"Urarea ta",
  honeyH:"Unde să mergem în luna de miere?",honeyP:"Votul tău rămâne secret până la nuntă. Se vede doar câți au votat.",voted:"au votat",vote:"Votează",honeyDone:"Votul tău contează. Rezultatele la petrecere!",
- opt:{santorini:"Santorini",bali:"Bali",kyoto:"Kyoto"},demoNote:"Date de test, se vor schimba.",photoDemo:"Fotografia vine în curând.",calTitle:"Nunta lui Evangelos & Konstantina",back:"Înapoi la joc",music:"Muzică"}
+ opt:{namerica:"America de Nord",samerica:"America de Sud",oceania:"Oceania",antarctica:"Antarctica"},demoNote:"Date de test, se vor schimba.",photoDemo:"Fotografia vine în curând.",calTitle:"Nunta lui Evangelos & Konstantina",back:"Înapoi la joc",music:"Muzică"}
 };
 
 
@@ -181,4 +185,15 @@ en:{giftL:"Gift",giftH:"Would you like to give us a gift?",giftP:"Your presence 
   vipH:"Only for our people",vipIdeaH:"What should we do after the wedding?",vipIdeaP:"Tell us ideas, suggestions or anything you want to say to us.",vipSent:"Got it, thank you!"}};
 for(const l in MORE4)Object.assign(T[l],MORE4[l]);
 /* DE/RO: anything not translated yet falls back to English */
+for(const l of ["de","ro"])for(const k in T.en)if(!(k in T[l]))T[l][k]=T.en[k];
+const MORE5={
+el:{albumL:"Άλμπουμ γάμου",albumH:"Το άλμπουμ του γάμου μας",albumP:"Βγάλατε φωτογραφίες; Ανεβάστε τες εδώ, όλοι μαζί σε ένα άλμπουμ. Θέλουμε να ζήσουμε ξανά τη μέρα μας και μέσα από τα δικά σας μάτια. Κάθε στιγμή που θα μοιραστείτε είναι για εμάς ένα δώρο.",albumBtn:"Άνοιγμα άλμπουμ",
+  honeyPick:"Διάλεξε ήπειρο. Σε Ευρώπη, Ασία και Αφρική έχουμε ήδη πάει!",
+  drinksH:"Τι να πίνουμε στον γάμο;",drinksP:"Διάλεξε τα ποτά που θέλεις να υπάρχουν στο μπαρ. Μπορείς πολλά.",drinksSent:"Σημειώθηκε, στην υγειά μας!",
+  dr:{aperol:"Aperol Spritz",gin:"Gin Tonic",mojito:"Mojito",whisky:"Ουίσκι",wine:"Κρασί",beer:"Μπίρα"},menuL:"Μενού",menuH:"Τι θα φάμε",info:"Πληροφορίες"},
+en:{albumL:"Wedding album",albumH:"Our wedding album",albumP:"Took photos? Upload them here, all together in one album. We want to live our day again through your eyes. Every moment you share is a gift to us.",albumBtn:"Open the album",
+  honeyPick:"Pick a continent. We've already been to Europe, Asia and Africa!",
+  drinksH:"What should we drink at the wedding?",drinksP:"Pick the drinks you want at the bar. You can pick several.",drinksSent:"Noted, cheers!",
+  dr:{aperol:"Aperol Spritz",gin:"Gin Tonic",mojito:"Mojito",whisky:"Whisky",wine:"Wine",beer:"Beer"},menuL:"Menu",menuH:"What we'll eat",info:"Info"}};
+for(const l in MORE5)Object.assign(T[l],MORE5[l]);
 for(const l of ["de","ro"])for(const k in T.en)if(!(k in T[l]))T[l][k]=T.en[k];

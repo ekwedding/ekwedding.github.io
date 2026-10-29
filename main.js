@@ -40,7 +40,7 @@ const PLACES={
   agency:{quest:"honey",c:[13,-22],w:7,d:7,door:[13,-17.9],face:0,final:true}
 };
 const ORDER=["estate","gallery","chapel","club","post","agency"];
-const questOf=id=>PLACES[id].quest;
+const questOf=id=>PLACES[id].quest;const QUEST_OF_ROOM=id=>PLACES[id]&&PLACES[id].quest;
 const agencyOpen=()=>ORDER.filter(id=>!PLACES[id].final).every(id=>state.done[questOf(id)]);
 const nextPlace=()=>ORDER.find(id=>!state.done[questOf(id)]&&(!PLACES[id].final||agencyOpen()))||null;
 
@@ -141,6 +141,11 @@ const CARDS={
   den(){const x=tx();openCard("· · ·",x.denH,`<p>${x.denP}</p><h4 class="sub">${x.vipH}</h4>${infoHTML(L2(CONTENT.vip))}<h4 class="sub">${x.vipIdeaH}</h4><p>${x.vipIdeaP}</p>
     <form id="vf"><label class="f"><span>${x.yourName}</span><input id="vn" maxlength="80" required></label><label class="f"><span>${x.wishText}</span><textarea id="vt" maxlength="800" required></textarea></label><div class="acts"><button class="btn" type="submit">${x.send}</button></div><p class="ok" id="vOk" hidden></p></form>`,()=>{
       $("#vf").addEventListener("submit",e=>{e.preventDefault();const n=$("#vn").value.trim(),w=$("#vt").value.trim();if(!n||!w)return;store("vip",{name:n,text:w,lang}).then(()=>{const o=$("#vOk");o.hidden=false;o.textContent=x.vipSent;$("#vt").value=""})})});cardFn=CARDS.den},
+  drinks(){const x=tx(),had=(state.ans||{}).drinks||[];openCard("Bar",x.drinksH,`<p>${x.drinksP}</p><form id="df"><div class="qa">${CONTENT.drinks.map(k=>`<label class="chk"><input type="checkbox" value="${k}" ${had.includes(k)?"checked":""}><span>${x.dr[k]}</span></label>`).join("")}</div>
+    <div class="acts"><button class="btn" type="submit">${x.send}</button></div><p class="ok" id="dOk" ${had.length?"":"hidden"}>${had.length?x.yourAns+": "+had.map(k=>x.dr[k]).join(", "):""}</p></form>`,()=>{
+      $("#df").addEventListener("submit",e=>{e.preventDefault();const v=[...$("#df").querySelectorAll("input:checked")].map(i=>i.value);if(!v.length)return;state.ans=state.ans||{};state.ans.drinks=v;save();store("drinks",{picks:v.join(","),lang}).then(()=>{const o=$("#dOk");o.hidden=false;o.textContent=x.drinksSent})})});cardFn=CARDS.drinks},
+  album(){const x=tx();openCard(x.P.gallery,x.albumH,`<p>${x.albumP}</p><div class="acts"><a class="btn" href="${CONTENT.album}" target="_blank" rel="noopener">${ICON.ext}${x.albumBtn}</a></div>`);cardFn=CARDS.album},
+  menu(){const x=tx();openCard(x.P.estate,x.menuH,infoHTML(L2(CONTENT.menu))+(CONTENT.demo?`<p class="demo">${x.demoNote}</p>`:""));cardFn=CARDS.menu},
   gift(){const x=tx(),g=CONTENT.gift,cp=(id,v)=>`<button class="btn ghost sm" type="button" data-cp="${esc(v)}">${x.copy}</button>`;
     openCard(x.P.post,x.giftH,`<p>${x.giftP}</p><div class="gifts">
       ${g.iban?`<div class="gft"><img src="assets/logo-nbg.svg" alt="NBG" height="22"><small>${x.holder}: <b>${esc(g.holder)}</b></small><code>${esc(g.iban)}</code>${cp(0,g.iban.replace(/\s/g,""))}</div>`:""}
@@ -152,7 +157,7 @@ const CARDS={
       const A=(state.ans||{}).wish;if(A){$("#wn").value=A.n;$("#wt").value=A.w;const o=$("#wOk");o.hidden=false;o.textContent=x.yourAns+" ✓"}
       $("#wf").addEventListener("submit",e=>{e.preventDefault();const n=$("#wn").value.trim(),w=$("#wt").value.trim();if(!n||!w)return;state.ans=state.ans||{};state.ans.wish={n,w};save();
         store("wishes",{name:n,text:w,lang}).then(r=>{const o=$("#wOk");o.hidden=false;o.textContent=r?x.thanks:x.thanksLocal;complete("wish")})})});cardFn=CARDS.post},
-  agency(){const x=tx();openCard(x.P.agency,x.honeyH,`<p>${x.honeyP}</p><form id="hf"><div class="seg">${CONTENT.honey.map(k=>`<label><input type="radio" name="hm" value="${k}" required><span>${x.opt[k]}</span></label>`).join("")}</div>
+  agency(){const x=tx();openCard(x.P.agency,x.honeyH,`<p>${x.honeyP}</p><p><b>${x.honeyPick}</b></p><form id="hf"><div class="seg">${CONTENT.honey.map(k=>`<label><input type="radio" name="hm" value="${k}" required><span>${x.opt[k]}</span></label>`).join("")}</div>
     <div class="acts" style="align-items:center"><button class="btn" type="submit">${x.vote}</button><span><b id="vc">${voteCount}</b> ${x.voted}</span></div><p class="ok" id="hOk" ${state.done.honey?"":"hidden"}>${x.honeyDone}</p></form>`,()=>{
       const A=(state.ans||{}).honey;if(A){const r=document.querySelector(`input[name=hm][value=${A}]`);if(r)r.checked=true;$("#hf").querySelectorAll("input").forEach(i=>i.disabled=true);$("#hOk").textContent=`${x.yourAns}: ${x.opt[A]} · ${x.honeyDone}`}
       $("#hf").addEventListener("submit",e=>{e.preventDefault();const v=(document.querySelector("input[name=hm]:checked")||{}).value;if(!v||state.done.honey)return;state.ans=state.ans||{};state.ans.honey=v;save();
@@ -176,6 +181,7 @@ function showSimple(){const x=tx(),n=CONTENT.names[lang];$("#simple").hidden=fal
   <section><h2>${x.Q.date[0]}</h2>${schedHTML()}<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px"><button class="btn" type="button" id="sI">${ICON.cal}${x.addCal}</button><a class="btn ghost" href="${gcal()}" target="_blank" rel="noopener">${ICON.ext}${x.gcal}</a><a class="btn ghost" href="${CONTENT.venue.maps}" target="_blank" rel="noopener">${ICON.pin}${x.maps}</a></div></section>
   <section><h2>${x.infoH}</h2>${infoHTML(L2(CONTENT.info))}</section>
   <section><h2>${x.giftH}</h2><p>${x.giftP}</p>${giftRows()}</section>
+  <section><h2>${x.albumH}</h2><p>${x.albumP}</p><a class="btn" href="${CONTENT.album}" target="_blank" rel="noopener">${ICON.ext}${x.albumBtn}</a></section>
   <section><h2>${x.storyH}</h2><ol style="padding-left:20px">${x.storyT.map(t=>`<li>${t}</li>`).join("")}</ol></section>
   <section><h2>${x.blessH}</h2><p>${x.blessP}</p></section>
   <section><h2>${x.simpleStops}</h2><p>${x.simpleNote}</p><ul style="list-style:none;margin-top:8px">${stops}</ul></section>
@@ -716,7 +722,7 @@ function buildRoom(id){if(rooms[id])return rooms[id];let r;const x=tx();
     B.add(G.box,"black",0,4.6,-4.8,14,.06,.06).add(G.box,"black",0,.42,0,3.2,.12,.9).add(G.box,"darkwood",0,.2,0,3,.36,.7).add(G.box,"black",-1.4,.2,0,.06,.4,.7).add(G.box,"black",1.4,.2,0,.06,.4,.7);
     for(const sx of [-1,1]){B.add(G.box,"white",sx*5.4,.55,1.5,.8,1.1,.8).add(G.sph,"terra",sx*5.4,1.4,1.5,.5,.7,.5).add(G.cyl,"terra",sx*5.4,1.85,1.5,.18,.3,.18);r.solid.push({x0:sx*5.4-.5,z0:1,x1:sx*5.4+.5,z1:2})}
     r.solid.push({x0:-1.7,z0:-.5,x1:1.7,z1:.5});
-    r.spot=[0,-3.6,1.6,0,-6.4];
+    r.spot=[0,-3.6,1.6,0,-6.4];r.items=[{label:()=>"📷 "+tx().albumL,at:[5.4,2.7,1.5],go:[4.3,2.8],fn:()=>CARDS.album()}];
     [[-4.2,-4.6,Math.PI,"idle"],[3.8,-4.8,Math.PI,"talk"]].forEach(([gx,gz,gy,a],i)=>guest(r.scene,i+2,gx,gz,gy,a).then(e=>e&&r.round.push({x:gx,z:gz,r:.5})));
   }else if(id==="estate"){
     r=roomBase(id,{floor:canvasTex(256,256,(g,w,h)=>{for(let y=0;y<4;y++)for(let x=0;x<4;x++){g.fillStyle=`hsl(18,${45+rnd()*10}%,${40+rnd()*8}%)`;g.fillRect(x*64+2,y*64+2,60,60)}g.fillStyle="#e5d6bf";g.globalCompositeOperation="destination-over";g.fillRect(0,0,w,h)},[8,6.5]),
@@ -736,7 +742,7 @@ function buildRoom(id){if(rooms[id])return rooms[id];let r;const x=tx();
     card.position.set(5,1.7,-4.6);card.rotation.set(-.12,-.5,0);r.scene.add(card);B.add(G.box,"wood",5,.85,-4.75,.06,1.9,.06,-.5,-.12).add(G.box,"wood",4.7,.85,-4.4,.06,1.9,.06,-.5,.15).add(G.box,"wood",5.3,.85,-4.5,.06,1.9,.06,-.5,.15);
     lightCone(r,5,4.4,-2.6,5,-4.6,0xfff1d6,22);r.round.push({x:5,z:-4.6,r:.6});
     plant(B,6.8,4.5,1.2);plant(B,-6.8,4.5,1.2);
-    r.spot=[4.2,-3,1.6,5,-4.6];
+    r.spot=[4.2,-3,1.6,5,-4.6];r.items=[{label:()=>tx().menuL,at:[-1,1.7,0],go:[-1,1.9],fn:()=>CARDS.menu()}];
     [[-2.2,1.6,Math.PI,"talk"],[-1,1.6,Math.PI,"laugh"]].forEach(([gx,gz,gy,a],i)=>guest(r.scene,i,gx,gz,gy,a).then(e=>e&&r.round.push({x:gx,z:gz,r:.5})));
   }else if(id==="post"){
     r=roomBase(id,{floor:canvasTex(256,256,(g,w,h)=>{g.fillStyle="#d8d2c6";g.fillRect(0,0,w,h);for(let k=0;k<900;k++){g.fillStyle=["#9b8f7c","#efe9dd","#6e7a86","#b85a3a"][k%4];g.fillRect(rnd()*w,rnd()*h,2+rnd()*3,2+rnd()*3)}},[6,5]),wall:0xf2e7c4,trim:0x1f5fae,hemi:.75,keyI:.9});const B=r.B;
@@ -762,13 +768,18 @@ function buildRoom(id){if(rooms[id])return rooms[id];let r;const x=tx();
     guest(r.scene,1,-2.2,-5.2,0,"idle");
   }else if(id==="agency"){
     r=roomBase(id,{floor:canvasTex(256,256,(g,w,h)=>{for(let y=0;y<4;y++)for(let x2=0;x2<4;x2++){g.fillStyle=(x2+y)%2?"#e9eef2":"#3f78b5";g.fillRect(x2*64,y*64,64,64)}},[6,5]),wall:0xfaf8f4,trim:0x1f5fae,hemi:.8,keyI:.9});const B=r.B;
-    CONTENT.honey.forEach((k,i)=>{const c=canvasTex(512,680,(g,w,h)=>{const P=[["#f6b26b","#2d6cb5","#ffffff"],["#ffcf6a","#2e8a6e","#183d2e"],["#f4a3a8","#c23b4b","#3a1d24"]][i];
-      const gr=g.createLinearGradient(0,0,0,h*.7);gr.addColorStop(0,P[0]);gr.addColorStop(1,"#fff2dc");g.fillStyle=gr;g.fillRect(0,0,w,h);g.fillStyle=P[1];
-      if(k==="santorini"){g.fillRect(0,h*.62,w,h*.38);g.fillStyle="#fff";for(let j=0;j<6;j++)g.fillRect(40+j*75,h*.5-j%2*20,60,h*.14);g.fillStyle="#2d6cb5";g.beginPath();g.arc(200,h*.47,40,Math.PI,0);g.fill();g.beginPath();g.arc(360,h*.45,32,Math.PI,0);g.fill()}
-      else if(k==="bali"){g.fillRect(0,h*.66,w,h*.34);g.fillStyle=P[2];g.beginPath();g.moveTo(140,h*.66);g.lineTo(200,h*.3);g.lineTo(230,h*.66);g.fill();g.beginPath();g.moveTo(280,h*.66);g.lineTo(310,h*.3);g.lineTo(370,h*.66);g.fill();g.fillStyle="#4f7a3a";for(let j=0;j<5;j++){g.beginPath();g.arc(60+j*100,h*.66,30,Math.PI,0);g.fill()}}
-      else{g.fillStyle=P[2];for(let j=0;j<5;j++){const y=h*.3+j*42,wd=180-j*18;g.fillRect(w/2-wd/2,y,wd,10);g.fillRect(w/2-30+j*3,y+10,60-j*6,32)}g.fillStyle=P[1];g.fillRect(60,h*.55,22,h*.2);g.fillRect(160,h*.55,22,h*.2);g.fillRect(40,h*.53,170,18);g.fillRect(50,h*.58,150,10)}
-      g.fillStyle="#14273a";g.font="500 60px Piazzolla, Georgia, serif";g.textAlign="center";g.fillText(x.opt[k],w/2,h-60)});
-      const m=new THREE.Mesh(new THREE.PlaneGeometry(2.4,3.2),mat({map:c}));m.position.set(-4.5+i*4.5,2.6,-6.43);r.scene.add(m);B.add(G.box,"black",-4.5+i*4.5,2.6,-6.47,2.5,3.3,.04);lightCone(r,-4.5+i*4.5,4.5,-4.6,-4.5+i*4.5,-6.4,0xfff4e0,20)});
+    CONTENT.honey.forEach((k,i)=>{const c=canvasTex(512,680,(g,w,h)=>{const P={namerica:["#f6b26b","#3b5f8a","#22303f"],samerica:["#ffcf6a","#2e8a6e","#6b5a3e"],oceania:["#8fd3f0","#1f7fb8","#ffffff"],antarctica:["#cfe6f5","#eaf4fb","#14212c"]}[k];
+      const gr=g.createLinearGradient(0,0,0,h*.7);gr.addColorStop(0,P[0]);gr.addColorStop(1,"#fff2dc");g.fillStyle=gr;g.fillRect(0,0,w,h);const tri=(a,b,c2,col)=>{g.fillStyle=col;g.beginPath();g.moveTo(...a);g.lineTo(...b);g.lineTo(...c2);g.fill()};
+      if(k==="namerica"){tri([0,h*.66],[150,h*.3],[300,h*.66],P[1]);tri([200,h*.66],[360,h*.36],[512,h*.66],P[1]);g.fillStyle=P[2];for(let j=0;j<7;j++){const bh=60+((j*37)%90);g.fillRect(30+j*66,h*.66-bh,48,bh)}g.fillRect(0,h*.66,w,h*.34)}
+      else if(k==="samerica"){tri([0,h*.66],[120,h*.28],[260,h*.66],P[1]);tri([180,h*.66],[330,h*.22],[512,h*.66],"#3f7a55");g.fillStyle=P[2];for(let j=0;j<5;j++)g.fillRect(140+j*14,h*.5+j*22,240-j*28,18);g.fillStyle=P[1];g.fillRect(0,h*.66,w,h*.34)}
+      else if(k==="oceania"){g.fillStyle="#ffd36a";g.beginPath();g.arc(400,h*.2,46,0,7);g.fill();g.fillStyle=P[1];g.fillRect(0,h*.6,w,h*.4);g.fillStyle=P[2];for(let j=0;j<4;j++){g.beginPath();g.moveTo(120+j*70,h*.6);g.quadraticCurveTo(150+j*70,h*.38-j*8,200+j*70,h*.6);g.fill()}}
+      else{g.fillStyle="#9cc6e0";g.fillRect(0,h*.62,w,h*.38);tri([20,h*.62],[130,h*.36],[230,h*.62],P[1]);tri([260,h*.62],[400,h*.3],[500,h*.62],"#ffffff");g.fillStyle=P[2];g.beginPath();g.ellipse(256,h*.6,34,58,0,0,7);g.fill();g.fillStyle="#fff";g.beginPath();g.ellipse(256,h*.62,22,42,0,0,7);g.fill();g.fillStyle="#f2a33a";tri([248,h*.53],[264,h*.53],[256,h*.56],"#f2a33a")}
+      g.fillStyle="#14273a";g.font="500 54px Piazzolla, Georgia, serif";g.textAlign="center";g.fillText(x.opt[k],w/2,h-60)});
+      const px=-5.4+i*3.6,m=new THREE.Mesh(new THREE.PlaneGeometry(2.4,3.2),mat({map:c}));m.position.set(px,2.6,-6.43);r.scene.add(m);B.add(G.box,"black",px,2.6,-6.47,2.5,3.3,.04);lightCone(r,px,4.5,-4.6,px,-6.4,0xfff4e0,20)});
+    /* a big wrapped present for gifts */
+    B.add(new RoundedBoxGeometry(1.2,1.1,1.2,3,.05),"white",-5.4,.55,-1.4).add(G.box,"red",-5.4,.56,-1.4,.18,1.12,1.22).add(G.box,"red",-5.4,.56,-1.4,1.22,1.12,.18);
+    for(const sx of [-1,1])B.add(new THREE.TorusGeometry(.2,.06,8,20),"red",-5.4+sx*.18,1.2,-1.4,1,.7,1,0,0,sx*.5);
+    r.solid.push({x0:-6.1,z0:-2.1,x1:-4.7,z1:-.7});r.items=[{label:()=>tx().giftL,at:[-5.4,2.2,-1.4],go:[-4.2,-.4],fn:()=>CARDS.gift()}];
     B.add(G.box,"white",0,.76,-2.6,3.6,.08,1.3).add(G.box,"white",-1.6,.38,-2.6,.1,.76,1.2).add(G.box,"white",1.6,.38,-2.6,.1,.76,1.2);
     B.add(G.cyl,"brass",.9,.9,-2.8,.04,.2,.04).add(G.sph,"blue2",.9,1.25,-2.8,.5,.5,.5);r.solid.push({x0:-1.9,z0:-3.3,x1:1.9,z1:-1.9});
     for(const sx of [-.7,.7])B.add(G.box,"blue",sx,.45,-1.2,.55,.08,.55).add(G.box,"blue",sx,.75,-.95,.55,.6,.08);
@@ -811,7 +822,7 @@ function buildClub(){const id="club",s=new THREE.Scene();makeSky(s,.14);s.fog=ne
   caique(s,-8,-26,.4,0x2a6fb5,0xf2c94c,-2.12);caique(s,10,-30,-.3,0xf4f0e8,0xc94b3b,-2.12);
   const floorL=[0xff4f8b,0x4fc3ff,0xffc24a].map((c,i)=>{const l=new THREE.SpotLight(c,30,16,.45,.6,1.5);l.position.set(-5+i*5,5,0);l.target.position.set(0,0,-2);s.add(l,l.target);return l});
   r.spot=[0,-1.4,1.8,0,-6.6];r.spotL=[0,.4,-1.2];r.spotFn=()=>{coupleDance();complete("dance");mood("party",25);toast(tx().danceHint,3500)};
-  r.items=[{label:()=>"DJ · "+tx().clubTracks,at:[0,3.6,-6.6],go:[0,-5.2],fn:()=>CARDS.club()},{label:()=>"Bar",at:[7.2,2.4,5],go:[5.6,4.4],fn:()=>{[P,N].forEach(e=>{e.lock=3;play(e,"laugh",.3)});mood("party",8)}}];
+  r.items=[{label:()=>"DJ · "+tx().clubTracks,at:[0,3.6,-6.6],go:[0,-5.2],fn:()=>CARDS.club()},{label:()=>"Bar",at:[7.2,2.4,5],go:[5.6,4.4],fn:()=>{[P,N].forEach(e=>{e.lock=3;play(e,"laugh",.3)});CARDS.drinks()}}];
   /* the crowd: guests from both sides dancing on the deck */
   const dances=["dance","dance2","dance3","dance4"];
   [[-4,-3.5],[-2.6,-4.8],[-1.2,-3],[2,-4.4],[3.4,-3],[4.6,-4.6],[-4.6,-.8],[4.4,-.4],[-3,1.4],[3,1.8],[-.8,-5],[1.4,-2],[5.6,2.4],[-5.6,2.6]].slice(0,mobile?8:14).forEach(([gx,gz],i)=>
@@ -939,7 +950,7 @@ function fade(cb){const f=$("#fade");f.classList.add("on");setTimeout(()=>{cb();
 function enterRoom(id){if(room||mode!=="play")return;resetJoy();atSecret=false;setTimeout(renderLabels,450);mode="busy";goal=null;endChat();fade(()=>{room=buildRoom(id);room.shown=0;room.age=0;syncSnd();[P,N].forEach(e=>{world.remove(e.m);room.scene.add(e.m)});
   P.pos.set(-.6,0,5.4);N.pos.set(.6,0,5.8);P.yaw=N.yaw=Math.PI;snapCam();mode="play";renderObj();renderLabels();soundscape();if(id==="chapel")bell();if(id==="den")setTimeout(()=>CARDS.den(),500);mood("fun",6);
   /* walk in toward the thing to do; the guest can take over at any time */
-  setTimeout(()=>{if(room&&room.id===id&&!goal&&!room.shown)walkTo(room.spot[0],room.spot[1])},reduce?50:700)})}
+  setTimeout(()=>{if(room&&room.id===id&&!goal&&!room.shown&&!(QUEST_OF_ROOM(id)&&state.done[QUEST_OF_ROOM(id)]))walkTo(room.spot[0],room.spot[1])},reduce?50:700)})}
 function exitRoom(then){if(!room)return;resetJoy();const id=room.id;mode="busy";closeCard();endChat();chanting=false;delete zoneOn.chant;chant.pause();freeLocks();[P,N].forEach(e=>{e.lock=0;e.pos.y=0;play(e,"idle",.1)});fade(()=>{[P,N].forEach(e=>{room.scene.remove(e.m);world.add(e.m)});room=null;syncSnd();
   if(id!=="den"){const[a,b]=doorFront(id,2.4);P.pos.set(a,0,b);N.pos.copy(P.pos).addScaledVector(new THREE.Vector3(Math.cos(PLACES[id].face),0,-Math.sin(PLACES[id].face)),1.1)}
   if(id==="den"){P.pos.set(SECRET.door[0],0,SECRET.door[1]+2.4);N.pos.set(SECRET.door[0]+1.1,0,SECRET.door[1]+2.6);P.yaw=N.yaw=0;camYaw=0}else{P.yaw=N.yaw=PLACES[id].face;camYaw=PLACES[id].face}
