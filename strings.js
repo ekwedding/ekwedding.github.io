@@ -123,3 +123,22 @@ Object.assign(T.el,{inviteEyebrow:"Σας προσκαλούμε στον γάμ
 Object.assign(T.en,{inviteEyebrow:"You are invited to our wedding",sealHint:"Tap the seal to open",tabCal:"Calendar",tabRsvp:"Will you come?"});
 Object.assign(T.de,{inviteEyebrow:"Wir laden euch zu unserer Hochzeit ein",sealHint:"Tippe auf das Siegel zum Öffnen",tabCal:"Kalender",tabRsvp:"Kommst du?"});
 Object.assign(T.ro,{inviteEyebrow:"Vă invităm la nunta noastră",sealHint:"Atinge sigiliul ca să deschizi",tabCal:"Calendar",tabRsvp:"Vii?"});
+/* dog, vespa riding, finale, selfie with the camera */
+const MORE3={
+el:{dogName:"Το σκυλάκι μας",dpie:{pet:"Χάιδεψέ το",dead:"Κάνε τον ψόφιο",bark:"Γάβγισε",sit:"Κάτσε"},vpie:{ride:"Ανέβα στη Vespa"},getOff:"Κατέβα",
+  finaleH:"Τίποτα δεν τελείωσε ακόμα",finaleP:"Τα έκανες όλα. Τώρα ξεκινάει το παιχνίδι: τα λέμε στις 20 Αυγούστου 2027!",finaleBtn:"Πάμε!",
+  camOn:"Βγες κι εσύ στη φωτογραφία",camShot:"Τράβα",camNo:"Η κάμερα δεν άνοιξε. Η φωτογραφία βγαίνει μόνο με το ζευγάρι.",danceHint:"Χορέψτε! Για μουσική πήγαινε στον DJ.",
+  driveHint:"Οδήγησε με το joystick ή πάτα κάπου στον δρόμο."},
+en:{dogName:"Our little dog",dpie:{pet:"Pet",dead:"Play dead",bark:"Bark",sit:"Sit"},vpie:{ride:"Ride the Vespa"},getOff:"Get off",
+  finaleH:"Nothing is over yet",finaleP:"You did it all. Now the game begins: see you on 20 August 2027!",finaleBtn:"Let's go!",
+  camOn:"Get in the photo too",camShot:"Snap",camNo:"The camera didn't open. The photo shows just the couple.",danceHint:"Dance! For music, go to the DJ.",
+  driveHint:"Drive with the joystick or tap somewhere on the road."},
+de:{dogName:"Unser Hündchen",dpie:{pet:"Streicheln",dead:"Toter Hund",bark:"Bellen",sit:"Sitz"},vpie:{ride:"Auf die Vespa"},getOff:"Absteigen",
+  finaleH:"Nichts ist vorbei",finaleP:"Du hast alles geschafft. Jetzt beginnt das Spiel: wir sehen uns am 20. August 2027!",finaleBtn:"Los!",
+  camOn:"Komm mit aufs Foto",camShot:"Auslösen",camNo:"Die Kamera ging nicht an. Das Foto zeigt nur das Paar.",danceHint:"Tanzt! Für Musik geh zum DJ.",
+  driveHint:"Fahr mit dem Joystick oder tippe auf die Straße."},
+ro:{dogName:"Cățelușul nostru",dpie:{pet:"Mângâie-l",dead:"Fă-te mort",bark:"Latră",sit:"Șezi"},vpie:{ride:"Urcă pe Vespa"},getOff:"Coboară",
+  finaleH:"Nimic nu s-a terminat",finaleP:"Le-ai făcut pe toate. Acum începe jocul: ne vedem pe 20 august 2027!",finaleBtn:"Hai!",
+  camOn:"Intră și tu în poză",camShot:"Fă poza",camNo:"Camera nu s-a deschis. Poza îi arată doar pe miri.",danceHint:"Dansați! Pentru muzică mergi la DJ.",
+  driveHint:"Condu cu joystick-ul sau atinge drumul."}};
+for(const l in MORE3)Object.assign(T[l],MORE3[l]);
