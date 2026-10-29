@@ -88,11 +88,11 @@ function panel(sel,open){const p=$(sel);open=open==null?p.classList.contains("sh
   const b=sel==="#list"?$("#bList"):$("#bVespa");b.setAttribute("aria-expanded",String(open));if(open)panel(sel==="#list"?"#dest":"#list",false)}
 $("#bList").addEventListener("click",()=>panel("#list"));
 $("#listBack").addEventListener("click",()=>{panel("#list",false);goPlaza()});
-$("#bVespa").addEventListener("click",()=>{if(mode==="play")panel("#dest")});
+$("#bVespa").addEventListener("click",()=>{if(mode==="play"||mode==="drive")panel("#dest")});
 $("#listOl").addEventListener("click",e=>{const b=e.target.closest("[data-go]");if(!b)return;const id=b.dataset.go;if(id==="plaza"){panel("#list",false);goPlaza();return}
   if(PLACES[id].final&&!agencyOpen()){toast(tx().lockedMsg);return}panel("#list",false);goPlace(id)});
 $("#destUl").addEventListener("click",e=>{const b=e.target.closest("[data-ride]");if(!b)return;const id=b.dataset.ride;
-  if(PLACES[id].final&&!agencyOpen()){toast(tx().lockedMsg);return}panel("#dest",false);startRide(id)});
+  if(PLACES[id].final&&!agencyOpen()){toast(tx().lockedMsg);return}panel("#dest",false);if(mode==="drive")driveTo(id);else startRide(id)});
 document.querySelectorAll(".langs button").forEach(b=>b.addEventListener("click",()=>{lang=b.dataset.l;try{localStorage.setItem("wlang",lang)}catch(e){}renderUI();if(cardFn)cardFn()}));
 let toastT=0;function toast(s,ms=4200){const t=$("#toast");t.textContent=s;t.classList.add("on");clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove("on"),ms)}
 
@@ -185,11 +185,15 @@ function soundscape(){if(!soundOn){ALL.forEach(a=>a.pause());return}
   if(!want){ALL.forEach(a=>a.pause());return}
   if(want===clubSong&&!clubSong.src.endsWith(CLUB_TRACKS[clubTrack][1]))clubSong.src=CLUB_TRACKS[clubTrack][1];
   ALL.forEach(a=>{if(a!==want)a.pause()});const sg=SEG.get(want);if(sg&&want.currentTime<sg[0])want.currentTime=sg[0];want.volume=.5;if(want.paused)want.play().catch(()=>{})}
-function setSound(on){soundOn=on;try{localStorage.setItem("wsound",on?"1":"0")}catch(e){}$("#bSnd").setAttribute("aria-pressed",String(on));$("#sndOn").toggleAttribute("hidden",!on);$("#sndOff").toggleAttribute("hidden",on);
+/* every place keeps its own mute: the plaza choice is remembered; rooms start on; the chant always plays when asked for */
+const zoneOn={};const zone=()=>chanting?"chant":room?room.id:"plaza";
+function syncSnd(){const k=zone();applySound(k in zoneOn?zoneOn[k]:true)}
+function setSound(on){const k=zone();zoneOn[k]=on;if(k==="plaza")try{localStorage.setItem("wsound",on?"1":"0")}catch(e){}applySound(on)}
+function applySound(on){soundOn=on;$("#bSnd").setAttribute("aria-pressed",String(on));$("#sndOn").toggleAttribute("hidden",!on);$("#sndOff").toggleAttribute("hidden",on);
   if(on){if(!actx){try{actx=new AudioContext();const n=actx.createBufferSource(),b=actx.createBuffer(1,actx.sampleRate*4,actx.sampleRate),d=b.getChannelData(0);let l=0;for(let i=0;i<d.length;i++){l=l*.985+(Math.random()*2-1)*.015;d[i]=l*3}
       n.buffer=b;n.loop=true;const f=actx.createBiquadFilter();f.type="lowpass";f.frequency.value=600;const g=actx.createGain();g.gain.value=.08;n.connect(f).connect(g).connect(actx.destination);n.start()}catch(e){}}else actx.resume()}
   else if(actx)actx.suspend();soundscape()}
-chant.addEventListener("ended",()=>{chanting=false;soundscape()});
+chant.addEventListener("ended",()=>{chanting=false;syncSnd()});
 $("#bSnd").addEventListener("click",()=>setSound(!soundOn));
 function bell(){if(!soundOn||!actx)return;[0,.9,1.8].forEach((t,i)=>{const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=[392,330,262][i];g.gain.setValueAtTime(.0001,actx.currentTime+t);g.gain.exponentialRampToValueAtTime(.22,actx.currentTime+t+.02);g.gain.exponentialRampToValueAtTime(.0001,actx.currentTime+t+2.4);o.connect(g).connect(actx.destination);o.start(actx.currentTime+t);o.stop(actx.currentTime+t+2.5)})}
 
@@ -411,13 +415,13 @@ function makeDog(){const g=new THREE.Group(),coat=new THREE.MeshPhysicalMaterial
     coat2=new THREE.MeshPhysicalMaterial({color:0xf3eee6,roughness:.95,sheen:1,sheenColor:new THREE.Color(0xffffff)}),blk=mat({color:0x111111,roughness:.25}),bowM=mat({color:0x2a7bd8,roughness:.5});
   const add=(par,geo,m,x,y,z,sx=1,sy=1,sz=1)=>{const o=new THREE.Mesh(geo,m);o.position.set(x,y,z);o.scale.set(sx,sy,sz);o.castShadow=true;par.add(o);return o};
   const body=new THREE.Group();g.add(body);
-  /* the coat: a bell of long hair, parted along the spine, brushing the floor */
-  const prof=[];for(let k=0;k<=12;k++){const t=k/12;prof.push(new THREE.Vector2(.07+.1*Math.sin(t*Math.PI*.62)+.02*t,.33-t*.31))}
-  const bell=new THREE.LatheGeometry(prof,40),bp=bell.attributes.position;for(let i=0;i<bp.count;i++){const x=bp.getX(i),z=bp.getZ(i),y=bp.getY(i),a=Math.atan2(z,x),r=1+.035*Math.sin(a*26)*(1-y/.33);bp.setXYZ(i,x*r,y,z*r)}bell.computeVertexNormals();
-  add(body,bell,coat,0,0,0,1,1,1.55);add(body,furGeo(new THREE.SphereGeometry(.13,28,20),.05,9),coat,0,.3,0,1,.75,1.5);
-  const paws=[];[[-.06,.13],[.06,.13],[-.06,-.14],[.06,-.14]].forEach(([x,z])=>paws.push(add(body,new THREE.SphereGeometry(.03,10,8),coat2,x,.022,z*1.25,1,.7,1.3)));
+  /* puppy cut: a round fluffy body on four short fluffy legs, the coat ending above the paws */
+  add(body,furGeo(new THREE.SphereGeometry(.125,30,22),.06,9),coat,0,.22,0,1,.85,1.5);
+  add(body,furGeo(new THREE.SphereGeometry(.105,24,18),.07,10),coat2,0,.16,0,1.1,.6,1.4);
+  const paws=[];[[-.07,.1],[.07,.1],[-.07,-.11],[.07,-.11]].forEach(([x,z])=>{const leg=new THREE.Group();leg.position.set(x,.15,z);body.add(leg);
+    add(leg,furGeo(new THREE.CylinderGeometry(.05,.044,.12,14,4),.09,11),coat2,0,-.07,0);add(leg,new THREE.SphereGeometry(.044,12,8),coat,0,-.128,.01,1,.6,1.2);paws.push(leg)});
   /* head */
-  const head=new THREE.Group();head.position.set(0,.4,.2);body.add(head);
+  const head=new THREE.Group();head.position.set(0,.34,.19);body.add(head);
   add(head,furGeo(new THREE.SphereGeometry(.095,28,20),.06,10),coat,0,0,0,1.05,.95,1);
   add(head,furGeo(new THREE.SphereGeometry(.05,18,14),.05,12),coat2,0,-.035,.075,1,.8,1.1);
   for(const sx of [-1,1]){const ear=add(head,furGeo(new THREE.SphereGeometry(.05,16,12),.08,10),coat2,sx*.085,-.07,-.01,.75,1.9,.8);ear.rotation.z=sx*.18;
@@ -426,10 +430,10 @@ function makeDog(){const g=new THREE.Group(),coat=new THREE.MeshPhysicalMaterial
   add(head,new THREE.SphereGeometry(.012,8,6),mat({color:0xe9849e,roughness:.6}),0,-.06,.1,1.4,.5,1);
   /* topknot + blue bow */
   add(head,furGeo(new THREE.SphereGeometry(.035,12,10),.08,12),coat,0,.09,-.005,1,1.3,1);
-  for(const sx of [-1,1]){const loop=add(head,new THREE.ConeGeometry(.032,.06,12),bowM,sx*.032,.112,0,1,1,.5);loop.rotation.z=-sx*Math.PI/2}
-  add(head,new THREE.SphereGeometry(.014,10,8),bowM,0,.112,0);
+  for(const sx of [-1,1]){const loop=add(head,new THREE.ConeGeometry(.027,.048,12),bowM,sx*.027,.108,.03,1,1,.5);loop.rotation.z=-sx*Math.PI/2}
+  add(head,new THREE.SphereGeometry(.012,10,8),bowM,0,.108,.03);
   /* tail: a plume curled over the back */
-  const tail=new THREE.Group();tail.position.set(0,.34,-.2);body.add(tail);
+  const tail=new THREE.Group();tail.position.set(0,.28,-.18);body.add(tail);
   const curve=new THREE.CatmullRomCurve3([new THREE.Vector3(0,0,0),new THREE.Vector3(0,.07,-.03),new THREE.Vector3(0,.11,.04),new THREE.Vector3(.02,.09,.11)]);
   add(tail,new THREE.TubeGeometry(curve,16,.028,10),coat,0,0,0);add(tail,furGeo(new THREE.SphereGeometry(.05,14,10),.1,9),coat,.02,.09,.08,.8,.7,1.3);
   return{g,body,head,tail,legs:paws,pos:new THREE.Vector3(1.5,0,12),yaw:0,trick:null,t:0}}
@@ -445,7 +449,7 @@ function updDog(dt){if(!P)return;const sc=room?room.scene:world;if(dog.g.parent!
     else dog.yaw=angLerp(dog.yaw,Math.atan2(P.pos.x-dog.pos.x,P.pos.z-dog.pos.z),dt*3)}
   if(tr==="pose"){if(selfieCam<=0)dog.trick=null}else if(tr&&dog.t>(tr==="dead"?3.5:tr==="sit"?4:1.6)){dog.trick=null}
   /* poses: trot, wag, sit, belly-up, little bark hops */
-  const run=Math.min(1,mv/3),ph=tAll*16;dog.legs.forEach((l,i)=>{l.position.y=.022+Math.max(0,Math.sin(ph+(i%2?Math.PI:0)+(i>1?Math.PI/2:0)))*.03*run});
+  const run=Math.min(1,mv/3),ph=tAll*16;dog.legs.forEach((l,i)=>{l.rotation.x=Math.sin(ph+(i%2?Math.PI:0)+(i>1?Math.PI:0))*.6*run});
   dog.tail.rotation.y=Math.sin(tAll*(tr==="pet"?22:10))*.5;dog.head.rotation.x=tr==="bark"?-.3*Math.abs(Math.sin(dog.t*14)):Math.sin(tAll*2)*.05;dog.head.rotation.z=tr==="pet"?Math.sin(dog.t*6)*.2:0;
   const dead=tr==="dead"?Math.min(1,dog.t*3):0,sit=tr==="sit"?Math.min(1,dog.t*4):0;
   dog.body.rotation.z=dead*Math.PI/2;dog.body.position.x=dead*.14;dog.body.position.y=dead*.15+(tr==="bark"?Math.abs(Math.sin(dog.t*14))*.07:0)+Math.abs(Math.sin(ph))*.025*run;
@@ -858,7 +862,7 @@ function coupleAct(pa,na,secs,m){goal=null;endChat();faceOff(pa.startsWith("kiss
 function partnerMenu(px,py){openPie(px,py,[{k:"kiss",fn:()=>coupleAct("kiss","kiss",3.2,"love")},{k:"kisslong",fn:()=>coupleAct("kisslong","kisslong",6,"love")},{k:"dance",fn:()=>{coupleAct("dance2","dance2",8,"party")}},{k:"chat",fn:()=>{idleT=3}},{k:"selfie",fn:selfie}])}
 const shoutEl=document.createElement("div");shoutEl.className="say";shoutEl.hidden=true;$("#labels").appendChild(shoutEl);let shoutT=0;
 function seaMenu(r,px,py){const face=()=>{P.yaw=Math.atan2(r.g.position.x-P.pos.x,r.g.position.z-P.pos.z)};
-  openPie(px,py,[{k:"wave",fn:()=>{face();P.lock=1.8;play(P,"wave",.2);mood("fun",3)}},{k:"shout",fn:()=>{face();P.lock=1.8;play(P,"wave",.2);shoutEl.textContent=tx().shout;shoutEl.hidden=false;clearTimeout(shoutT);shoutT=setTimeout(()=>shoutEl.hidden=true,2600);mood("fun",5)}}])}
+  openPie(px,py,[{k:"wave",fn:()=>{face();P.lock=1.8;play(P,"wave",.2);mood("fun",3)}},{k:"shout",fn:()=>{face();P.lock=1.8;play(P,"wave",.2);mood("fun",5)}}])}
 function npcMenu(e,px,py){openPie(px,py,[{k:"wave",fn:()=>{P.lock=1.6;P.yaw=Math.atan2(e.pos.x-P.pos.x,e.pos.z-P.pos.z);play(P,"wave",.2);play(e,"laugh",.3);mood("fun",4)}},
   {k:"chat",fn:()=>{const t=e.pos.clone().addScaledVector(new THREE.Vector3(P.pos.x-e.pos.x,0,P.pos.z-e.pos.z).normalize(),1.1);walkTo(t.x,t.z,()=>{P.yaw=Math.atan2(e.pos.x-P.pos.x,e.pos.z-P.pos.z);e.yaw=P.yaw+Math.PI;play(e,"talk",.3);P.lock=8;play(P,"talk",.3);thinkWith(e,8);mood("fun",6)})}},
   {k:"dance",fn:()=>{play(e,"dance",.3);coupleAct("dance","dance",6,"party")}}])}
@@ -909,11 +913,11 @@ let selfieCam=0,startOnVespa=false;
 
 /* ---------- entering and leaving ---------- */
 function fade(cb){const f=$("#fade");f.classList.add("on");setTimeout(()=>{cb();setTimeout(()=>f.classList.remove("on"),80)},reduce?20:360)}
-function enterRoom(id){if(room||mode!=="play")return;resetJoy();atSecret=false;setTimeout(renderLabels,450);mode="busy";goal=null;endChat();fade(()=>{room=buildRoom(id);room.shown=0;room.age=0;[P,N].forEach(e=>{world.remove(e.m);room.scene.add(e.m)});
+function enterRoom(id){if(room||mode!=="play")return;resetJoy();atSecret=false;setTimeout(renderLabels,450);mode="busy";goal=null;endChat();fade(()=>{room=buildRoom(id);room.shown=0;room.age=0;syncSnd();[P,N].forEach(e=>{world.remove(e.m);room.scene.add(e.m)});
   P.pos.set(-.6,0,5.4);N.pos.set(.6,0,5.8);P.yaw=N.yaw=Math.PI;snapCam();mode="play";renderObj();renderLabels();soundscape();if(id==="chapel")bell();if(id==="den")setTimeout(()=>CARDS.den(),500);mood("fun",6);
   /* walk in toward the thing to do; the guest can take over at any time */
   setTimeout(()=>{if(room&&room.id===id&&!goal&&!room.shown)walkTo(room.spot[0],room.spot[1])},reduce?50:700)})}
-function exitRoom(then){if(!room)return;resetJoy();const id=room.id;mode="busy";closeCard();endChat();chanting=false;chant.pause();freeLocks();[P,N].forEach(e=>{e.lock=0;e.pos.y=0;play(e,"idle",.1)});fade(()=>{[P,N].forEach(e=>{room.scene.remove(e.m);world.add(e.m)});room=null;
+function exitRoom(then){if(!room)return;resetJoy();const id=room.id;mode="busy";closeCard();endChat();chanting=false;delete zoneOn.chant;chant.pause();freeLocks();[P,N].forEach(e=>{e.lock=0;e.pos.y=0;play(e,"idle",.1)});fade(()=>{[P,N].forEach(e=>{room.scene.remove(e.m);world.add(e.m)});room=null;syncSnd();
   if(id!=="den"){const[a,b]=doorFront(id,2.4);P.pos.set(a,0,b);N.pos.copy(P.pos).addScaledVector(new THREE.Vector3(Math.cos(PLACES[id].face),0,-Math.sin(PLACES[id].face)),1.1)}
   if(id==="den"){P.pos.set(SECRET.door[0],0,SECRET.door[1]+2.4);N.pos.set(SECRET.door[0]+1.1,0,SECRET.door[1]+2.6);P.yaw=N.yaw=0;camYaw=0}else{P.yaw=N.yaw=PLACES[id].face;camYaw=PLACES[id].face}
   atSecret=false;snapCam();mode="play";renderObj();renderLabels();soundscape();then&&then()})}
@@ -921,8 +925,8 @@ function goPlaza(){if(room){exitRoom(goPlaza);return}walkTo(0,6.5)}
 
 /* moments */
 function blessing(){const x=tx();if(priest){play(priest,"bless",.3);priest.lock=6}[P,N].forEach(e=>{e.yaw=Math.atan2(0-e.pos.x,-3.9-e.pos.z)});
-  chant.currentTime=0;chanting=true;soundscape();mood("love",15);
-  say(x.priestSays,6000);if(!soundOn)setTimeout(()=>toast(x.chantOn,4000),6200)}
+  chant.currentTime=0;chanting=true;zoneOn.chant=true;syncSnd();mood("love",15);
+  say(x.priestSays,6000)}
 const sayEl=document.createElement("div");sayEl.className="say";sayEl.hidden=true;$("#labels").appendChild(sayEl);let sayT=0;
 function say(t,ms){sayEl.textContent=t;sayEl.hidden=false;clearTimeout(sayT);sayT=setTimeout(()=>sayEl.hidden=true,ms)}
 function coupleDance(){[P,N].forEach(e=>{e.lock=9;play(e,["dance","dance2","dance3"][(Math.random()*3)|0],.3)});N.yaw=Math.atan2(P.pos.x-N.pos.x,P.pos.z-N.pos.z);P.yaw=N.yaw+Math.PI;
@@ -949,21 +953,25 @@ function endRide(){const R=ride;fade(()=>{ride=null;document.body.classList.remo
 
 /* ---------- riding the Vespa yourself ---------- */
 const VESPA_HOME=new THREE.Vector3(5.5,0,14),offBtn=document.createElement("button");offBtn.className="chip";offBtn.id="bOff";offBtn.type="button";offBtn.hidden=true;$("#hud").appendChild(offBtn);
-let vSpd=0,vGoal=null,vBack=null;
+let vSpd=0,vGoal=null,vBack=null,gSpd=6;
+function driveTo(id){const[a,b]=doorFront(id,2.6);vGoal={pts:findPath(gridNow(),vespaObj.position,new THREE.Vector3(a,0,b)),i:0,id}}
+function arriveDrive(id){vSpd=0;getOff(()=>{if(!PLACES[id].final||agencyOpen())goPlace(id)})}
 function mountVespa(){if(room){exitRoom(mountVespa);return}const go=()=>{resetJoy();goal=null;endChat();freeLocks();mode="drive";document.body.classList.add("ride");vBack=null;
     [P,N].forEach(e=>{e.lock=999;play(e,"ride",.1)});offBtn.textContent=tx().getOff;offBtn.hidden=false;toast(tx().driveHint,4500)};
   if(P.pos.distanceTo(vespaObj.position)>3){walkTo(vespaObj.position.x+1.2,vespaObj.position.z,()=>fade(go))}else fade(go)}
-function getOff(){if(mode!=="drive")return;resetJoy();goal=null;fade(()=>{resetJoy();mode="play";document.body.classList.remove("ride");offBtn.hidden=true;vGoal=null;vSpd=0;
+function getOff(then){if(mode!=="drive")return;resetJoy();goal=null;fade(()=>{resetJoy();mode="play";document.body.classList.remove("ride");offBtn.hidden=true;vGoal=null;vSpd=0;
   const y=vespaObj.rotation.y,side=new THREE.Vector3(Math.cos(y),0,-Math.sin(y));P.pos.copy(vespaObj.position).addScaledVector(side,1.1);N.pos.copy(vespaObj.position).addScaledVector(side,2.1);resolve(P.pos);resolve(N.pos);
   [P,N].forEach(e=>{e.lock=0;e.m.position.y=0;play(e,"idle",.1)});vespaObj.rotation.z=0;
   /* the scooter heads home by itself */
-  vBack={pts:findPath(gridNow(),vespaObj.position,VESPA_HOME),i:0}})}
+  vBack={pts:findPath(gridNow(),vespaObj.position,VESPA_HOME),i:0};if(typeof then==="function")setTimeout(then,60)})}
 offBtn.addEventListener("click",getOff);
 function updDrive(dt){let ix=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0)+joy.x,iy=(keys.w||keys.arrowup?1:0)-(keys.s||keys.arrowdown?1:0)+joy.y;let want=null;
   if(Math.hypot(ix,iy)>.15){vGoal=null;const f=new THREE.Vector3(-Math.sin(camYaw),0,-Math.cos(camYaw)),r=new THREE.Vector3(-f.z,0,f.x);want=f.multiplyScalar(iy).addScaledVector(r,ix).normalize()}
-  else if(vGoal){const tg=vGoal.pts[vGoal.i];_v.subVectors(tg,vespaObj.position);_v.y=0;if(_v.length()<.8){vGoal.i++;if(vGoal.i>=vGoal.pts.length)vGoal=null}else want=_v.normalize().clone()}
-  const target=want?8:0;vSpd+=(target-vSpd)*Math.min(1,dt*(want?2.2:4));
-  if(want){const yaw=Math.atan2(want.x,want.z),dy=angLerp(0,yaw-vespaObj.rotation.y,1);vespaObj.rotation.y=angLerp(vespaObj.rotation.y,yaw,1-Math.exp(-4*dt));vespaObj.rotation.z=-THREE.MathUtils.clamp(dy,-.6,.6)*.4}else vespaObj.rotation.z*=.9;
+  else if(vGoal){const last=vGoal.i>=vGoal.pts.length-1,tg=vGoal.pts[Math.min(vGoal.i,vGoal.pts.length-1)];_v.subVectors(tg,vespaObj.position);_v.y=0;const d=_v.length();
+    if(d<(last?1.2:2)){vGoal.i++;if(vGoal.i>=vGoal.pts.length){const id=vGoal.id;vGoal=null;if(id)arriveDrive(id)}}else{want=_v.normalize().clone();
+      const err=Math.abs(angLerp(0,Math.atan2(want.x,want.z)-vespaObj.rotation.y,1));gSpd=Math.min(7,Math.max(1.5,d*1.6))*Math.max(.25,Math.cos(Math.min(err,1.4)))}}
+  const target=want?(vGoal?gSpd:8):0;vSpd+=(target-vSpd)*Math.min(1,dt*(want?2.2:4));
+  if(want){const yaw=Math.atan2(want.x,want.z),dy=angLerp(0,yaw-vespaObj.rotation.y,1);vespaObj.rotation.y=angLerp(vespaObj.rotation.y,yaw,1-Math.exp(-(vGoal?7:4)*dt));vespaObj.rotation.z=-THREE.MathUtils.clamp(dy,-.6,.6)*.4}else vespaObj.rotation.z*=.9;
   const f=new THREE.Vector3(Math.sin(vespaObj.rotation.y),0,Math.cos(vespaObj.rotation.y));vespaObj.position.addScaledVector(f,vSpd*dt);resolve(vespaObj.position);
   P.pos.copy(vespaObj.position).addScaledVector(f,-.05);N.pos.copy(vespaObj.position).addScaledVector(f,-.6);
   [P,N].forEach(e=>{e.yaw=vespaObj.rotation.y;e.m.position.copy(e.pos);e.m.position.y=.32;e.m.rotation.y=e.yaw;e.mix.update(dt)});
@@ -1017,7 +1025,7 @@ function updLabels(){const hide=mode==="intro"||mode==="ride"||mode==="drive";
 
 /* ---------- camera ---------- */
 const camPos=new THREE.Vector3(0,30,80),camLook=new THREE.Vector3(0,2,0);let introT=0,flyT=0;
-function followPose(){const portrait=innerWidth<innerHeight;
+function followPose(){const portrait=innerWidth<innerHeight;if(window.__dogCam){const d=dog.pos,a=window.__dogCam;return{p:new THREE.Vector3(d.x+Math.sin(a)*1.6,.75,d.z+Math.cos(a)*1.6),l:d.clone().setY(.32)}}
   if(selfieCam>0&&P){const f=new THREE.Vector3(Math.sin(P.yaw),0,Math.cos(P.yaw)),mid=P.pos.clone().lerp(N.pos,.5);return{p:mid.clone().addScaledVector(f,3.2).setY(1.75),l:mid.clone().setY(1.35)}}
   if(room){const k=portrait?1.45:1,o=room.outdoor?1.25:1;return{p:new THREE.Vector3(P.pos.x*.45,7.8*k*o,P.pos.z*.5+8.6*k*o),l:new THREE.Vector3(P.pos.x*.55,.8,P.pos.z*.5-2)}}
   if((mode==="ride"&&ride)||mode==="drive"){const v=vespaObj.position,d=9*(portrait?1.3:1),pt=topView>0?1.1:.42;return{p:new THREE.Vector3(v.x+Math.sin(camYaw)*Math.cos(pt)*d,1.4+Math.sin(pt)*d,v.z+Math.cos(camYaw)*Math.cos(pt)*d),l:v.clone().setY(1)}}
@@ -1073,4 +1081,4 @@ function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-last
   if(composer&&!room)composer.render();else renderer.render(scene,camera);
   if(!room){renderer.autoClear=false;renderer.render(fx,camera);renderer.autoClear=true}}
 requestAnimationFrame(frame);
-window.__w={dbgP:()=>({lock:P.lock,goal:goal&&{i:goal.i,n:goal.pts.length,end:goal.pts[goal.pts.length-1].toArray(),tries:goal.tries||0},pos:P.pos.toArray(),spd:P.spd,mode,cur:P.curName,shown:room&&room.shown}),setDist:d=>{camDist=d;camPitch=.3},dog:()=>dog.pos.toArray(),mountVespa,getOff,dogTrick,mode:()=>mode,ready:()=>ready,choose,goPlace,enterRoom,exitRoom,startRide,P:()=>P,room:()=>room&&room.id,tp:(x,z)=>{P.pos.set(x,0,z);N.pos.set(x+1,0,z);goal=null;snapCam()},selfie,info:()=>renderer.info.render,blessing,npcs:()=>npcs.length};
+window.__w={dbgP:()=>({lock:P.lock,goal:goal&&{i:goal.i,n:goal.pts.length,end:goal.pts[goal.pts.length-1].toArray(),tries:goal.tries||0},pos:P.pos.toArray(),spd:P.spd,mode,cur:P.curName,shown:room&&room.shown}),setDist:d=>{camDist=d;camPitch=.3},dog:()=>dog.pos.toArray(),mountVespa,getOff,dogTrick,mode:()=>mode,ready:()=>ready,choose,goPlace,enterRoom,exitRoom,startRide,P:()=>P,room:()=>room&&room.id,tp:(x,z)=>{P.pos.set(x,0,z);N.pos.set(x+1,0,z);goal=null;snapCam()},selfie,info:()=>renderer.info.render,blessing,npcs:()=>npcs.length,complete,driveTo,vespa:()=>vespaObj.position.toArray(),setV:(x,z)=>vespaObj.position.set(x,0,z),vg:()=>vGoal&&{i:vGoal.i,pts:vGoal.pts.map(p=>[+p.x.toFixed(1),+p.z.toFixed(1)])},snd:()=>({soundOn,zone:zone(),zoneOn:{...zoneOn},chant:!chant.paused,club:!clubSong.paused,music:!music.paused}),setSound,card:()=>$("#card").textContent.slice(0,200)};
