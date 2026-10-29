@@ -105,7 +105,7 @@ $("#cardX").addEventListener("click",closeCard);
 addEventListener("keydown",e=>{if(e.key==="Escape"){closeCard();panel("#list",false);panel("#dest",false)}});
 function complete(q){if(state.done[q])return;state.done[q]=1;save();mood("fun",14);mood("love",8);renderList();renderObj();renderLabels();if(navigator.vibrate)navigator.vibrate(25);
   const id=ORDER.find(k=>questOf(k)===q);if(!PLACES[id].final&&agencyOpen())setTimeout(()=>toast(tx().allDone,6000),900);
-  if(ORDER.every(k=>state.done[questOf(k)]))setTimeout(()=>{const x=tx();openCard("· · ·",x.finaleH,`<p>${x.finaleP}</p><div class="acts"><button class="btn" type="button" id="fin">${x.finaleBtn}</button></div>`,()=>$("#fin").addEventListener("click",closeCard));for(let k=0;k<14;k++)setTimeout(()=>P&&heart(room?room.scene:world,P.pos.clone().setY(2.2)),k*220)},2200)}
+  if(ORDER.every(k=>state.done[questOf(k)]))setTimeout(()=>{const x=tx();state.fin=Date.now();save();openCard("· · ·",x.finaleH,`<p>${x.finaleP}</p><div class="acts"><button class="btn" type="button" id="fin">${x.finaleBtn}</button></div>`,()=>$("#fin").addEventListener("click",closeCard));for(let k=0;k<14;k++)setTimeout(()=>P&&heart(room?room.scene:world,P.pos.clone().setY(2.2)),k*220)},2200)}
 
 function calText(){const x=tx();return{title:x.calTitle,loc:CONTENT.venue.name+", "+CONTENT.venue.addr,desc:CONTENT.schedule.map(s=>s[0]+" "+x.sched[s[1]]).join(" · ")+(CONTENT.demo?" ("+x.demoNote+")":"")+" "+location.href.split("?")[0]}}
 const icsEsc=s=>s.replace(/[\\;,]/g,m=>"\\"+m).replace(/\n/g,"\\n");
@@ -116,6 +116,8 @@ function downloadICS(){const c=calText(),al=t=>["BEGIN:VALARM","TRIGGER:"+t,"ACT
 const gcal=()=>{const c=calText();return"https://calendar.google.com/calendar/render?action=TEMPLATE&text="+encodeURIComponent(c.title)+"&dates="+CONTENT.startUTC+"/"+CONTENT.endUTC+"&location="+encodeURIComponent(c.loc)+"&details="+encodeURIComponent(c.desc)};
 const schedHTML=()=>`<dl class="sched">${CONTENT.schedule.map(s=>`<div><dt>${tx().sched[s[1]]}</dt><dd>${s[0]}</dd></div>`).join("")}</dl>`;
 
+const L2=o=>o[lang]||o.en;
+const infoHTML=rows=>`<dl class="info">${rows.map(r=>`<div><dt>${esc(r[0])}</dt><dd>${esc(r[1])}</dd></div>`).join("")}</dl>`;
 const CARDS={
   estate(tab="cal"){const x=tx();const tabs=`<div class="seg" role="tablist" style="margin:0 0 10px"><label><input type="radio" name="et" value="cal" ${tab==="cal"?"checked":""}><span>${x.tabCal}</span></label><label><input type="radio" name="et" value="rsvp" ${tab==="rsvp"?"checked":""}><span>${x.tabRsvp}</span></label></div>`;
     const body=tab==="cal"?`<p>${x.dateP}</p>${schedHTML()}<div class="acts"><button class="btn" type="button" id="aIcs">${ICON.cal}${x.addCal}</button><a class="btn ghost" id="aG" href="${gcal()}" target="_blank" rel="noopener">${ICON.ext}${x.gcal}</a><a class="btn ghost" href="${CONTENT.venue.maps}" target="_blank" rel="noopener">${ICON.pin}${x.maps}</a></div>${CONTENT.demo?`<p class="demo">${x.demoNote}</p>`:""}`
@@ -123,9 +125,11 @@ const CARDS={
       <div class="seg"><label><input type="radio" name="att" value="yes" checked><span>${x.yes}</span></label><label><input type="radio" name="att" value="no"><span>${x.no}</span></label></div>
       <div class="acts" style="align-items:end"><label class="f" style="margin:0;flex:0 0 120px"><span>${x.guests}</span><select id="gs"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></label><button class="btn" type="submit" style="flex:1">${x.send}</button></div><p class="ok" id="rOk" hidden></p></form>`;
     openCard(x.P.estate,x.dateH,tabs+body,()=>{document.querySelectorAll("input[name=et]").forEach(r=>r.addEventListener("change",()=>CARDS.estate(r.value)));
+      const A=(state.ans||{}).rsvp;if(tab!=="cal"&&A){$("#nm").value=A.name;document.querySelector(`input[name=att][value=${A.att?"yes":"no"}]`).checked=true;$("#gs").value=String(A.count);const o=$("#rOk");o.hidden=false;o.textContent=`${x.yourAns}: ${A.att?x.attY:x.attN} · ${A.count} ${x.persons}`}
       if(tab==="cal"){$("#aIcs").addEventListener("click",()=>{downloadICS();complete("date")});$("#aG").addEventListener("click",()=>complete("date"))}
       else $("#rsvp").addEventListener("submit",e=>{e.preventDefault();const name=$("#nm").value.trim();if(!name)return;
-        store("rsvp",{name,attending:document.querySelector("input[name=att]:checked").value==="yes",count:+$("#gs").value,notes:"",lang}).then(r=>{const o=$("#rOk");o.hidden=false;o.textContent=r?x.thanks:x.thanksLocal;complete("date")})})});cardFn=()=>CARDS.estate(tab)},
+        const att=document.querySelector("input[name=att]:checked").value==="yes";state.ans=state.ans||{};state.ans.rsvp={name,att,count:+$("#gs").value};save();
+        store("rsvp",{name,attending:att,count:+$("#gs").value,notes:"",lang}).then(r=>{const o=$("#rOk");o.hidden=false;o.textContent=r?x.thanks:x.thanksLocal;complete("date")})})});cardFn=()=>CARDS.estate(tab)},
   gallery(i=0){const x=tx(),s=CONTENT.story[i];openCard(x.P.gallery+` · ${i+1}/${CONTENT.story.length}`,s.city,`<img class="photo" alt="${esc(s.city)}" src="${s.src||photoURL(i)}"><p>${x.storyT[i]}</p>${s.src?"":`<p class="demo">${x.photoDemo}</p>`}
     <div class="pnav"><button class="btn ghost" type="button" id="pPrev" ${i?"":"disabled"}>←</button><span>${i+1} / ${CONTENT.story.length}</span><button class="btn" type="button" id="pNext">${i<CONTENT.story.length-1?x.next+" →":x.close}</button></div>`,()=>{
       $("#pPrev").addEventListener("click",()=>CARDS.gallery(i-1));$("#pNext").addEventListener("click",()=>{if(i<CONTENT.story.length-1)CARDS.gallery(i+1);else{complete("story");closeCard()}});
@@ -134,14 +138,24 @@ const CARDS={
       $("#aB").addEventListener("click",()=>{closeCard();blessing();complete("bless")})});cardFn=CARDS.chapel},
   club(){const x=tx();openCard("DJ",x.clubTracks,`<div class="seg">${CLUB_TRACKS.map((t,i)=>`<label><input type="radio" name="tr" value="${i}" ${i===clubTrack?"checked":""}><span>${t[0]}</span></label>`).join("")}</div><p class="demo" style="color:var(--ink2)">${x.credits}</p>`,()=>{
       document.querySelectorAll("input[name=tr]").forEach(r=>r.addEventListener("change",()=>{clubTrack=+r.value;if(!soundOn)setSound(true);else soundscape()}))});cardFn=CARDS.club},
-  den(){const x=tx();openCard("· · ·",x.denH,`<p>${x.denP}</p>`);cardFn=CARDS.den},
+  den(){const x=tx();openCard("· · ·",x.denH,`<p>${x.denP}</p><h4 class="sub">${x.vipH}</h4>${infoHTML(L2(CONTENT.vip))}<h4 class="sub">${x.vipIdeaH}</h4><p>${x.vipIdeaP}</p>
+    <form id="vf"><label class="f"><span>${x.yourName}</span><input id="vn" maxlength="80" required></label><label class="f"><span>${x.wishText}</span><textarea id="vt" maxlength="800" required></textarea></label><div class="acts"><button class="btn" type="submit">${x.send}</button></div><p class="ok" id="vOk" hidden></p></form>`,()=>{
+      $("#vf").addEventListener("submit",e=>{e.preventDefault();const n=$("#vn").value.trim(),w=$("#vt").value.trim();if(!n||!w)return;store("vip",{name:n,text:w,lang}).then(()=>{const o=$("#vOk");o.hidden=false;o.textContent=x.vipSent;$("#vt").value=""})})});cardFn=CARDS.den},
+  gift(){const x=tx(),g=CONTENT.gift,cp=(id,v)=>`<button class="btn ghost sm" type="button" data-cp="${esc(v)}">${x.copy}</button>`;
+    openCard(x.P.post,x.giftH,`<p>${x.giftP}</p><div class="gifts">
+      ${g.iban?`<div class="gft"><img src="assets/logos/nbg.svg" alt="NBG" height="22"><small>${x.holder}: <b>${esc(g.holder)}</b></small><code>${esc(g.iban)}</code>${cp(0,g.iban.replace(/\s/g,""))}</div>`:""}
+      ${g.iris?`<div class="gft"><span class="iris">IRIS</span><small>${x.irisP}</small><code>${esc(g.iris)}</code>${cp(1,g.iris.replace(/\s/g,""))}</div>`:""}
+      ${g.revolut?`<div class="gft"><img src="assets/logos/revolut.svg" alt="Revolut" height="20"><code>@${esc(g.revolut)}</code><a class="btn sm" href="https://revolut.me/${encodeURIComponent(g.revolut)}" target="_blank" rel="noopener">${x.openRev}</a></div>`:""}
+    </div>${CONTENT.demo?`<p class="demo">${x.demoNote}</p>`:""}`,()=>{$("#cardB").querySelectorAll("[data-cp]").forEach(b=>b.addEventListener("click",()=>{navigator.clipboard&&navigator.clipboard.writeText(b.dataset.cp).then(()=>{b.textContent=x.copied;setTimeout(()=>b.textContent=x.copy,1600)}).catch(()=>{})}))});cardFn=CARDS.gift},
   post(){const x=tx();openCard(x.P.post,x.wishH,`<p>${x.wishP}</p><form id="wf"><label class="f"><span>${x.yourName}</span><input id="wn" maxlength="80" required></label><label class="f"><span>${x.wishText}</span><textarea id="wt" maxlength="800" required></textarea></label>
     <div class="acts"><button class="btn" type="submit">${x.send}</button></div><p class="ok" id="wOk" hidden></p></form>`,()=>{
-      $("#wf").addEventListener("submit",e=>{e.preventDefault();const n=$("#wn").value.trim(),w=$("#wt").value.trim();if(!n||!w)return;
+      const A=(state.ans||{}).wish;if(A){$("#wn").value=A.n;$("#wt").value=A.w;const o=$("#wOk");o.hidden=false;o.textContent=x.yourAns+" ✓"}
+      $("#wf").addEventListener("submit",e=>{e.preventDefault();const n=$("#wn").value.trim(),w=$("#wt").value.trim();if(!n||!w)return;state.ans=state.ans||{};state.ans.wish={n,w};save();
         store("wishes",{name:n,text:w,lang}).then(r=>{const o=$("#wOk");o.hidden=false;o.textContent=r?x.thanks:x.thanksLocal;complete("wish")})})});cardFn=CARDS.post},
   agency(){const x=tx();openCard(x.P.agency,x.honeyH,`<p>${x.honeyP}</p><form id="hf"><div class="seg">${CONTENT.honey.map(k=>`<label><input type="radio" name="hm" value="${k}" required><span>${x.opt[k]}</span></label>`).join("")}</div>
     <div class="acts" style="align-items:center"><button class="btn" type="submit">${x.vote}</button><span><b id="vc">${voteCount}</b> ${x.voted}</span></div><p class="ok" id="hOk" ${state.done.honey?"":"hidden"}>${x.honeyDone}</p></form>`,()=>{
-      $("#hf").addEventListener("submit",e=>{e.preventDefault();const v=(document.querySelector("input[name=hm]:checked")||{}).value;if(!v||state.done.honey)return;
+      const A=(state.ans||{}).honey;if(A){const r=document.querySelector(`input[name=hm][value=${A}]`);if(r)r.checked=true;$("#hf").querySelectorAll("input").forEach(i=>i.disabled=true);$("#hOk").textContent=`${x.yourAns}: ${x.opt[A]} · ${x.honeyDone}`}
+      $("#hf").addEventListener("submit",e=>{e.preventDefault();const v=(document.querySelector("input[name=hm]:checked")||{}).value;if(!v||state.done.honey)return;state.ans=state.ans||{};state.ans.honey=v;save();
         store("votes",{optionId:v,attending:true},true).then(()=>{$("#vc").textContent=voteCount;$("#hOk").hidden=false;complete("honey")})})});cardFn=CARDS.agency}
 };
 /* drawn placeholder photo: a postcard of the city until the couple adds real pictures */
@@ -154,11 +168,14 @@ function photoURL(i){if(photoCache[i])return photoCache[i];const c=document.crea
   return photoCache[i]=c.toDataURL("image/jpeg",.85)}
 
 /* ---------- simple version ---------- */
+function giftRows(){const g=CONTENT.gift,x=tx();return infoHTML([g.iban&&["NBG · IBAN",g.iban+" · "+g.holder],g.iris&&["IRIS",g.iris],g.revolut&&["Revolut","@"+g.revolut]].filter(Boolean))}
 function showSimple(){const x=tx(),n=CONTENT.names[lang];$("#simple").hidden=false;
   const stops=ORDER.map(id=>{const q=questOf(id),lock=PLACES[id].final&&!agencyOpen();
     return `<li class="${state.done[q]?"done":""}"><div class="row" style="cursor:default"><span class="mark">${state.done[q]?ICON.check:""}</span><span><b>${x.Q[q][0]}</b><small>${id==="club"?x.clubName:x.P[id]}</small></span><button class="btn ${lock?"ghost":""}" type="button" data-tp="${id}" ${lock?'aria-disabled="true"':""}>${lock?x.locked:x.teleport}</button></div></li>`}).join("");
   $("#simpleB").innerHTML=`<h1>${esc(n[0])} &amp; ${esc(n[1])}</h1><p><b>${x.dateH}</b> · 19:00 · ${x.koropi}</p>
   <section><h2>${x.Q.date[0]}</h2>${schedHTML()}<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px"><button class="btn" type="button" id="sI">${ICON.cal}${x.addCal}</button><a class="btn ghost" href="${gcal()}" target="_blank" rel="noopener">${ICON.ext}${x.gcal}</a><a class="btn ghost" href="${CONTENT.venue.maps}" target="_blank" rel="noopener">${ICON.pin}${x.maps}</a></div></section>
+  <section><h2>${x.infoH}</h2>${infoHTML(L2(CONTENT.info))}</section>
+  <section><h2>${x.giftH}</h2><p>${x.giftP}</p>${giftRows()}</section>
   <section><h2>${x.storyH}</h2><ol style="padding-left:20px">${x.storyT.map(t=>`<li>${t}</li>`).join("")}</ol></section>
   <section><h2>${x.blessH}</h2><p>${x.blessP}</p></section>
   <section><h2>${x.simpleStops}</h2><p>${x.simpleNote}</p><ul style="list-style:none;margin-top:8px">${stops}</ul></section>
@@ -557,6 +574,8 @@ const WORLD_B=[-40,-54,34,22.4];let worldGrid=null;const gridNow=()=>room?room.g
 /* ---------- movement + collision ---------- */
 const keys={};addEventListener("keydown",e=>{if(e.target.closest&&e.target.closest("input,textarea,select"))return;keys[e.key.toLowerCase()]=true});addEventListener("keyup",e=>{keys[e.key.toLowerCase()]=false});addEventListener("blur",()=>{for(const k in keys)keys[k]=false});
 const joy={x:0,y:0};
+/* joystick "up" = away from the camera actually on screen (rooms use their own camera) */
+const _cf=new THREE.Vector3();function camFwd(){camera.getWorldDirection(_cf);_cf.y=0;if(_cf.lengthSq()<1e-6)_cf.set(-Math.sin(camYaw),0,-Math.cos(camYaw));return _cf.normalize().clone()}
 function resolve(p){const r=.38,b=room?room.bounds:WORLD_B,sl=room?room.solid:solid,rl=room?room.round:round;
   p.x=THREE.MathUtils.clamp(p.x,b[0],b[2]);p.z=THREE.MathUtils.clamp(p.z,b[1],b[3]);
   for(const c of rl){const dx=p.x-c.x,dz=p.z-c.z,d=Math.hypot(dx,dz),m=c.r+r;if(d<m&&d>1e-4){p.x=c.x+dx/d*m;p.z=c.z+dz/d*m}}
@@ -574,7 +593,7 @@ let idleT=0;
 function updateChars(dt){
   let ix=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0)+joy.x,iy=(keys.w||keys.arrowup?1:0)-(keys.s||keys.arrowdown?1:0)+joy.y;let dir=null,sp=0;
   if(document.body.classList.contains("cardopen")){ix=iy=0}
-  if(Math.hypot(ix,iy)>.1){goal=null;freeLocks();const f=new THREE.Vector3(-Math.sin(camYaw),0,-Math.cos(camYaw)),r=new THREE.Vector3(-f.z,0,f.x);dir=f.multiplyScalar(iy).addScaledVector(r,ix).normalize();sp=(keys.shift?5.6:3.4)*Math.min(1,Math.hypot(ix,iy))}
+  if(Math.hypot(ix,iy)>.1){goal=null;freeLocks();const f=camFwd(),r=new THREE.Vector3(-f.z,0,f.x);dir=f.multiplyScalar(iy).addScaledVector(r,ix).normalize();sp=(keys.shift?5.6:3.4)*Math.min(1,Math.hypot(ix,iy))}
   else if(goal){const tg=goal.pts[goal.i];_v.subVectors(tg,P.pos);_v.y=0;const d=_v.length(),last=goal.i===goal.pts.length-1;
     if(d<(last?.3:.6)){goal.i++;if(goal.i>=goal.pts.length){const g=goal;goal=null;g.then&&g.then()}}else{dir=_v.normalize().clone();sp=Math.min(3.6,1.1+d*1.6)}
     if(goal&&(goal.t+=dt)>45)goal=null}
@@ -730,6 +749,10 @@ function buildRoom(id){if(rooms[id])return rooms[id];let r;const x=tx();
     B.add(G.box,"darkwood",3.6,.78,-1.6,2.4,.08,1.2);for(const sx of [-1,1])B.add(G.box,"darkwood",3.6+sx*1.1,.38,-1.6,.08,.76,1.1);
     B.add(G.box,"white",3.3,.84,-1.7,.5,.02,.7).add(G.box,"white",3.9,.84,-1.5,.5,.02,.7).add(G.cyl,"black",4.4,.88,-1.4,.03,.1,.03).add(G.box,"wood",3.6,.48,-.6,.5,.06,.5).add(G.box,"wood",3.6,.75,-.35,.5,.6,.06);
     r.solid.push({x0:2.3,z0:-2.3,x1:4.9,z1:-.9});
+    /* gift table with a wrapped present */
+    B.add(G.box,"darkwood",.9,.74,-1.6,1.2,.08,.8);for(const sx of [-1,1])B.add(G.box,"darkwood",.9+sx*.5,.36,-1.6,.07,.72,.7);
+    B.add(new RoundedBoxGeometry(.5,.38,.4,2,.03),"white",.9,.97,-1.6).add(G.box,"red",.9,.97,-1.6,.08,.4,.42).add(G.box,"red",.9,.97,-1.6,.52,.4,.08).add(G.box,"red",.9,1.17,-1.6,.2,.06,.06);
+    r.solid.push({x0:.2,z0:-2.1,x1:1.6,z1:-1.1});r.items=[{label:()=>tx().giftL,at:[.9,1.9,-1.6],go:[.9,-.4],fn:()=>CARDS.gift()}];
     /* the yellow Greek mailbox */
     B.add(new RoundedBoxGeometry(.7,1.3,.55,3,.1),"yellow",6.6,.65,1.8).add(G.box,"dark",6.6,1.05,2.08,.4,.06,.02);r.round.push({x:6.6,z:1.8,r:.6});
     for(let k=0;k<4;k++)B.add(G.cyl,"brass",-5+k*1.6,.5,-1.6,.08,1,.08);
@@ -787,8 +810,8 @@ function buildClub(){const id="club",s=new THREE.Scene();makeSky(s,.14);s.fog=ne
   B.add(G.box,"wash",-1.6,.5,8.9,.4,1,.4).add(G.box,"wash",1.6,.5,8.9,.4,1,.4);
   caique(s,-8,-26,.4,0x2a6fb5,0xf2c94c,-2.12);caique(s,10,-30,-.3,0xf4f0e8,0xc94b3b,-2.12);
   const floorL=[0xff4f8b,0x4fc3ff,0xffc24a].map((c,i)=>{const l=new THREE.SpotLight(c,30,16,.45,.6,1.5);l.position.set(-5+i*5,5,0);l.target.position.set(0,0,-2);s.add(l,l.target);return l});
-  r.spot=[0,-1.4,1.8,0,-6.6];r.spotFn=()=>{coupleDance();complete("dance");mood("party",25);toast(tx().danceHint,3500)};
-  r.items=[{label:()=>"DJ · "+tx().clubTracks,at:[0,2.4,-6.6],go:[0,-5.2],fn:()=>CARDS.club()},{label:()=>"Bar",at:[7.2,2.4,5],go:[5.6,4.4],fn:()=>{[P,N].forEach(e=>{e.lock=3;play(e,"laugh",.3)});mood("party",8)}}];
+  r.spot=[0,-1.4,1.8,0,-6.6];r.spotL=[0,.4,-1.2];r.spotFn=()=>{coupleDance();complete("dance");mood("party",25);toast(tx().danceHint,3500)};
+  r.items=[{label:()=>"DJ · "+tx().clubTracks,at:[0,3.6,-6.6],go:[0,-5.2],fn:()=>CARDS.club()},{label:()=>"Bar",at:[7.2,2.4,5],go:[5.6,4.4],fn:()=>{[P,N].forEach(e=>{e.lock=3;play(e,"laugh",.3)});mood("party",8)}}];
   /* the crowd: guests from both sides dancing on the deck */
   const dances=["dance","dance2","dance3","dance4"];
   [[-4,-3.5],[-2.6,-4.8],[-1.2,-3],[2,-4.4],[3.4,-3],[4.6,-4.6],[-4.6,-.8],[4.4,-.4],[-3,1.4],[3,1.8],[-.8,-5],[1.4,-2],[5.6,2.4],[-5.6,2.6]].slice(0,mobile?8:14).forEach(([gx,gz],i)=>
@@ -966,7 +989,7 @@ function getOff(then){if(mode!=="drive")return;resetJoy();goal=null;fade(()=>{re
   vBack={pts:findPath(gridNow(),vespaObj.position,VESPA_HOME),i:0};if(typeof then==="function")setTimeout(then,60)})}
 offBtn.addEventListener("click",getOff);
 function updDrive(dt){let ix=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0)+joy.x,iy=(keys.w||keys.arrowup?1:0)-(keys.s||keys.arrowdown?1:0)+joy.y;let want=null;
-  if(Math.hypot(ix,iy)>.15){vGoal=null;const f=new THREE.Vector3(-Math.sin(camYaw),0,-Math.cos(camYaw)),r=new THREE.Vector3(-f.z,0,f.x);want=f.multiplyScalar(iy).addScaledVector(r,ix).normalize()}
+  if(Math.hypot(ix,iy)>.15){vGoal=null;const f=camFwd(),r=new THREE.Vector3(-f.z,0,f.x);want=f.multiplyScalar(iy).addScaledVector(r,ix).normalize()}
   else if(vGoal){const last=vGoal.i>=vGoal.pts.length-1,tg=vGoal.pts[Math.min(vGoal.i,vGoal.pts.length-1)];_v.subVectors(tg,vespaObj.position);_v.y=0;const d=_v.length();
     if(d<(last?1.2:2)){vGoal.i++;if(vGoal.i>=vGoal.pts.length){const id=vGoal.id;vGoal=null;if(id)arriveDrive(id)}}else{want=_v.normalize().clone();
       const err=Math.abs(angLerp(0,Math.atan2(want.x,want.z)-vespaObj.rotation.y,1));gSpd=Math.min(7,Math.max(1.5,d*1.6))*Math.max(.25,Math.cos(Math.min(err,1.4)))}}
@@ -1018,7 +1041,7 @@ function updLabels(){const hide=mode==="intro"||mode==="ride"||mode==="drive";
   for(let i=0;i<4;i++){const el=labelEls["_it"+i];if(el&&(!room||hide))el.style.display="none"}
   ORDER.forEach(id=>{const el=labelEls[id];if(!el)return;if(room||hide){el.style.display="none";return}const p=PLACES[id];place(el,new THREE.Vector3(p.door[0],id==="chapel"?6.2:5.6,p.door[1]))});
   const sp=labelEls._spot,ex=labelEls._exit;if(!room||hide){sp&&(sp.style.display="none");ex&&(ex.style.display="none");return}
-  place(sp,new THREE.Vector3(room.spot[3],2.9,room.spot[4]));place(ex,new THREE.Vector3(0,3,room.exit[1]));
+  place(sp,room.spotL?new THREE.Vector3(...room.spotL):new THREE.Vector3(room.spot[3],2.9,room.spot[4]));place(ex,new THREE.Vector3(0,3,room.exit[1]));
   for(let i=0;i<4;i++){const el=labelEls["_it"+i],it=room.items&&room.items[i];if(!el)continue;if(!it){el.style.display="none";continue}place(el,new THREE.Vector3(...it.at))}
   if(!shoutEl.hidden&&P){_p.copy(P.pos).setY(2.5).project(camera);shoutEl.style.transform=`translate(${(_p.x*.5+.5)*innerWidth|0}px,${(-_p.y*.5+.5)*innerHeight|0}px) translate(-50%,-100%)`}
   if(sayEl&&!sayEl.hidden&&priest){_p.set(0,2.5,-3.9).project(camera);sayEl.style.transform=`translate(${(_p.x*.5+.5)*innerWidth|0}px,${(-_p.y*.5+.5)*innerHeight|0}px) translate(-50%,-100%)`}}
@@ -1057,8 +1080,11 @@ if(!mobile&&!/noao/.test(location.search)){try{composer=new EffectComposer(rende
 /* frames too slow: step the resolution down; fast again: step it back up */
 let prCap=Math.min(devicePixelRatio||1,mobile?1.5:2),prNow=mobile?Math.min(prCap,1.25):prCap,fpsAcc=0,fpsN=0;
 function adaptRes(dt){fpsAcc+=dt;fpsN++;if(fpsAcc<2.5)return;const fps=fpsN/fpsAcc;fpsAcc=fpsN=0;const nx=fps<26?Math.max(.7,prNow*.85):fps>50?Math.min(prCap,prNow*1.1):prNow;if(Math.abs(nx-prNow)>.03){prNow=nx;resize()}}
-function resize(){const w=innerWidth,h=innerHeight,pr=prNow;renderer.setPixelRatio(pr);renderer.setSize(w,h,false);if(composer){composer.setPixelRatio(pr);composer.setSize(w,h)}camera.aspect=w/h;camera.fov=w<h?60:46;camera.updateProjectionMatrix()}
+/* size from the canvas box itself: home-screen (standalone) iOS reports innerHeight late or wrong */
+let lastWH="";function resize(){const w=canvas.clientWidth||innerWidth,h=canvas.clientHeight||innerHeight,pr=prNow;lastWH=w+"x"+h;renderer.setPixelRatio(pr);renderer.setSize(w,h,false);if(composer){composer.setPixelRatio(pr);composer.setSize(w,h)}camera.aspect=w/h;camera.fov=w<h?60:46;camera.updateProjectionMatrix()}
 addEventListener("resize",()=>{resize();renderObj()});resize();
+if(window.visualViewport)visualViewport.addEventListener("resize",()=>{resize();renderObj()});addEventListener("orientationchange",()=>setTimeout(resize,350));
+setInterval(()=>{if((canvas.clientWidth+"x"+canvas.clientHeight)!==lastWH)resize()},700);
 
 let last=performance.now();
 function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-last)/1000);last=now;tAll+=dt;
@@ -1081,4 +1107,22 @@ function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-last
   if(composer&&!room)composer.render();else renderer.render(scene,camera);
   if(!room){renderer.autoClear=false;renderer.render(fx,camera);renderer.autoClear=true}}
 requestAnimationFrame(frame);
-window.__w={dbgP:()=>({lock:P.lock,goal:goal&&{i:goal.i,n:goal.pts.length,end:goal.pts[goal.pts.length-1].toArray(),tries:goal.tries||0},pos:P.pos.toArray(),spd:P.spd,mode,cur:P.curName,shown:room&&room.shown}),setDist:d=>{camDist=d;camPitch=.3},dog:()=>dog.pos.toArray(),mountVespa,getOff,dogTrick,mode:()=>mode,ready:()=>ready,choose,goPlace,enterRoom,exitRoom,startRide,P:()=>P,room:()=>room&&room.id,tp:(x,z)=>{P.pos.set(x,0,z);N.pos.set(x+1,0,z);goal=null;snapCam()},selfie,info:()=>renderer.info.render,blessing,npcs:()=>npcs.length,complete,driveTo,vespa:()=>vespaObj.position.toArray(),setV:(x,z)=>vespaObj.position.set(x,0,z),vg:()=>vGoal&&{i:vGoal.i,pts:vGoal.pts.map(p=>[+p.x.toFixed(1),+p.z.toFixed(1)])},snd:()=>({soundOn,zone:zone(),zoneOn:{...zoneOn},chant:!chant.paused,club:!clubSong.paused,music:!music.paused}),setSound,card:()=>$("#card").textContent.slice(0,200)};
+
+/* ---------- end quiz: after everything, back in the plaza, 5 questions unlock pawprints to the secret windmill ---------- */
+let paws=null;
+function showPaws(){if(paws)return;const pts=findPath(gridNow(),new THREE.Vector3(0,0,-6),new THREE.Vector3(SECRET.door[0],0,SECRET.door[1]+1.2)),all=[new THREE.Vector3(0,0,-6),...pts],gs=[];
+  let side=1;for(let k=1;k<all.length;k++){const a=all[k-1],b=all[k],L=a.distanceTo(b),dir=b.clone().sub(a).normalize(),r=new THREE.Vector3(-dir.z,0,dir.x),yaw=Math.atan2(dir.x,dir.z);
+    for(let t=.4;t<L;t+=.55){side=-side;const c=a.clone().addScaledVector(dir,t).addScaledVector(r,side*.09);
+      [[0,0,.055],[-.045,.06,.02],[0,.075,.02],[.045,.06,.02]].forEach(([x,z,rr])=>{const g=new THREE.CircleGeometry(rr,10).rotateX(-Math.PI/2).translate(x,0,z).rotateY(yaw).translate(c.x,.025,c.z);gs.push(g.toNonIndexed())})}}
+  paws=new THREE.Mesh(mergeGeometries(gs),new THREE.MeshBasicMaterial({color:0x8a5a3c,transparent:true,opacity:.75,depthWrite:false}));world.add(paws)}
+if(state.quiz===2)setTimeout(()=>{try{showPaws()}catch(e){}},3000);
+function quizCard(){const x=tx(),got=state.qa||{};state.quiz=1;save();
+  const body=`<p>${x.qzP}</p><ol class="qz">${x.qz.map((q,i)=>`<li><b>${q[0]}</b><div class="qa">${q[1].map((a,j)=>`<button type="button" class="chip${got[i]===j?" ok":""}" data-q="${i}" data-a="${j}">${a}</button>`).join("")}</div><small class="qr" id="qr${i}">${got[i]!=null?x.qzOk:""}</small></li>`).join("")}</ol><p class="qscore" id="qsc"></p>`;
+  openCard(x.qzW,x.qzH,body,()=>{const upd=()=>{const n=Object.keys(got).length;$("#qsc").textContent=`${n}/5 ${x.qzOf}`;
+      if(n===5){state.quiz=2;save();showPaws();setTimeout(()=>openCard("· · ·",x.qzWinH,`<p>${x.qzWin}</p><div class="acts"><button class="btn" type="button" id="qgo">${x.qzGo}</button></div>`,()=>$("#qgo").addEventListener("click",closeCard)),900)}};
+    upd();$("#cardB").querySelectorAll("[data-q]").forEach(b=>b.addEventListener("click",()=>{const i=+b.dataset.q,j=+b.dataset.a;if(got[i]!=null)return;
+      if(x.qz[i][2]===j){got[i]=j;state.qa=got;save();b.classList.add("ok");$("#qr"+i).textContent=x.qzOk;upd()}else{b.classList.add("no");$("#qr"+i).textContent=x.qzNo;setTimeout(()=>b.classList.remove("no"),700)}}))})}
+setInterval(()=>{if(!state.quiz&&state.fin&&Date.now()-state.fin>4000&&mode==="play"&&!room&&ORDER.every(k=>state.done[questOf(k)])&&!document.body.classList.contains("cardopen"))quizCard()},1500);
+/* TEMP admin (testing only, remove before sending): marks every quest done, finale already seen */
+$("#bAdmin").addEventListener("click",()=>{ORDER.forEach(k=>state.done[questOf(k)]=1);state.fin=Date.now()-5000;delete state.quiz;delete state.qa;save();panel("#list",false);renderList();renderObj();renderLabels();toast("admin: 5/5 + 6/6 ✓",2500)});
+window.__w={dbgP:()=>({lock:P.lock,goal:goal&&{i:goal.i,n:goal.pts.length,end:goal.pts[goal.pts.length-1].toArray(),tries:goal.tries||0},pos:P.pos.toArray(),spd:P.spd,mode,cur:P.curName,shown:room&&room.shown}),setDist:d=>{camDist=d;camPitch=.3},dog:()=>dog.pos.toArray(),mountVespa,getOff,dogTrick,mode:()=>mode,ready:()=>ready,choose,goPlace,enterRoom,exitRoom,startRide,P:()=>P,room:()=>room&&room.id,tp:(x,z)=>{P.pos.set(x,0,z);N.pos.set(x+1,0,z);goal=null;snapCam()},selfie,info:()=>renderer.info.render,blessing,npcs:()=>npcs.length,complete,driveTo,vespa:()=>vespaObj.position.toArray(),setV:(x,z)=>vespaObj.position.set(x,0,z),vg:()=>vGoal&&{i:vGoal.i,pts:vGoal.pts.map(p=>[+p.x.toFixed(1),+p.z.toFixed(1)])},snd:()=>({soundOn,zone:zone(),zoneOn:{...zoneOn},chant:!chant.paused,club:!clubSong.paused,music:!music.paused}),setSound,card:()=>$("#card").textContent.slice(0,200),cards:()=>CARDS,quiz:()=>state.quiz};

@@ -8,7 +8,15 @@ export const CONTENT={
   story:[{city:"Θήβα",src:null},{city:"Αθήνα",src:null},{city:"Frankfurt",src:null},{city:"Stuttgart",src:null},{city:"Κορωπί",src:null}],
   honey:["santorini","bali","kyoto"],
   backend:{projectId:"",apiKey:""},                                    /* Firestore; empty = demo, answers stay on the device */
-  demo:true
+  demo:true,
+  /* gifts (post office desk). PLACEHOLDERS: put the real details here; empty = row hidden */
+  gift:{holder:"ΟΝΟΜΑΤΕΠΩΝΥΜΟ (DEMO)",iban:"GR00 0000 0000 0000 0000 0000 000",revolut:"demo",iris:"69X XXX XXXX"},
+  /* useful information for the simple version: [title, text] per language. PLACEHOLDERS */
+  info:{el:[["Ντύσιμο","Καλοκαιρινό κομψό. Ανοιχτά χρώματα, άνετα παπούτσια για χώμα και γρασίδι."],["Παιδιά","Ο γάμος είναι μόνο για ενήλικες. Σας ευχαριστούμε για την κατανόηση."],["Πάρκινγκ","Υπάρχει δωρεάν πάρκινγκ στο κτήμα."],["Επιστροφή","Θα υπάρχουν ταξί στο τέλος της βραδιάς."]],
+        en:[["Dress code","Summer elegant. Light colours, comfortable shoes for gravel and grass."],["Children","The wedding is adults only. Thank you for understanding."],["Parking","Free parking at the venue."],["Getting home","Taxis will be available at the end of the night."]]},
+  /* VIP den, for close friends only. PLACEHOLDERS */
+  vip:{el:[["Ετοιμασία γαμπρού","15:00 · σπίτι του Ευάγγελου (διεύθυνση DEMO)"],["Ετοιμασία νύφης","14:00 · σπίτι της Κωνσταντίνας (διεύθυνση DEMO)"],["Μετά τον γάμο","After party μέχρι το πρωί (DEMO)"],["Την επόμενη μέρα","Θάλασσα και φαγητό όλοι μαζί (DEMO)"]],
+       en:[["Groom getting ready","15:00 · Evangelos' home (address DEMO)"],["Bride getting ready","14:00 · Konstantina's home (address DEMO)"],["After the wedding","After party until the morning (DEMO)"],["The next day","Beach and food all together (DEMO)"]]}
 };
 
 export const T={
@@ -147,3 +155,30 @@ Object.assign(T.en,{backPlaza:"Back to the plaza",tasksOf:"tasks",lock6:"Unlocks
 Object.assign(T.de,{backPlaza:"Zurück zum Platz",tasksOf:"Aufgaben",lock6:"Öffnet bei 5/5",pickG:"Evangelos · zu Fuß",pickB:"Konstantina · mit der Vespa",shout:"DU NOOOOB!"});
 Object.assign(T.ro,{backPlaza:"Înapoi în piață",tasksOf:"misiuni",lock6:"Se deblochează la 5/5",pickG:"Evangelos · pe jos",pickB:"Konstantina · cu Vespa",shout:"EȘTI NOOOOB!"});
 for(const l in T){T[l].pie.shout=T[l].shout}
+/* the end-of-game quiz: 5 questions only close friends would know (PLACEHOLDERS: the couple will replace them).
+   Each entry: [question, [answers…], index of the right answer]. The hint appears once all five are right. */
+const QZ={
+el:{qzW:"Πλατεία",qzH:"Συγχαρητήρια!",qzP:"Κάνατε όλα τα quest. Τα παιδιά σας έχουν μια έκπληξη, αν απαντήσετε σωστά σε 5 ερωτήσεις που μόνο εσείς θα ξέρετε.",qzOk:"Σωστό!",qzNo:"Όχι… ξαναπροσπάθησε",qzOf:"σωστές",
+  qzWinH:"Μπράβο!",qzWin:"Ο τελευταίος ανεμόμυλος δεν γυρίζει σαν τους άλλους. Ακολούθησε τις πατουσίτσες και ψάξε την πόρτα με το σκυλάκι.",qzGo:"Πάμε",
+  qz:[["Σε ποια πόλη ξεκίνησε η ιστορία μας;",["Πάτρα","Θήβα","Βόλος"],1],["Τι ράτσα είναι το σκυλάκι μας;",["Μαλτέζ","Πούντλ","Τσιουάουα"],0],["Σε ποια χώρα ζήσαμε μαζί;",["Ιταλία","Αγγλία","Γερμανία"],2],["Τι οδηγεί η Κωνσταντίνα;",["Vespa","Ποδήλατο","Τρακτέρ"],0],["Τι αγαπάει ο Ευάγγελος;",["Το πλέξιμο","Το kitesurf","Το γκολφ"],1]]},
+en:{qzW:"Plaza",qzH:"Congratulations!",qzP:"You finished every quest. The couple has a surprise for you if you get 5 questions right that only you would know.",qzOk:"Right!",qzNo:"No… try again",qzOf:"right",
+  qzWinH:"Well done!",qzWin:"The last windmill doesn't turn like the others. Follow the little pawprints and look for the door with the dog.",qzGo:"Let's go",
+  qz:[["In which town did our story begin?",["Patras","Thebes","Volos"],1],["What breed is our little dog?",["Maltese","Poodle","Chihuahua"],0],["Which country did we live in together?",["Italy","England","Germany"],2],["What does Konstantina ride?",["A Vespa","A bicycle","A tractor"],0],["What does Evangelos love?",["Knitting","Kitesurfing","Golf"],1]]},
+de:{qzW:"Platz",qzH:"Glückwunsch!",qzP:"Du hast alle Quests geschafft. Das Paar hat eine Überraschung, wenn du 5 Fragen richtig beantwortest, die nur du weißt.",qzOk:"Richtig!",qzNo:"Nein… nochmal",qzOf:"richtig",
+  qzWinH:"Bravo!",qzWin:"Die letzte Windmühle dreht sich nicht wie die anderen. Folge den Pfötchen und such die Tür mit dem Hund.",qzGo:"Los",
+  qz:[["In welcher Stadt begann unsere Geschichte?",["Patras","Theben","Volos"],1],["Welche Rasse ist unser Hündchen?",["Malteser","Pudel","Chihuahua"],0],["In welchem Land haben wir zusammen gelebt?",["Italien","England","Deutschland"],2],["Was fährt Konstantina?",["Eine Vespa","Ein Fahrrad","Einen Traktor"],0],["Was liebt Evangelos?",["Stricken","Kitesurfen","Golf"],1]]},
+ro:{qzW:"Piață",qzH:"Felicitări!",qzP:"Ai terminat toate misiunile. Mirii au o surpriză dacă răspunzi corect la 5 întrebări pe care doar tu le știi.",qzOk:"Corect!",qzNo:"Nu… mai încearcă",qzOf:"corecte",
+  qzWinH:"Bravo!",qzWin:"Ultima moară de vânt nu se învârte ca celelalte. Urmează lăbuțele și caută ușa cu cățelul.",qzGo:"Hai",
+  qz:[["În ce oraș a început povestea noastră?",["Patra","Teba","Volos"],1],["Ce rasă e cățelușul nostru?",["Maltez","Pudel","Chihuahua"],0],["În ce țară am locuit împreună?",["Italia","Anglia","Germania"],2],["Ce conduce Konstantina?",["O Vespa","O bicicletă","Un tractor"],0],["Ce iubește Evangelos?",["Tricotatul","Kitesurfingul","Golful"],1]]}};
+for(const l in QZ)Object.assign(T[l],QZ[l]);
+/* gifts, info, VIP ideas, saved answers */
+const MORE4={
+el:{giftL:"Δώρο",giftH:"Θέλετε να μας κάνετε δώρο;",giftP:"Η παρουσία σας είναι το μεγαλύτερο δώρο. Αν θέλετε, μπορείτε και έτσι:",holder:"Δικαιούχος",copy:"Αντιγραφή",copied:"Αντιγράφηκε!",openRev:"Άνοιγμα Revolut",irisP:"Πληρωμή με IRIS στο κινητό",
+  infoH:"Χρήσιμες πληροφορίες",yourAns:"Η απάντησή σου",attY:"Έρχομαι",attN:"Δεν μπορώ",persons:"άτομα",change:"Αλλαγή",
+  vipH:"Μόνο για τους δικούς μας",vipIdeaH:"Τι θέλετε να κάνουμε μετά τον γάμο;",vipIdeaP:"Πείτε μας ιδέες, προτάσεις ή ό,τι θέλετε να μας πείτε.",vipSent:"Το λάβαμε, ευχαριστούμε!"},
+en:{giftL:"Gift",giftH:"Would you like to give us a gift?",giftP:"Your presence is the greatest gift. If you wish, you can also:",holder:"Account holder",copy:"Copy",copied:"Copied!",openRev:"Open Revolut",irisP:"Pay with IRIS on your phone",
+  infoH:"Good to know",yourAns:"Your answer",attY:"Coming",attN:"Can't come",persons:"people",change:"Change",
+  vipH:"Only for our people",vipIdeaH:"What should we do after the wedding?",vipIdeaP:"Tell us ideas, suggestions or anything you want to say to us.",vipSent:"Got it, thank you!"}};
+for(const l in MORE4)Object.assign(T[l],MORE4[l]);
+/* DE/RO: anything not translated yet falls back to English */
+for(const l of ["de","ro"])for(const k in T.en)if(!(k in T[l]))T[l][k]=T.en[k];
