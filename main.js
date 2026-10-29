@@ -143,9 +143,9 @@ const CARDS={
       $("#vf").addEventListener("submit",e=>{e.preventDefault();const n=$("#vn").value.trim(),w=$("#vt").value.trim();if(!n||!w)return;store("vip",{name:n,text:w,lang}).then(()=>{const o=$("#vOk");o.hidden=false;o.textContent=x.vipSent;$("#vt").value=""})})});cardFn=CARDS.den},
   gift(){const x=tx(),g=CONTENT.gift,cp=(id,v)=>`<button class="btn ghost sm" type="button" data-cp="${esc(v)}">${x.copy}</button>`;
     openCard(x.P.post,x.giftH,`<p>${x.giftP}</p><div class="gifts">
-      ${g.iban?`<div class="gft"><img src="assets/logos/nbg.svg" alt="NBG" height="22"><small>${x.holder}: <b>${esc(g.holder)}</b></small><code>${esc(g.iban)}</code>${cp(0,g.iban.replace(/\s/g,""))}</div>`:""}
+      ${g.iban?`<div class="gft"><img src="assets/logo-nbg.svg" alt="NBG" height="22"><small>${x.holder}: <b>${esc(g.holder)}</b></small><code>${esc(g.iban)}</code>${cp(0,g.iban.replace(/\s/g,""))}</div>`:""}
       ${g.iris?`<div class="gft"><span class="iris">IRIS</span><small>${x.irisP}</small><code>${esc(g.iris)}</code>${cp(1,g.iris.replace(/\s/g,""))}</div>`:""}
-      ${g.revolut?`<div class="gft"><img src="assets/logos/revolut.svg" alt="Revolut" height="20"><code>@${esc(g.revolut)}</code><a class="btn sm" href="https://revolut.me/${encodeURIComponent(g.revolut)}" target="_blank" rel="noopener">${x.openRev}</a></div>`:""}
+      ${g.revolut?`<div class="gft"><img src="assets/logo-revolut.svg" alt="Revolut" height="20"><code>@${esc(g.revolut)}</code><a class="btn sm" href="https://revolut.me/${encodeURIComponent(g.revolut)}" target="_blank" rel="noopener">${x.openRev}</a></div>`:""}
     </div>${CONTENT.demo?`<p class="demo">${x.demoNote}</p>`:""}`,()=>{$("#cardB").querySelectorAll("[data-cp]").forEach(b=>b.addEventListener("click",()=>{navigator.clipboard&&navigator.clipboard.writeText(b.dataset.cp).then(()=>{b.textContent=x.copied;setTimeout(()=>b.textContent=x.copy,1600)}).catch(()=>{})}))});cardFn=CARDS.gift},
   post(){const x=tx();openCard(x.P.post,x.wishH,`<p>${x.wishP}</p><form id="wf"><label class="f"><span>${x.yourName}</span><input id="wn" maxlength="80" required></label><label class="f"><span>${x.wishText}</span><textarea id="wt" maxlength="800" required></textarea></label>
     <div class="acts"><button class="btn" type="submit">${x.send}</button></div><p class="ok" id="wOk" hidden></p></form>`,()=>{
