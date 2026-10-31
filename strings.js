@@ -305,3 +305,10 @@ Object.assign(T.de,{kpP:"Thanos kenne ich seit der Schulzeit. Wir sind zusammen 
 Object.assign(T.ro,{kpP:"Pe Thanos îl cunosc din gimnaziu. Am crescut împreună, de la băncile școlii și primele nopți pierdute până la cele mai importante decizii din viața noastră. La fiecare bucurie a fost primul care a sărbătorit cu mine, iar în fiecare moment greu a fost alături de mine înainte să apuc să-i cer. A fost acolo din prima zi în care am cunoscut-o pe Nadina și a văzut cum începe povestea noastră. Thanos, îți mulțumesc că ești fratele pe care mi l-am ales. Nimeni altcineva nu ar putea fi nașul nostru.",
   kaP:"Pe Dimitra am cunoscut-o în anii de studenție, acum 15 ani. Împreună am făcut primii pași în Atena, am râs până dimineața și am vorbit despre tot ce ne frământa. A fost printre primii și cei mai dragi prieteni ai noștri și, de atunci, este alături de mine în fiecare capitol al vieții mele. Dimitra mea, îți mulțumesc pentru fiecare îmbrățișare, pentru fiecare sfat și pentru fiecare dată când m-ai făcut să simt că nu sunt niciodată singură. Nimeni altcineva nu ar putea fi nașa noastră.",
   isaiahWait:"Așteaptă să se termine dansul lui Isaia (2 ture)."});
+/* the name prompt, short */
+T.el.nameP="Γράψε όνομα και επώνυμο, όπως θέλεις να εμφανίζεσαι στη λίστα μας. Θα συμπληρώνεται αυτόματα σε όλο το παιχνίδι.";
+T.en.nameP="Write your first and last name the way you want to appear on our list. It will fill in automatically everywhere in the game.";
+T.de.nameP="Schreib Vor- und Nachnamen so, wie du auf unserer Liste stehen möchtest. Er wird im ganzen Spiel automatisch eingetragen.";
+T.ro.nameP="Scrie-ți numele și prenumele așa cum vrei să apari pe lista noastră. Se va completa automat în tot jocul.";
+T.el.vipIdeaL="Η πρότασή σου";T.en.vipIdeaL="Your idea";T.de.vipIdeaL="Dein Vorschlag";T.ro.vipIdeaL="Propunerea ta";
+T.el.objEnd="Βρες το κρυφό δωμάτιο ή παίξε στο Arcade!";T.en.objEnd="Find the hidden room or play at the Arcade!";T.de.objEnd="Finde den geheimen Raum oder spiel in der Arcade!";T.ro.objEnd="Găsește camera secretă sau joacă la Arcade!";
