@@ -26,6 +26,8 @@ button:focus-visible,a:focus-visible,textarea:focus-visible,input:focus-visible{
 [hidden]{display:none!important}
 input,textarea,select,#simple{-webkit-user-select:text;user-select:text;touch-action:auto}
 #gl{position:fixed;inset:0;width:100vw;height:100vh;height:100dvh;display:block;touch-action:none}
+/* lens vignette: free on phones, sits over the 3D only */
+#vig{position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse 85% 80% at 50% 48%,transparent 55%,rgba(30,16,10,.32) 100%)}
 .ui{position:fixed;z-index:10}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:50px;padding:0 20px;border-radius:12px;font-weight:600;font-size:16px;background:var(--sea);color:#fff;text-decoration:none;
   box-shadow:0 6px 16px rgba(10,24,38,.22);transition:transform .18s var(--ease),background .18s ease,box-shadow .18s var(--ease)}
@@ -215,11 +217,15 @@ body.cardopen #joy,body.ride #joy{display:none}
   #card{padding:18px 16px 16px}
 }
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}}
+.invite .koum{font-size:13px;opacity:.8;margin:6px 0 0;line-height:1.35}
+.ktag{position:absolute;left:0;top:0;pointer-events:none;background:rgba(20,39,58,.82);color:#fff;font:600 12px/1.15 Commissioner,sans-serif;padding:4px 9px;border-radius:10px;white-space:nowrap;text-align:center}.ktag small{display:block;font-size:9px;font-weight:500;opacity:.8;letter-spacing:.04em;text-transform:uppercase}
+#bHome{position:fixed;right:max(14px,env(safe-area-inset-right));bottom:max(18px,env(safe-area-inset-bottom))}body.cardopen #bHome,body.ride #bHome{display:none}
+@media (max-width:420px){#bHome span{font-size:13px}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 </head>
 <body>
-<canvas id="gl" aria-label="Μια πλατεία στη Μύκονο"></canvas>
+<canvas id="gl" aria-label="Μια πλατεία στη Μύκονο"></canvas><div id="vig"></div>
 
 <div id="intro" class="ui">
   <div class="env" id="env">
@@ -228,6 +234,7 @@ body.cardopen #joy,body.ride #joy{display:none}
       <div class="eyebrow" data-t="inviteEyebrow">Σας προσκαλούμε</div>
       <h1 id="names"></h1>
       <p><span data-t="when">Παρασκευή</span> <b>20 · 08 · 2027</b> · <span data-t="koropi">Κορωπί</span></p>
+      <p class="koum" data-t="koumLine">Κουμπάροι: Αθανάσιος Παπαχαράλαμπος &amp; Δήμητρα Μπουλάλα</p>
       <div id="picks"><button class="btn" type="button" id="pG" disabled></button><button class="btn alt" type="button" id="pB" disabled></button></div>
     </div>
     <div class="front paper"></div><div class="flap paper"></div>
@@ -243,6 +250,7 @@ body.cardopen #joy,body.ride #joy{display:none}
     <button class="chip" type="button" id="bList" aria-expanded="false" aria-controls="list">
       <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span class="txt" data-t="stops">Στάσεις</span><span id="prog"></span></button>
   </div>
+  <button class="chip" type="button" id="bHome"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7M5 10v10h5v-6h4v6h5V10"/></svg><span data-t="home">Επιστροφή στην πλατεία</span></button>
   <div id="tr">
     <button class="chip" type="button" id="bVespa" aria-expanded="false" aria-controls="dest">
       <svg viewBox="0 0 24 24"><circle cx="6" cy="17" r="3"/><circle cx="18" cy="17" r="3"/><path d="M6 17h7l3-7h3M13 17l-2-7H8M16 10l-1-4h-2"/></svg><span>Vespa</span></button>

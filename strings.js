@@ -24,7 +24,7 @@ export const CONTENT={
        en:[["Where we get ready","At Komos Villas. This is where we'll get ready: join us before and after the wedding for a swim and to get ready."],["What to bring","Your clothes to change into and a swimsuit for a swim."],["After the wedding","After party until the morning (DEMO)"],["The next day","Beach and food all together (DEMO)"]]},
   villa:"https://www.booking.com/hotel/gr/komos-villas-by-airstay.html?checkin=2027-07-30&checkout=2027-08-02",
   /* YouTube videos: the TV in the den, and the tablet (put your own video id here later) */
-  tvVideo:"KHdETjg4BsY",tabletVideo:"cwgodJ4pmzQ",
+  tvVideo:"KHdETjg4BsY",proposal:"assets/proposal.mp4",tabletVideo:"cwgodJ4pmzQ",
   /* the den leaderboard */
   board:[["junkienadina",20],["kofinisevan",18],["mariastrid",15],["vasglar",0]]
 };
@@ -207,8 +207,8 @@ Object.assign(T.el,{passed:"Το πέρασες!",questDone:"Quest ολοκλη�
 Object.assign(T.en,{passed:"You passed it!",questDone:"Quest done. Look around freely.",questToPass:"to pass the quest"});
 Object.assign(T.de,{passed:"Geschafft!",questDone:"Quest erledigt. Schau dich in Ruhe um.",questToPass:"um die Quest zu schaffen"});
 Object.assign(T.ro,{passed:"Ai reușit!",questDone:"Misiune încheiată. Explorează liniștit.",questToPass:"ca să treci misiunea"});
-Object.assign(T.el,{villaBtn:"Δες τη βίλα στο Booking",tvL:"Fortnite",tabletL:"Tablet",tabletH:"Ένα βίντεο για εμάς",boardH:"Κατάταξη"});
-Object.assign(T.en,{villaBtn:"See the villa on Booking",tvL:"Fortnite",tabletL:"Tablet",tabletH:"A video for us",boardH:"Leaderboard"});
+Object.assign(T.el,{villaBtn:"Δες τη βίλα στο Booking",tvL:"Fortnite",tabletL:"Η πρόταση",tabletH:"Η πρόταση γάμου",boardH:"Κατάταξη"});
+Object.assign(T.en,{villaBtn:"See the villa on Booking",tvL:"Fortnite",tabletL:"The proposal",tabletH:"The proposal",boardH:"Leaderboard"});
 for(const l of ["de","ro"])for(const k in T.en)if(!(k in T[l]))T[l][k]=T.en[k];
 Object.assign(T.el,{isaiah:"«Ησαΐα χόρευε…» Ελάτε, γύρω-γύρω όλοι μαζί!"});Object.assign(T.en,{isaiah:"“Isaiah, dance…” Come, all around together!"});
 Object.assign(T.de,{isaiah:"„Jesaja, tanze…“ Kommt, alle zusammen im Kreis!"});Object.assign(T.ro,{isaiah:"„Isaie, dănțuiește…” Haideți, toți împreună în cerc!"});
@@ -219,3 +219,24 @@ Object.assign(T.el,{games:{ttt:"Τρίλιζα",snake:"Φιδάκι",maze:"Λα�
 Object.assign(T.en,{games:{ttt:"Tic-tac-toe",snake:"Snake",maze:"Maze"},arcadeH:"Arcade",arcadeP:"Pick a game. Enter your name and see where you rank.",nameH:"What's your name?",username:"Player name",play:"Play",score:"Score",again:"Again",board:"Leaderboard",noScores:"No scores yet. Be the first!",youWin:"You win!",youLose:"You lose!",draw:"Draw",gameOver:"Game over"});
 for(const l of ["de","ro"])for(const k in T.en)if(!(k in T[l]))T[l][k]=T.en[k];
 for(const l in T){T[l].guide.arcade=T[l].arcadeP;T[l].spot.arcade=T[l].arcadeH}
+/* the koumbaroi (best man and maid of honour) */
+Object.assign(T.el,{koumLine:"Κουμπάροι: Αθανάσιος Παπαχαράλαμπος & Δήμητρα Μπουλάλα",koumW:"Οι κουμπάροι μας",kpTag:"Κουμπάρος · Θάνος",kaTag:"Κουμπάρα · Δήμητρα",
+  kpieM:{meet:"Γνώρισέ τον",chat:"Κουβέντα",dance:"Χόρεψε με τον κουμπάρο",wave:"Χαιρέτα"},kpieF:{meet:"Γνώρισέ τη",chat:"Κουβέντα",dance:"Χόρεψε με την κουμπάρα",wave:"Χαιρέτα"},
+  kpH:"Ο κουμπάρος μας",kpFull:"Αθανάσιος (Θάνος) Παπαχαράλαμπος",kpP:"Ο Θάνος είναι φίλος μου από το γυμνάσιο. Έχουμε περάσει μαζί πάρα πολλά και ήταν πάντα δίπλα μου, σε όλα. Ήταν εκεί από την πρώτη μέρα που γνώρισα τη Ναντίνα, οπότε δεν θα μπορούσε να είναι κανείς άλλος ο κουμπάρος μας.",kpSig:"Ευάγγελος",
+  kaH:"Η κουμπάρα μας",kaFull:"Δήμητρα Μπουλάλα",kaP:"Η Δήμητρα είναι φίλη της Κωνσταντίνας από τα φοιτητικά της χρόνια και, εδώ και περίπου 15 χρόνια, φίλη και δική μου. Ήταν από τις πρώτες και πιο βασικές μας παρέες στην Αθήνα και έχουμε ζήσει μαζί πάρα πολλά. Δεν θα μπορούσε να είναι κανείς άλλος η κουμπάρα μας.",kaSig:"Ευάγγελος & Κωνσταντίνα",
+  kpSay:"Από το γυμνάσιο μαζί, και τώρα κουμπάρος!",kaSay:"15 χρόνια φιλίας, και τώρα κουμπάρα!",home:"Επιστροφή στην πλατεία"});
+Object.assign(T.en,{koumLine:"Koumbaroi: Athanasios Papacharalampos & Dimitra Mpoulala",koumW:"Our koumbaroi",kpTag:"Best man · Thanos",kaTag:"Koumbara · Dimitra",
+  kpieM:{meet:"Meet him",chat:"Chat",dance:"Dance with the best man",wave:"Wave"},kpieF:{meet:"Meet her",chat:"Chat",dance:"Dance with the koumbara",wave:"Wave"},
+  kpH:"Our best man",kpFull:"Athanasios (Thanos) Papacharalampos",kpP:"Thanos has been my friend since secondary school. We have been through a lot together and he has always been by my side, in everything. He was there from the very first day I met Nadina, so nobody else could be our koumbaros.",kpSig:"Evangelos",
+  kaH:"Our koumbara",kaFull:"Dimitra Mpoulala",kaP:"Dimitra is Konstantina's friend from her student years and, for about 15 years now, my friend too. She was one of our very first and closest groups of friends in Athens, and we have lived so much together. Nobody else could be our koumbara.",kaSig:"Evangelos & Konstantina",
+  kpSay:"Friends since school, and now the best man!",kaSay:"15 years of friendship, and now koumbara!",home:"Back to the square"});
+Object.assign(T.de,{koumLine:"Trauzeugen: Athanasios Papacharalampos & Dimitra Mpoulala",koumW:"Unsere Trauzeugen",kpTag:"Trauzeuge · Thanos",kaTag:"Trauzeugin · Dimitra",
+  kpieM:{meet:"Lerne ihn kennen",chat:"Plaudern",dance:"Tanz mit dem Trauzeugen",wave:"Winken"},kpieF:{meet:"Lerne sie kennen",chat:"Plaudern",dance:"Tanz mit der Trauzeugin",wave:"Winken"},
+  kpH:"Unser Trauzeuge",kpFull:"Athanasios (Thanos) Papacharalampos",kpP:"Thanos ist seit der Schulzeit mein Freund. Wir haben zusammen sehr viel erlebt, und er war immer an meiner Seite, bei allem. Er war vom ersten Tag an dabei, an dem ich Nadina kennengelernt habe – niemand anderes könnte unser Trauzeuge sein.",kpSig:"Evangelos",
+  kaH:"Unsere Trauzeugin",kaFull:"Dimitra Mpoulala",kaP:"Dimitra ist Konstantinas Freundin aus der Studienzeit und seit etwa 15 Jahren auch meine. Sie gehörte zu unseren ersten und wichtigsten Freunden in Athen, und wir haben sehr viel zusammen erlebt. Niemand anderes könnte unsere Trauzeugin sein.",kaSig:"Evangelos & Konstantina",
+  kpSay:"Seit der Schule befreundet – und jetzt Trauzeuge!",kaSay:"15 Jahre Freundschaft – und jetzt Trauzeugin!",home:"Zurück zum Platz"});
+Object.assign(T.ro,{koumLine:"Nași: Athanasios Papacharalampos & Dimitra Mpoulala",koumW:"Nașii noștri",kpTag:"Naș · Thanos",kaTag:"Nașă · Dimitra",
+  kpieM:{meet:"Cunoaște-l",chat:"Poveste",dance:"Dansează cu nașul",wave:"Salută"},kpieF:{meet:"Cunoaște-o",chat:"Poveste",dance:"Dansează cu nașa",wave:"Salută"},
+  kpH:"Nașul nostru",kpFull:"Athanasios (Thanos) Papacharalampos",kpP:"Thanos este prietenul meu din gimnaziu. Am trecut împreună prin foarte multe și a fost mereu alături de mine, în toate. A fost acolo din prima zi în care am cunoscut-o pe Nadina, așa că nimeni altcineva nu putea fi nașul nostru.",kpSig:"Evangelos",
+  kaH:"Nașa noastră",kaFull:"Dimitra Mpoulala",kaP:"Dimitra este prietena Konstantinei din anii de studenție și, de aproape 15 ani, și prietena mea. A fost unul dintre primii și cei mai apropiați prieteni ai noștri din Atena și am trăit împreună foarte multe. Nimeni altcineva nu putea fi nașa noastră.",kaSig:"Evangelos & Konstantina",
+  kpSay:"Prieteni din școală, iar acum naș!",kaSay:"15 ani de prietenie, iar acum nașă!",home:"Înapoi în piață"});
