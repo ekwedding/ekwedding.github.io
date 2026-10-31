@@ -60,9 +60,11 @@ let voteCount=0;try{voteCount=+(localStorage.getItem("wcount")||0)}catch(e){}
 if(DB)DB.count().then(n=>voteCount=n,()=>{});
 /* Google Sheet (Apps Script) when configured: every record carries the guest's one name; the sheet de-duplicates by it */
 const SHEET=CONTENT.sheet;
-function sheetPost(col,rec){return fetch(SHEET,{method:"POST",body:JSON.stringify({col,rec})}).then(r=>r.json())}
+function sheetPost(col,rec){return fetch(SHEET,{method:"POST",body:JSON.stringify({col,rec}),keepalive:true}).then(r=>r.json())}
 function store(col,rec,isVote){rec={...rec,name:rec.name||state.guest||""};
-  if(SHEET)return sheetPost(col,rec).then(r=>{if(isVote&&r.total!=null)voteCount=r.total;return r}).catch(()=>store.local(col,rec,isVote));
+  if(SHEET){const req=sheetPost(col,rec).then(r=>{if(isVote&&r.total!=null)voteCount=r.total;return r}).catch(()=>store.local(col,rec,isVote));
+    /* only a vote needs the sheet's answer (it may be a repeat); everything else is confirmed instantly */
+    return isVote?Promise.race([req,new Promise(res=>setTimeout(()=>res({ok:true,slow:true}),2500))]):Promise.resolve({ok:true})}
   return store.local(col,rec,isVote)}
 store.local=(col,rec,isVote)=>{
   const local=()=>{try{const k="w_"+col,a=JSON.parse(localStorage.getItem(k)||"[]");a.push(rec);localStorage.setItem(k,JSON.stringify(a));if(isVote){voteCount++;localStorage.setItem("wcount",voteCount)}}catch(e){}return false};
@@ -109,7 +111,7 @@ let toastT=0;function toast(s,ms=4200){const t=$("#toast");t.textContent=s;t.cla
 /* ---------- quest cards ---------- */
 let cardFn=null;
 function openCard(where,title,body,bind){const c=$("#card");$("#cardW").textContent=where;$("#cardH").textContent=title;$("#cardB").innerHTML=body;
-  c.classList.remove("shut");document.body.classList.add("cardopen");if(bind)bind();if(state.guest)["nm","vn","wn","hName"].forEach(id=>{const f=document.getElementById(id);if(f){f.value=state.guest;f.readOnly=true}})}
+  c.classList.remove("shut");document.body.classList.add("cardopen");if(bind)bind();c.querySelectorAll("form").forEach(f=>f.addEventListener("submit",()=>{const b=f.querySelector("button[type=submit]");if(b&&f.checkValidity()){b.disabled=true;b.style.opacity=.6;setTimeout(()=>{b.disabled=false;b.style.opacity=""},2500)}}));if(state.guest)["nm","vn","wn","hName"].forEach(id=>{const f=document.getElementById(id);if(f){f.value=state.guest;f.readOnly=true}})}
 function closeCard(){const yf=$("#cardB iframe,#cardB video.prop");if(yf){const wasYt=yf.tagName==="IFRAME";yf.remove();if(wasYt)setTimeout(soundscape,50)}$("#card").classList.add("shut");document.body.classList.remove("cardopen");cardFn=null;if(P&&P.lock>=59&&P.lock<=60.5&&selfieCam>0){selfieCam=0;[P,N].forEach(e=>e.lock=0)}}
 $("#cardX").addEventListener("click",closeCard);
 addEventListener("keydown",e=>{if(e.key==="Escape"){closeCard();panel("#list",false);panel("#dest",false)}});

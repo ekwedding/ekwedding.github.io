@@ -96,7 +96,8 @@ body.play #hud{opacity:1;visibility:visible}
 #tl{position:absolute;left:calc(12px + env(safe-area-inset-left));top:calc(12px + env(safe-area-inset-top));display:flex;gap:8px;align-items:center}
 #tr{position:absolute;right:calc(12px + env(safe-area-inset-right));top:calc(12px + env(safe-area-inset-top));display:flex;gap:8px}
 #bVespa{background:var(--sea);color:#fff}
-#bOff{position:absolute;left:50%;bottom:calc(22px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:#fff;min-height:54px;padding:0 26px;font-size:16px}
+/* get off: a small pill stacked right above the Vespa button, never on top of it */
+#bOff{position:fixed;right:max(12px,env(safe-area-inset-right));bottom:calc(max(16px,env(safe-area-inset-bottom)) + 60px);background:var(--ink);color:#fff;min-height:40px;width:148px;padding:0 12px;font-size:14px;justify-content:center;border-radius:20px}
 body.ride #joy{display:block!important}
 #prog{display:inline-flex;gap:4px}
 #prog i{width:9px;height:9px;border-radius:50%;background:#f2b630}

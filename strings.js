@@ -284,3 +284,8 @@ Object.assign(T.ro,{clubName:"Beach club",giftH:"Vreți să ne faceți un cadou?
   arcadeP:"Alege un joc. Scrie-ți numele și vezi pe ce loc ești.",username:"Numele jucătorului",board:"Clasament",noScores:"Încă niciun scor. Fii primul!",youLose:"Ai pierdut!",gameOver:"Joc terminat",
   tabCal:"Calendar",kpFull:"Athanasios (Thanos) Papacharalampos",kaFull:"Dimitra Mpoulala"});
 T.ro.guide.arcade=T.ro.arcadeP;T.ro.opt.oceania="Oceania";T.ro.opt.antarctica="Antarctica";
+/* end of the quiz: the hidden room, or the arcade next to the club */
+T.el.qzWin+=" Διαφορετικά, δίπλα στο club θα βρεις τα παιχνίδια Arcade. Καλή διασκέδαση!";T.el.qzFail+=" Δίπλα στο club σε περιμένουν τα παιχνίδια Arcade. Καλή διασκέδαση!";
+T.en.qzWin+=" Otherwise, the Arcade games are right next to the club. Have fun!";T.en.qzFail+=" The Arcade games are waiting for you next to the club. Have fun!";
+T.de.qzWin+=" Ansonsten findest du die Arcade-Spiele gleich neben dem Club. Viel Spaß!";T.de.qzFail+=" Neben dem Club warten die Arcade-Spiele auf dich. Viel Spaß!";
+T.ro.qzWin+=" Altfel, jocurile Arcade sunt chiar lângă club. Distracție plăcută!";T.ro.qzFail+=" Lângă club te așteaptă jocurile Arcade. Distracție plăcută!";
