@@ -104,8 +104,7 @@ let toastT=0;function toast(s,ms=4200){const t=$("#toast");t.textContent=s;t.cla
 let cardFn=null;
 function openCard(where,title,body,bind){const c=$("#card");$("#cardW").textContent=where;$("#cardH").textContent=title;$("#cardB").innerHTML=body;
   c.classList.remove("shut");document.body.classList.add("cardopen");if(bind)bind()}
-const propSong=new Audio("assets/music/innerbloom.m4a");propSong.loop=true;
-function closeCard(){const yf=$("#cardB iframe,#cardB video.prop");if(yf){yf.remove();propSong.pause();setTimeout(soundscape,50)}$("#card").classList.add("shut");document.body.classList.remove("cardopen");cardFn=null;if(P&&P.lock>=59&&P.lock<=60.5&&selfieCam>0){selfieCam=0;[P,N].forEach(e=>e.lock=0)}}
+function closeCard(){const yf=$("#cardB iframe,#cardB video.prop");if(yf){const wasYt=yf.tagName==="IFRAME";yf.remove();if(wasYt)setTimeout(soundscape,50)}$("#card").classList.add("shut");document.body.classList.remove("cardopen");cardFn=null;if(P&&P.lock>=59&&P.lock<=60.5&&selfieCam>0){selfieCam=0;[P,N].forEach(e=>e.lock=0)}}
 $("#cardX").addEventListener("click",closeCard);
 addEventListener("keydown",e=>{if(e.key==="Escape"){closeCard();panel("#list",false);panel("#dest",false)}});
 function complete(q){if(state.done[q])return;state.done[q]=1;save();passBanner();mood("fun",14);mood("love",8);renderList();renderObj();renderLabels();if(navigator.vibrate)navigator.vibrate(25);
@@ -150,13 +149,12 @@ const CARDS={
   drinks(){const x=tx(),had=(state.ans||{}).drinks||[];openCard("Bar",x.drinksH,`<p>${x.drinksP}</p><form id="df"><div class="qa">${CONTENT.drinks.map(k=>`<label class="chk"><input type="checkbox" value="${k}" ${had.includes(k)?"checked":""}><span>${x.dr[k]}</span></label>`).join("")}</div>
     <div class="acts"><button class="btn" type="submit">${x.send}</button></div><p class="ok" id="dOk" ${had.length?"":"hidden"}>${had.length?x.yourAns+": "+had.map(k=>x.dr[k]).join(", "):""}</p></form>`,()=>{
       $("#df").addEventListener("submit",e=>{e.preventDefault();const v=[...$("#df").querySelectorAll("input:checked")].map(i=>i.value);if(!v.length)return;state.ans=state.ans||{};state.ans.drinks=v;save();store("drinks",{picks:v.join(","),lang}).then(()=>{const o=$("#dOk");o.hidden=false;o.textContent=x.drinksSent})})});cardFn=CARDS.drinks},
-  kids(){const x=tx();openCard(x.P.gallery,x.kidsH,`<img class="photo" style="aspect-ratio:4/5;object-position:50% 50%" src="assets/collage.jpg" alt="${esc(x.kidsH)}">`);cardFn=CARDS.kids},
+  kids(){const x=tx();openCard(x.P.gallery,x.kidsH,`<img class="photo" style="aspect-ratio:auto;width:auto;max-width:100%;max-height:min(64vh,620px);margin:0 auto 12px;object-fit:contain" src="assets/collage.jpg?v=2" alt="${esc(x.kidsH)}">`);cardFn=CARDS.kids},
   years(){const x=tx(),ys=CONTENT.years||[];openCard(x.P.gallery,x.yearsH,ys.length?`<div class="yrs">${ys.map(y=>`<figure><img src="${y.src}" alt="${y.y}" loading="lazy"><figcaption>${y.y}</figcaption></figure>`).join("")}</div>`:`<p class="demo">${x.yearsSoon}</p>`);cardFn=CARDS.years},
   album(){const x=tx();openCard(x.P.gallery,x.albumH,`<p>${x.albumP}</p><div class="acts"><a class="btn" href="${CONTENT.album}" target="_blank" rel="noopener">${ICON.ext}${x.albumBtn}</a></div>`);cardFn=CARDS.album},
   menu(){const x=tx();openCard(x.P.estate,x.menuH,infoHTML(L2(CONTENT.menu))+(CONTENT.demo?`<p class="demo">${x.demoNote}</p>`:""));cardFn=CARDS.menu},
   /* the proposal, on the den's tablet: the video muted, under a soft track */
-  proposal(){const x=tx();ALL.forEach(a=>a.pause());openCard("· · ·",x.tabletH,`<div class="yt" style="aspect-ratio:9/16;max-height:62vh;margin:auto"><video class="prop" src="${CONTENT.proposal}" playsinline autoplay muted loop controls style="width:100%;height:100%;object-fit:cover;border-radius:12px;background:#000"></video></div>`);
-    propSong.currentTime=0;propSong.volume=.75;propSong.play().catch(()=>{});cardFn=null},
+  proposal(){const x=tx();openCard("· · ·",x.tabletH,`<video class="prop" src="${CONTENT.proposal}" playsinline autoplay muted loop controls style="display:block;width:auto;max-width:100%;height:min(62vh,560px);margin:0 auto;object-fit:contain;border-radius:12px;background:#000"></video>`);cardFn=null},
   yt(id,title){openCard("· · ·",title,`<div class="yt"><iframe src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}?autoplay=1&playsinline=1&rel=0" title="${esc(title)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>`);ALL.forEach(a=>a.pause());cardFn=null},
   gift(){const x=tx(),g=CONTENT.gift,cp=(id,v)=>`<button class="btn ghost sm" type="button" data-cp="${esc(v)}">${x.copy}</button>`;
     openCard(x.P.agency,x.giftH,`<p>${x.giftP}</p><div class="gifts">
@@ -170,10 +168,10 @@ const CARDS={
       $("#wf").addEventListener("submit",e=>{e.preventDefault();const n=$("#wn").value.trim(),w=$("#wt").value.trim();if(!n||!w)return;state.ans=state.ans||{};state.ans.wish={n,w};save();
         store("wishes",{name:n,text:w,lang}).then(r=>{const o=$("#wOk");o.hidden=false;o.textContent=r?x.thanks:x.thanksLocal;complete("wish")})})});cardFn=CARDS.post},
   agency(){const x=tx();openCard(x.P.agency,x.honeyH,`<p>${x.honeyP}</p><p><b>${x.honeyPick}</b></p><form id="hf"><div class="seg">${CONTENT.honey.map(k=>`<label><input type="radio" name="hm" value="${k}" required><span>${x.opt[k]}</span></label>`).join("")}</div>
-    <div class="acts" style="align-items:center"><button class="btn" type="submit">${x.vote}</button><span><b id="vc">${voteCount}</b> ${x.voted}</span></div><p class="ok" id="hOk" ${state.done.honey?"":"hidden"}>${x.honeyDone}</p></form>`,()=>{
-      const A=(state.ans||{}).honey;if(A){const r=document.querySelector(`input[name=hm][value=${A}]`);if(r)r.checked=true;$("#hf").querySelectorAll("input").forEach(i=>i.disabled=true);$("#hOk").textContent=`${x.yourAns}: ${x.opt[A]} · ${x.honeyDone}`}
-      $("#hf").addEventListener("submit",e=>{e.preventDefault();const v=(document.querySelector("input[name=hm]:checked")||{}).value;if(!v||state.done.honey)return;state.ans=state.ans||{};state.ans.honey=v;save();
-        store("votes",{optionId:v,attending:true},true).then(()=>{$("#vc").textContent=voteCount;$("#hOk").hidden=false;complete("honey")})})});cardFn=CARDS.agency}
+    <label class="f"><span>${x.voteName}</span><input id="hName" autocomplete="name" required maxlength="60"></label><p class="demo" style="margin:6px 0 10px">${x.voteOnce}</p><div class="acts" style="align-items:center"><button class="btn" type="submit">${x.vote}</button><span><b id="vc">${voteCount}</b> ${x.voted}</span></div><p class="ok" id="hOk" ${state.done.honey?"":"hidden"}>${x.honeyDone}</p></form>`,()=>{
+      const A=(state.ans||{}).honey;if(A){const r=document.querySelector(`input[name=hm][value=${A}]`);if(r)r.checked=true;$("#hf").querySelectorAll("input,button").forEach(i=>i.disabled=true);if(state.ans.honeyName)$("#hName").value=state.ans.honeyName;$("#hOk").textContent=`${x.yourAns}: ${x.opt[A]} · ${x.honeyDone}`}
+      $("#hf").addEventListener("submit",e=>{e.preventDefault();const v=(document.querySelector("input[name=hm]:checked")||{}).value,nm=$("#hName").value.trim();if(!v||!nm||state.done.honey||(state.ans||{}).honey)return;state.ans=state.ans||{};state.ans.honey=v;state.ans.honeyName=nm;save();$("#hf").querySelectorAll("input,button").forEach(i=>i.disabled=true);
+        store("votes",{optionId:v,name:nm,attending:true},true).then(()=>{$("#vc").textContent=voteCount;$("#hOk").hidden=false;complete("honey")})})});cardFn=CARDS.agency}
 };
 /* drawn placeholder photo: a postcard of the city until the couple adds real pictures */
 const photoCache={};
@@ -191,7 +189,7 @@ function showSimple(){const x=tx(),n=CONTENT.names[lang];$("#simple").hidden=fal
     return `<li class="${state.done[q]?"done":""}"><div class="row" style="cursor:default"><span class="mark">${state.done[q]?ICON.check:""}</span><span><b>${x.Q[q][0]}</b><small>${id==="club"?x.clubName:x.P[id]}</small></span><button class="btn ${lock?"ghost":""}" type="button" data-tp="${id}" ${lock?'aria-disabled="true"':""}>${lock?x.locked:x.teleport}</button></div></li>`}).join("");
   $("#simpleB").innerHTML=`<h1>${esc(n[0])} &amp; ${esc(n[1])}</h1><p><b>${x.dateH}</b> · 19:00 · ${x.koropi}</p>
   <section><h2>${x.Q.date[0]}</h2>${schedHTML()}<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px"><button class="btn" type="button" id="sI">${ICON.cal}${x.addCal}</button><a class="btn ghost" href="${gcal()}" target="_blank" rel="noopener">${ICON.ext}${x.gcal}</a><a class="btn ghost" href="${CONTENT.venue.maps}" target="_blank" rel="noopener">${ICON.pin}${x.maps}</a></div></section>
-  <section><h2>${x.koumW}</h2><p><b>${x.kpFull}</b><br>${x.kpP}</p><p><b>${x.kaFull}</b><br>${x.kaP}</p></section>
+  <section><h2>${x.koumW}</h2>${["kp","ka"].map(k=>`<p style="display:flex;gap:12px;align-items:flex-start"><img src="assets/av_${k}.jpg" alt="" style="width:56px;height:56px;border-radius:50%;object-fit:cover;flex:none"><span><b>${x[k+"Full"]}</b><br>${x[k+"P"]} <i>— ${x[k+"Sig"]}</i></span></p>`).join("")}</section>
   <section><h2>${x.infoH}</h2>${infoHTML(L2(CONTENT.info))}</section>
   <section><h2>${x.giftH}</h2><p>${x.giftP}</p>${giftRows()}</section>
   <section><h2>${x.albumH}</h2><p>${x.albumP}</p><a class="btn" href="${CONTENT.album}" target="_blank" rel="noopener">${ICON.ext}${x.albumBtn}</a></section>
@@ -229,9 +227,12 @@ function applySound(on){soundOn=on;$("#bSnd").setAttribute("aria-pressed",String
   if(on){if(!actx){try{actx=new AudioContext();const n=actx.createBufferSource(),b=actx.createBuffer(1,actx.sampleRate*4,actx.sampleRate),d=b.getChannelData(0);let l=0;for(let i=0;i<d.length;i++){l=l*.985+(Math.random()*2-1)*.015;d[i]=l*3}
       n.buffer=b;n.loop=true;const f=actx.createBiquadFilter();f.type="lowpass";f.frequency.value=600;const g=actx.createGain();g.gain.value=.08;n.connect(f).connect(g).connect(actx.destination);n.start()}catch(e){}}else actx.resume()}
   else if(actx)actx.suspend();soundscape()}
+let primed=false;addEventListener("pointerdown",()=>{if(primed)return;primed=true;if(!clubSong.src)clubSong.src=CLUB_TRACKS[clubTrack][1];
+  ALL.forEach(a=>{if(!a.paused)return;const v=a.volume;a.volume=0;a.play().then(()=>{if(a!==soundscapeWant())a.pause();a.volume=v}).catch(()=>{a.volume=v})})},true);
+const soundscapeWant=()=>soundOn?(chanting?chant:(room&&room.id==="den")?secretSong:(room&&room.id==="club")?clubSong:room?null:music):null;
 chant.addEventListener("ended",()=>{chanting=false;syncSnd()});
 $("#bSnd").addEventListener("click",()=>setSound(!soundOn));
-function bell(){if(!soundOn||!actx)return;[0,.9,1.8].forEach((t,i)=>{const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=[392,330,262][i];g.gain.setValueAtTime(.0001,actx.currentTime+t);g.gain.exponentialRampToValueAtTime(.22,actx.currentTime+t+.02);g.gain.exponentialRampToValueAtTime(.0001,actx.currentTime+t+2.4);o.connect(g).connect(actx.destination);o.start(actx.currentTime+t);o.stop(actx.currentTime+t+2.5)})}
+function bell(){if(zoneOn[zone()]===false)return;if(!actx){try{actx=new AudioContext()}catch(e){return}}actx.resume&&actx.resume();[0,.9,1.8].forEach((t,i)=>{const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=[392,330,262][i];g.gain.setValueAtTime(.0001,actx.currentTime+t);g.gain.exponentialRampToValueAtTime(.045,actx.currentTime+t+.02);g.gain.exponentialRampToValueAtTime(.0001,actx.currentTime+t+2.4);o.connect(g).connect(actx.destination);o.start(actx.currentTime+t);o.stop(actx.currentTime+t+2.5)})}
 
 /* ================= 3D ================= */
 const canvas=$("#gl");let GL=false,renderer;
@@ -384,7 +385,15 @@ function prop(name,x,z,ry,o,scene=world){loader.load(`assets/m_${name}.glb`,g=>{
     m.traverse(q=>{if(!q.isMesh)return;const P=q.geometry.attributes.position;for(let i=0;i<P.count;i+=7){v.fromBufferAttribute(P,i).applyMatrix4(q.matrixWorld);if(v.y>b.min.y+sz0*.75){sx+=v.x-c.x;sz+=v.z-c.z;n++}}});
     if(n)turn=Math.atan2(sx/n,sz/n)+Math.PI}
   m.scale.setScalar(k);m.position.set(x,-b.min.y*k,z);m.rotation.y=ry+turn;m.traverse(c=>{if(c.isMesh){c.castShadow=true;c.receiveShadow=true}});scene.add(m)},undefined,()=>{})}
-const BENCH=[];for(let k=0;k<4;k++){const a=k/4*Math.PI*2+Math.PI/4,x=Math.cos(a)*6.2,z=Math.sin(a)*6.2,ry=-a+Math.PI/2;prop("painted_wooden_bench",x,z,ry,{w:2.1,back:1});round.push({x,z,r:1.1});BENCH.push({x,z,ry})}
+/* a classic park bench: wooden slats on black cast-iron sides, facing local +z */
+function parkBench(x,z,ry){const g=new THREE.Group(),slat=new THREE.BoxGeometry(1.9,.045,.1),iron=M.black,wd=M.wood2;
+  for(let k=0;k<4;k++){const m=new THREE.Mesh(slat,wd);m.position.set(0,.46,-.2+k*.13);g.add(m)}
+  for(let k=0;k<3;k++){const m=new THREE.Mesh(slat,wd);m.position.set(0,.62+k*.13,-.29-k*.025);m.rotation.x=-.18;g.add(m)}
+  for(const sx of [-.85,.85]){const leg=new THREE.Mesh(new THREE.BoxGeometry(.05,.46,.06),iron);leg.position.set(sx,.23,.15);g.add(leg);
+    const back=new THREE.Mesh(new THREE.BoxGeometry(.05,.95,.06),iron);back.position.set(sx,.46,-.3);back.rotation.x=-.12;g.add(back);
+    const arm=new THREE.Mesh(new THREE.BoxGeometry(.06,.05,.5),iron);arm.position.set(sx,.66,-.05);g.add(arm)}
+  g.traverse(c=>{if(c.isMesh){c.castShadow=true;c.receiveShadow=true}});g.position.set(x,0,z);g.rotation.y=ry;world.add(g)}
+const BENCH=[];for(let k=0;k<4;k++){const a=k/4*Math.PI*2+Math.PI/4,x=Math.cos(a)*6.2,z=Math.sin(a)*6.2,ry=-a+Math.PI/2;parkBench(x,z,ry);round.push({x,z,r:1.1});BENCH.push({x,z,ry})}
 W.at(0,0,0);
 [[-15,-3],[-15,2],[15,-3],[15,2],[-5,-17],[5,-17],[9,-17]].forEach(([x,z],i)=>{prop(i%2?"planter_box_01":"potted_plant_04",x,z,i,{h:i%2?.9:1.3});round.push({x,z,r:.6})});
 /* taverna tables between the doors */
@@ -547,7 +556,7 @@ function dogTrick(k){dog.trick=k;dog.t=0;if(k==="bark"){bark();barkT=.5}if(k==="
 function dogMenu(px,py){openPie(px,py,[{k:"pet",fn:()=>{const t=dog.pos.clone().addScaledVector(new THREE.Vector3(P.pos.x-dog.pos.x,0,P.pos.z-dog.pos.z).normalize(),.6);walkTo(t.x,t.z,()=>dogTrick("pet"))}},{k:"dead",fn:()=>dogTrick("dead")},{k:"bark",fn:()=>dogTrick("bark")},{k:"sit",fn:()=>dogTrick("sit")}],"dpie")}
 const _dv=new THREE.Vector3();function updDog(dt){if(!P)return;const sc=room?room.scene:world;if(dog.g.parent!==sc){sc.add(dog.g);dog.pos.copy(P.pos).add(new THREE.Vector3(-1,0,.8))}
   /* riding: the dog sits in the front basket */
-  if(mode==="ride"||mode==="drive"){dog.inBasket=1;dog.g.visible=true;dog.g.scale.setScalar(.72);dog.g.position.copy(vespaObj.localToWorld(_dv.set(0,1.0,.86)));dog.g.rotation.y=vespaObj.rotation.y;dog.head.rotation.y=Math.sin(tAll*1.3)*.4;dog.tail.rotation.z=Math.sin(tAll*14)*.5;return}
+  if(mode==="ride"||mode==="drive"){dog.inBasket=1;dog.g.visible=true;dog.g.scale.setScalar(.72*VSC);dog.g.position.copy(vespaObj.localToWorld(_dv.set(0,1.12,.86)));dog.g.rotation.y=vespaObj.rotation.y;dog.head.rotation.y=Math.sin(tAll*1.3)*.4;dog.tail.rotation.z=Math.sin(tAll*14)*.5;return}
   if(dog.inBasket){dog.inBasket=0;dog.g.scale.setScalar(1.25);dog.pos.copy(P.pos).add(new THREE.Vector3(-.9,0,.6));resolve(dog.pos)}
   dog.t+=dt;const tr=dog.trick,want=P.pos.clone().addScaledVector(new THREE.Vector3(Math.cos(P.yaw),0,-Math.sin(P.yaw)),-.9).addScaledVector(new THREE.Vector3(Math.sin(P.yaw),0,Math.cos(P.yaw)),-.6);
   _v.subVectors(want,dog.pos);_v.y=0;const d=_v.length();let mv=0;
@@ -575,10 +584,9 @@ function vespa(color=0x9fd3c7){
   m(new THREE.CylinderGeometry(.025,.025,.78,8),chrome,0,1.5,.38).rotation.z=Math.PI/2;
   m(new THREE.SphereGeometry(.11,16,12),new THREE.MeshStandardMaterial({color:0xfff6dc,emissive:0xffe9b0,emissiveIntensity:.6}),0,1.42,.5,1,1,.6);
   m(new THREE.SphereGeometry(.12,16,10),paint,0,1.42,.42,1.6,.7,1);
-  /* a wicker basket on the front for the dog */
-  const wick=new THREE.MeshStandardMaterial({color:0xb98a52,roughness:.85,map:canvasTex(128,64,(c,w,h)=>{c.fillStyle="#b98a52";c.fillRect(0,0,w,h);c.strokeStyle="#8a5f30";c.lineWidth=3;for(let y=0;y<h;y+=8){c.beginPath();for(let x=0;x<=w;x+=8)c.lineTo(x,y+((x/8)%2?3:0));c.stroke()}for(let x=0;x<w;x+=16){c.fillStyle="rgba(90,55,20,.5)";c.fillRect(x,0,2,h)}},[3,1]),side:THREE.DoubleSide});
-  m(new THREE.CylinderGeometry(.24,.2,.22,20,1,true),wick,0,1.2,.86);m(new THREE.CylinderGeometry(.2,.2,.02,20),wick,0,1.09,.86);m(new THREE.TorusGeometry(.24,.018,6,24),wick,0,1.31,.86,1,1,1,Math.PI/2);return g}
-const vespaObj=vespa();vespaObj.position.set(5.5,0,14);vespaObj.rotation.y=-Math.PI/2;world.add(vespaObj);
+  /* a flat wooden rack on the front: the dog rides on it */
+  const rack=new THREE.MeshStandardMaterial({color:0x8a5f3a,roughness:.7});m(new THREE.BoxGeometry(.46,.035,.4),rack,0,1.1,.86);m(new THREE.BoxGeometry(.03,.12,.03),rack,-.2,1.04,.86);m(new THREE.BoxGeometry(.03,.12,.03),rack,.2,1.04,.86);return g}
+const VSC=.8,vespaObj=vespa();vespaObj.scale.setScalar(VSC);vespaObj.position.set(5.5,0,14);vespaObj.rotation.y=-Math.PI/2;world.add(vespaObj);
 
 /* ---------- characters ---------- */
 const cache={};
@@ -659,7 +667,7 @@ const doorMarks=[];function outdoorSpots(){for(const id in PLACES){const[a,b]=do
   KP_AT.forEach(([x,z])=>world.add(greenSpot(x,z+.9)));BENCH.forEach(b=>world.add(greenSpot(b.x+Math.sin(b.ry)*1.1,b.z+Math.cos(b.ry)*1.1)))}
 function updDoorMarks(){const s=1+.1*Math.sin(tAll*3);for(const d of doorMarks){const open=d.q&&!state.done[d.q];d.y.visible=open;d.y.scale.setScalar(s);d.g.visible=!open}}
 function plazaKoum(){outdoorSpots();koumbaros(world,"kp",...KP_AT[0]);koumbaros(world,"ka",...KP_AT[1])}
-function koumCard(k){const x=tx();openCard(x.koumW,x[k+"H"],`<p><b>${x[k+"Full"]}</b></p><p>${x[k+"P"]}</p><p style="text-align:right"><i>— ${x[k+"Sig"]}</i></p><div class="acts"><button class="btn" type="button" id="kDance">${x[k==="kp"?"kpieM":"kpieF"].dance}</button></div>`,
+function koumCard(k){const x=tx();openCard(x.koumW,x[k+"H"],`<div style="display:flex;align-items:center;gap:14px;margin-bottom:10px"><img src="assets/av_${k}.jpg" alt="" style="width:68px;height:68px;border-radius:50%;object-fit:cover;flex:none;box-shadow:0 2px 8px rgba(0,0,0,.18)"><b>${x[k+"Full"]}</b></div><p>${x[k+"P"]}</p><p style="text-align:right"><i>— ${x[k+"Sig"]}</i></p><div class="acts"><button class="btn" type="button" id="kDance">${x[k==="kp"?"kpieM":"kpieF"].dance}</button></div>`,
   ()=>$("#kDance").addEventListener("click",()=>{closeCard();const e=npcs.find(n=>n.koum===k&&n.scene===(room?room.scene:world));if(e)koumDance(e)}))}
 function nearTo(e,d,then){const t=e.pos.clone().addScaledVector(new THREE.Vector3(P.pos.x-e.pos.x,0,P.pos.z-e.pos.z).normalize(),d);walkTo(t.x,t.z,()=>{P.yaw=Math.atan2(e.pos.x-P.pos.x,e.pos.z-P.pos.z);e.yaw=P.yaw+Math.PI;then()})}
 function koumDance(e){nearTo(e,.85,()=>{const m=["dance","dance2","dance3"].find(n=>P.act[n])||"dance";P.lock=7;play(P,m,.3);e.lock=7;play(e,e.act.dance?"dance":"laugh",.3);mood("party",8);
@@ -840,7 +848,7 @@ function buildRoom(id){if(rooms[id])return rooms[id];let r;const x=tx();
     r=roomBase(id,{floor:plankTex("#c9a982","#c19f78"),wall:0xf7f6f2,trim:0xffffff,hemi:.7,keyI:.6,bg:0x1d1b19});const B=r.B;
     const title=new THREE.Mesh(new THREE.PlaneGeometry(6,.7),mat({map:canvasTex(1024,120,(g,w,h)=>{g.clearRect(0,0,w,h);g.fillStyle="#1c2833";g.font="300 72px Piazzolla, Georgia, serif";g.textAlign="center";g.fillText(x.storyH,w/2,86)}),transparent:true}));title.position.set(0,4,-6.43);r.scene.add(title);
     CONTENT.story.forEach((s,i)=>{const xx=-6+i*3,t=new THREE.TextureLoader().load(s.src||photoURL(i));t.colorSpace=THREE.SRGBColorSpace;const fr=new THREE.Mesh(new THREE.PlaneGeometry(2.1,1.58),mat({map:t,roughness:.5,polygonOffset:true,polygonOffsetFactor:-4,polygonOffsetUnits:-4}));fr.position.set(xx,2.3,-6.36);r.scene.add(fr);
-      B.add(G.box,"black",xx,2.3,-6.46,2.4,1.86,.06).add(G.box,"white",xx,2.3,-6.44,2.26,1.72,.02);
+      B.add(G.box,"black",xx,2.3,-6.46,2.4,1.86,.06).add(G.box,"white",xx,2.3,-6.405,2.26,1.72,.02);
       const cap=new THREE.Mesh(new THREE.PlaneGeometry(1.2,.3),mat({map:canvasTex(256,64,(g,w,h)=>{g.fillStyle="#fff";g.fillRect(0,0,w,h);g.fillStyle="#333";g.font="500 26px Commissioner, sans-serif";g.fillText(s.city,12,40)})}));cap.material.polygonOffset=true;cap.material.polygonOffsetFactor=-4;cap.material.polygonOffsetUnits=-4;cap.position.set(xx,1.15,-6.38);r.scene.add(cap);
       lightCone(r,xx,4.4,-4.8,xx,-6.4,0xfff4e0,30);B.add(G.cyl,"black",xx,4.45,-4.8,.12,.3,.12)});
     /* track rail, leather bench, plinths with vases */
@@ -848,7 +856,7 @@ function buildRoom(id){if(rooms[id])return rooms[id];let r;const x=tx();
     for(const sx of [-1,1]){B.add(G.box,"white",sx*5.4,.55,1.5,.8,1.1,.8).add(G.sph,"terra",sx*5.4,1.4,1.5,.5,.7,.5).add(G.cyl,"terra",sx*5.4,1.85,1.5,.18,.3,.18);r.solid.push({x0:sx*5.4-.5,z0:1,x1:sx*5.4+.5,z1:2})}
     r.solid.push({x0:-1.7,z0:-.5,x1:1.7,z1:.5});
     /* left wall: the "these kids are getting married" collage and a wall of small frames, one per year */
-    {const t=new THREE.TextureLoader().load("assets/collage.jpg");t.colorSpace=THREE.SRGBColorSpace;const cg=new THREE.Mesh(new THREE.PlaneGeometry(1.9,2.375),mat({map:t,roughness:.6,polygonOffset:true,polygonOffsetFactor:-4,polygonOffsetUnits:-4}));cg.position.set(-7.86,2.4,-2.6);cg.rotation.y=Math.PI/2;r.scene.add(cg);
+    {const t=new THREE.TextureLoader().load("assets/collage.jpg?v=2");t.colorSpace=THREE.SRGBColorSpace;const cg=new THREE.Mesh(new THREE.PlaneGeometry(1.9,2.375),mat({map:t,roughness:.6,polygonOffset:true,polygonOffsetFactor:-4,polygonOffsetUnits:-4}));cg.position.set(-7.86,2.4,-2.6);cg.rotation.y=Math.PI/2;r.scene.add(cg);
       B.add(G.box,"darkwood",-7.96,2.4,-2.6,.06,2.55,2.08);lightCone(r,-5.8,4.4,-2.6,-7.9,-2.6,0xfff4e0,26);
       const yrs=CONTENT.years||[];for(let k=0;k<16;k++){const c=k%4,rw=k/4|0,zz=1.2+c*.62,yy=3.3-rw*.62,y0=CONTENT.years&&CONTENT.years[k];
         const tx2=y0&&y0.src?new THREE.TextureLoader().load(y0.src,tt=>{const ar=tt.image.width/tt.image.height;if(ar>1){tt.repeat.set(1/ar,1);tt.offset.set((1-1/ar)/2,0)}else{tt.repeat.set(1,ar);tt.offset.set(0,(1-ar)/2)}}):null;if(tx2)tx2.colorSpace=THREE.SRGBColorSpace;
@@ -922,7 +930,7 @@ function buildRoom(id){if(rooms[id])return rooms[id];let r;const x=tx();
   (ROOM_PROPS[id]||[]).forEach(([n,x,z,ry,o,cr])=>{prop(n,x,z,ry,o,r.scene);if(cr)r.round.push({x,z,r:cr})});
   r.B.build(r.scene);r.grid=makeGrid(r.bounds,r.solid,r.round,.4);
   /* the glowing spot that marks what to do, and HTML labels for it and for the exit */
-  const ring=new THREE.Mesh(new THREE.RingGeometry(.75,.95,48),new THREE.MeshBasicMaterial({color:0xffb24a,transparent:true,opacity:.9,depthWrite:false}));ring.rotation.x=-Math.PI/2;ring.position.set(r.spot[0],.04,r.spot[1]);r.scene.add(ring);r.ring=ring;
+  const ring=new THREE.Mesh(new THREE.RingGeometry(.75,.95,48),new THREE.MeshBasicMaterial({color:id==="arcade"?0xffffff:0xffb24a,transparent:true,opacity:.9,depthWrite:false}));ring.rotation.x=-Math.PI/2;ring.position.set(r.spot[0],.04,r.spot[1]);r.scene.add(ring);r.ring=ring;
   /* the same spot once its quest is done turns into a small green ring, still usable; every other thing to tap gets a small green disc on the floor */
   const done=new THREE.Mesh(new THREE.RingGeometry(.42,.56,40),new THREE.MeshBasicMaterial({color:0x34c26b,transparent:true,opacity:.85,depthWrite:false}));done.rotation.x=-Math.PI/2;done.position.set(r.spot[0],.045,r.spot[1]);done.visible=false;r.scene.add(done);r.doneRing=done;
   (r.items||[]).forEach(it=>{if(!it.go)return;r.scene.add(greenSpot(it.go[0],it.go[1]))});
@@ -1143,8 +1151,8 @@ function updateRide(dt){const R=ride;if(!R){[P,N].forEach(e=>{e.m.position.copy(
   if(d<.7){R.i++;if(R.i>=R.pts.length){endRide();return}}
   else{const sp=Math.min(7,1.5+d*1.2);_v.normalize();vespaObj.position.addScaledVector(_v,sp*dt);const yaw=Math.atan2(_v.x,_v.z),dy=angLerp(0,yaw-vespaObj.rotation.y,1);vespaObj.rotation.y=angLerp(vespaObj.rotation.y,yaw,1-Math.exp(-5*dt));vespaObj.rotation.z=-dy*.3}
   const y=vespaObj.rotation.y,f=new THREE.Vector3(Math.sin(y),0,Math.cos(y));camYaw=angLerp(camYaw,y+Math.PI,dt*2);driveOcc(dt);
-  P.pos.copy(vespaObj.position).addScaledVector(f,-.05);N.pos.copy(vespaObj.position).addScaledVector(f,-.6);P.yaw=N.yaw=y;
-  [P,N].forEach(e=>{e.m.position.copy(e.pos);e.m.position.y=.32;e.m.rotation.y=e.yaw;e.mix.update(dt)})}
+  P.pos.copy(vespaObj.position).addScaledVector(f,-.05);N.pos.copy(vespaObj.position).addScaledVector(f,-.5);P.yaw=N.yaw=y;
+  [P,N].forEach(e=>{e.m.position.copy(e.pos);e.m.position.y=.12;e.m.rotation.y=e.yaw;e.mix.update(dt)})}
 function endRide(){const R=ride;fade(()=>{ride=null;document.body.classList.remove("ride");vespaObj.rotation.z=0;
   const side=new THREE.Vector3(Math.cos(R.fwd),0,-Math.sin(R.fwd));vespaObj.position.copy(R.dest).addScaledVector(side,2.2);
   P.pos.copy(R.dest);N.pos.copy(R.dest).addScaledVector(side,-1.1);[P,N].forEach(e=>{e.lock=0;e.m.position.y=0;play(e,"idle",.1)});mode="play";camYaw=PLACES[R.id].face;snapCam();
@@ -1172,8 +1180,8 @@ function updDrive(dt){let ix=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowle
   const target=want?(vGoal?gSpd:8):0;vSpd+=(target-vSpd)*Math.min(1,dt*(want?2.2:4));
   if(want){const yaw=Math.atan2(want.x,want.z),dy=angLerp(0,yaw-vespaObj.rotation.y,1);vespaObj.rotation.y=angLerp(vespaObj.rotation.y,yaw,1-Math.exp(-(vGoal?7:4)*dt));vespaObj.rotation.z=-THREE.MathUtils.clamp(dy,-.6,.6)*.4}else vespaObj.rotation.z*=.9;
   const f=new THREE.Vector3(Math.sin(vespaObj.rotation.y),0,Math.cos(vespaObj.rotation.y));vespaObj.position.addScaledVector(f,vSpd*dt);resolve(vespaObj.position);
-  P.pos.copy(vespaObj.position).addScaledVector(f,-.05);N.pos.copy(vespaObj.position).addScaledVector(f,-.6);
-  [P,N].forEach(e=>{e.yaw=vespaObj.rotation.y;e.m.position.copy(e.pos);e.m.position.y=.32;e.m.rotation.y=e.yaw;e.mix.update(dt)});
+  P.pos.copy(vespaObj.position).addScaledVector(f,-.05);N.pos.copy(vespaObj.position).addScaledVector(f,-.5);
+  [P,N].forEach(e=>{e.yaw=vespaObj.rotation.y;e.m.position.copy(e.pos);e.m.position.y=.12;e.m.rotation.y=e.yaw;e.mix.update(dt)});
   if(tAll-userCamT>1.5)camYaw=angLerp(camYaw,vespaObj.rotation.y+Math.PI,dt*(vSpd>1?2.4:1.2));driveOcc(dt)}
 let dOccT=0;function driveOcc(dt){if((dOccT-=dt)>0)return;dOccT=.3;const o=vespaObj.position.clone().setY(1.2),d=9*(innerWidth<innerHeight?1.3:1),c=new THREE.Vector3(o.x+Math.sin(camYaw)*Math.cos(.42)*d,1.4+Math.sin(.42)*d,o.z+Math.cos(camYaw)*Math.cos(.42)*d),dir=c.sub(o),L=dir.length();_r.set(o,dir.normalize());_r.far=L;if(_r.intersectObjects(occluders,false).length)topView=1.2}
 function updVespaHome(dt){if(!vBack||mode==="drive"||mode==="ride")return;const tg=vBack.pts[vBack.i];_v.subVectors(tg,vespaObj.position);_v.y=0;const d=_v.length();
@@ -1205,7 +1213,7 @@ canvas.addEventListener("wheel",e=>{e.preventDefault();camDist=THREE.MathUtils.c
 /* ---------- floating labels: doors outside; the task spot and the exit inside ---------- */
 function mkLabel(key,onClick){let el=labelEls[key];if(!el){el=labelEls[key]=document.createElement("button");el.type="button";el.className="lbl";el.addEventListener("click",onClick);$("#labels").appendChild(el)}return el}
 function renderLabels(){const x=tx();ORDER.forEach(id=>{const el=mkLabel(id,()=>{if(PLACES[id].final&&!agencyOpen()){toast(x.lockedMsg);return}goPlace(id)});
-  el.textContent=id==="club"?x.clubName:x.P[id];el.classList.toggle("done",!!state.done[questOf(id)]);el.classList.toggle("lock",!!PLACES[id].final&&!agencyOpen())});
+  el.textContent=id==="club"?x.clubName:x.P[id];el.classList.toggle("done",!!state.done[questOf(id)]);el.classList.toggle("todo",!state.done[questOf(id)]);el.classList.toggle("lock",!!PLACES[id].final&&!agencyOpen())});
   mkLabel("_spot",()=>room&&walkTo(room.spot[0],room.spot[1])).textContent=room?x.spot[room.id]:"";
   const ex=mkLabel("_exit",()=>{if(!room)return;walkTo(room.exit[0],room.exit[1]-.2,()=>exitRoom())});ex.textContent=x.exitLbl;ex.classList.add("exit");
   for(let i=0;i<4;i++){const it=room&&room.items&&room.items[i],el=mkLabel("_it"+i,()=>{const q=room&&room.items&&room.items[i];if(q)walkTo(q.go[0],q.go[1],()=>{P.yaw=Math.atan2(q.at[0]-P.pos.x,q.at[2]-P.pos.z);q.fn()})});el.textContent=it?it.label():"";el.dataset.on=it?"1":""}}
@@ -1244,7 +1252,7 @@ function snapCam(){const f=followPose();camPos.copy(f.p);camLook.copy(f.l)}
 function introPose(t){const a=Math.min(1,t/14),e=1-Math.pow(1-a,3);return{p:new THREE.Vector3(Math.sin(t*.05)*14,26-e*14,78-e*44),l:new THREE.Vector3(0,3.5-e*1.5,-8)}}
 const ease=x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;
 function choose(kind){if(!ready||mode!=="intro")return;if(kind==="bride")startOnVespa=true;const[g,b]=window.__ents;P=kind==="groom"?g:b;N=kind==="groom"?b:g;mode="fly";flyT=0;
-  $("#intro").classList.add("gone");document.body.classList.add("play");let so="1";try{so=localStorage.getItem("wsound")??"1"}catch(e){}setSound(so==="1");plazaGuests();plazaKoum();
+  $("#intro").classList.add("gone");document.body.classList.add("play");let so="1";try{so=localStorage.getItem("wsound")??"1"}catch(e){}setSound(so==="1");plazaGuests();plazaKoum();setTimeout(bell,1500);
   setTimeout(seaLife,3000);
   setTimeout(()=>{toast(tx().hint,7000)},reduce?0:2600)}
 $("#seal").addEventListener("click",()=>{const de=document.documentElement;if(touch&&de.requestFullscreen&&!document.fullscreenElement)de.requestFullscreen({navigationUI:"hide"}).catch(()=>{});$("#env").classList.add("open");if(navigator.vibrate)navigator.vibrate(15)});
@@ -1353,13 +1361,17 @@ function showPaws(){if(paws)return;const pts=findPath(gridNow(),new THREE.Vector
       [[0,0,.055],[-.045,.06,.02],[0,.075,.02],[.045,.06,.02]].forEach(([x,z,rr])=>{const g=new THREE.CircleGeometry(rr,10).rotateX(-Math.PI/2).translate(x,0,z).rotateY(yaw).translate(c.x,.025,c.z);gs.push(g.toNonIndexed())})}}
   paws=new THREE.Mesh(mergeGeometries(gs),new THREE.MeshBasicMaterial({color:0x8a5a3c,transparent:true,opacity:.75,depthWrite:false}));world.add(paws)}
 if(state.quiz===2)setTimeout(()=>{try{showPaws()}catch(e){}},3000);
-function quizCard(){const x=tx(),got=state.qa||{};state.quiz=1;save();
-  const body=`<p>${x.qzP}</p><ol class="qz">${x.qz.map((q,i)=>`<li><b>${q[0]}</b><div class="qa">${q[1].map((a,j)=>`<button type="button" class="chip${got[i]===j?" ok":""}" data-q="${i}" data-a="${j}">${a}</button>`).join("")}</div><small class="qr" id="qr${i}">${got[i]!=null?x.qzOk:""}</small></li>`).join("")}</ol><p class="qscore" id="qsc"></p>`;
+function quizCard(){const x=tx(),got=state.qa||{};if(state.quiz===3){openCard(x.qzW,x.qzH,`<p>${x.qzFail}</p>`);return}state.quiz=1;save();
+  const body=`<p>${x.qzP}</p><p class="demo" style="margin-top:4px">${x.qzOnce}</p><ol class="qz">${x.qz.map((q,i)=>`<li><b>${q[0]}</b><div class="qa">${q[1].map((a,j)=>`<button type="button" class="chip${got[i]===j?" ok":""}" data-q="${i}" data-a="${j}">${a}</button>`).join("")}</div><small class="qr" id="qr${i}">${got[i]!=null?x.qzOk:""}</small></li>`).join("")}</ol><p class="qscore" id="qsc"></p>`;
   openCard(x.qzW,x.qzH,body,()=>{const upd=()=>{const n=Object.keys(got).length;$("#qsc").textContent=`${n}/${x.qz.length} ${x.qzOf}`;
-      if(n===x.qz.length){state.quiz=2;save();showPaws();setTimeout(()=>openCard("· · ·",x.qzWinH,`<p>${x.qzWin}</p><div class="acts"><button class="btn" type="button" id="qgo">${x.qzGo}</button></div>`,()=>$("#qgo").addEventListener("click",closeCard)),900)}};
+      if(n===x.qz.length&&!state.hint){/* the hint shows once, for 11 seconds, never again */state.quiz=2;state.hint=1;save();showPaws();setTimeout(()=>{openCard("· · ·",x.qzWinH,`<p>${x.qzWin}</p><div class="acts"><button class="btn" type="button" id="qgo">${x.qzGo}</button></div>`,()=>$("#qgo").addEventListener("click",closeCard));setTimeout(()=>{if($("#qgo"))closeCard()},11000)},900)}};
     upd();$("#cardB").querySelectorAll("[data-q]").forEach(b=>b.addEventListener("click",()=>{const i=+b.dataset.q,j=+b.dataset.a;if(got[i]!=null)return;
-      if(x.qz[i][2]===j){got[i]=j;state.qa=got;save();b.classList.add("ok");$("#qr"+i).textContent=x.qzOk;upd()}else{b.classList.add("no");$("#qr"+i).textContent=x.qzNo;setTimeout(()=>b.classList.remove("no"),700)}}))})}
+      if(x.qz[i][2]===j){got[i]=j;state.qa=got;save();b.classList.add("ok");$("#qr"+i).textContent=x.qzOk;upd()}else{/* one chance only: a wrong answer ends the test for good */b.classList.add("no");$("#qr"+i).textContent=x.qzNo;state.quiz=3;save();$("#cardB").querySelectorAll("[data-q]").forEach(c=>c.disabled=true);$("#qsc").textContent=x.qzFail}}))})}
 setInterval(()=>{if(!state.quiz&&state.fin&&Date.now()-state.fin>4000&&mode==="play"&&!room&&ORDER.every(k=>state.done[questOf(k)])&&!document.body.classList.contains("cardopen"))quizCard()},1500);
 /* TEMP admin (testing only, remove before sending): marks every quest done, finale already seen */
+$("#bReset").addEventListener("click",()=>{try{localStorage.removeItem("wq2")}catch(e){}location.reload()});
+/* zoom: far (default) -> x1 -> x2 -> far */
+/* each entry: distance, and the label of what the next tap does */
+const ZOOMS=[[11,"x1"],[7.5,"x2"],[4.8,"⤢"]];let zoomI=0;$("#bZoom").addEventListener("click",()=>{zoomI=(zoomI+1)%ZOOMS.length;camDist=ZOOMS[zoomI][0];$("#bZoom").textContent=ZOOMS[zoomI][1]});
 $("#bAdmin").addEventListener("click",()=>{ORDER.forEach(k=>state.done[questOf(k)]=1);state.fin=Date.now()-5000;delete state.quiz;delete state.qa;save();panel("#list",false);renderList();renderObj();renderLabels();toast("admin: 5/5 + 6/6 ✓",2500)});
 window.__w={rinfo:()=>room&&{s:room.solid.map(q=>[q.x0,q.z0,q.x1,q.z1].map(v=>+v.toFixed(1))),r:room.round.map(c=>[c.x,c.z,c.r].map(v=>+v.toFixed(1))),b:room.bounds},exportStatic:async()=>{const {GLTFExporter}=await import("three/addons/exporters/GLTFExporter.js");const sc=new THREE.Scene();STATIC.forEach(m=>{m.updateMatrixWorld();const c=new THREE.Mesh(m.geometry.clone().applyMatrix4(m.matrixWorld),new THREE.MeshStandardMaterial({name:m.name}));c.name=m.name;sc.add(c)});const b=await new GLTFExporter().parseAsync(sc,{binary:true});let s="";const u=new Uint8Array(b);for(let i=0;i<u.length;i+=32768)s+=String.fromCharCode.apply(null,u.subarray(i,i+32768));return btoa(s)},dbgP:()=>({lock:P.lock,goal:goal&&{i:goal.i,n:goal.pts.length,end:goal.pts[goal.pts.length-1].toArray(),tries:goal.tries||0},pos:P.pos.toArray(),spd:P.spd,mode,cur:P.curName,shown:room&&room.shown}),setDist:d=>{camDist=d;camPitch=.3},dog:()=>dog.pos.toArray(),mountVespa,getOff,dogTrick,mode:()=>mode,ready:()=>ready,choose,goPlace,enterRoom,exitRoom,startRide,P:()=>P,room:()=>room&&room.id,tp:(x,z)=>{P.pos.set(x,0,z);N.pos.set(x+1,0,z);goal=null;snapCam()},selfie,info:()=>renderer.info.render,blessing,npcs:()=>npcs.length,complete,driveTo,vespa:()=>vespaObj.position.toArray(),setV:(x,z)=>vespaObj.position.set(x,0,z),vg:()=>vGoal&&{i:vGoal.i,pts:vGoal.pts.map(p=>[+p.x.toFixed(1),+p.z.toFixed(1)])},snd:()=>({soundOn,zone:zone(),zoneOn:{...zoneOn},chant:!chant.paused,club:!clubSong.paused,music:!music.paused}),setSound,card:()=>$("#card").textContent.slice(0,200),cards:()=>CARDS,quiz:()=>state.quiz};

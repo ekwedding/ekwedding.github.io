@@ -99,7 +99,7 @@ body.play #hud{opacity:1;visibility:visible}
 #bOff{position:absolute;left:50%;bottom:calc(22px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:#fff;min-height:54px;padding:0 26px;font-size:16px}
 body.ride #joy{display:block!important}
 #prog{display:inline-flex;gap:4px}
-#prog i{width:8px;height:8px;border-radius:50%;background:var(--line)}
+#prog i{width:9px;height:9px;border-radius:50%;background:#f2b630}
 #prog i.on{background:#2f8f5b;width:13px;height:13px;display:grid;place-items:center}#prog i.on::after{content:"✓";color:#fff;font:800 9px/1 sans-serif;font-style:normal}
 .row .mark{color:#2f8f5b}.qd{color:#2f8f5b;font-weight:800}
 #pass{position:fixed;left:50%;top:38%;z-index:60;transform:translate(-50%,-50%) scale(.6);opacity:0;pointer-events:none;padding:16px 26px;border-radius:18px;background:#2f8f5b;color:#fff;font:800 22px/1.1 var(--sans);box-shadow:0 12px 30px rgba(10,30,20,.35)}
@@ -135,8 +135,8 @@ body.cardopen #obj{opacity:0}
 .row:hover:not([aria-disabled=true]){background:var(--paper2)}
 .row b{display:block;font-weight:600;font-size:16px}
 .row small{display:block;font-size:13.5px;color:var(--ink2);margin-top:1px}
-.mark{width:22px;height:22px;border-radius:50%;box-shadow:inset 0 0 0 2px var(--line);display:grid;place-items:center}
-.done .mark{background:var(--bloom);box-shadow:none}
+.mark{width:22px;height:22px;border-radius:50%;box-shadow:inset 0 0 0 3px #f2b630;display:grid;place-items:center}
+.done .mark{background:#2f8f5b;box-shadow:none}
 .mark svg{width:14px;height:14px;stroke:#fff;stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round}
 .row .go{font-size:13px;font-weight:600;color:var(--sea)}
 .row[aria-disabled=true]{cursor:default}.row[aria-disabled=true] b,.row[aria-disabled=true] small{color:#6b7480}
@@ -179,7 +179,8 @@ body.cardopen #obj{opacity:0}
 #labels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
 .lbl{position:absolute;left:0;top:0;pointer-events:auto;background:rgba(251,250,247,.95);color:var(--ink);border-radius:20px;padding:7px 13px;font-weight:600;font-size:14px;white-space:nowrap;
   box-shadow:0 6px 16px rgba(10,24,38,.22);display:flex;align-items:center;gap:6px;min-height:36px}
-.lbl.done::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--bloom)}
+.lbl.todo::after{content:"";width:9px;height:9px;border-radius:50%;background:#f2b630;box-shadow:0 0 0 2px rgba(242,182,48,.25)}
+.lbl.done::after{content:"✓";width:auto;height:auto;border-radius:0;background:none;color:#1f9d55;font-weight:800;font-size:14px;line-height:1}
 .lbl.lock{color:#5f6874}
 .lbl.exit{background:var(--ink);color:#fff}
 .bub{position:absolute;left:0;top:0;width:46px;height:46px;border-radius:50%;background:var(--paper);box-shadow:0 6px 16px rgba(10,24,38,.25);display:grid;place-items:center;pointer-events:none;animation:pop .35s var(--ease)}
@@ -219,8 +220,12 @@ body.cardopen #joy,body.ride #joy{display:none}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}}
 .invite .koum{font-size:13px;opacity:.8;margin:6px 0 0;line-height:1.35}
 .ktag{position:absolute;left:0;top:0;pointer-events:none;background:rgba(20,39,58,.82);color:#fff;font:600 12px/1.15 Commissioner,sans-serif;padding:4px 9px;border-radius:10px;white-space:nowrap;text-align:center}.ktag small{display:block;font-size:9px;font-weight:500;opacity:.8;letter-spacing:.04em;text-transform:uppercase}
-#bHome{position:fixed;right:max(14px,env(safe-area-inset-right));bottom:max(18px,env(safe-area-inset-bottom))}body.cardopen #bHome,body.ride #bHome{display:none}
-@media (max-width:420px){#bHome span{font-size:13px}}
+#br{position:fixed;right:max(12px,env(safe-area-inset-right));bottom:max(16px,env(safe-area-inset-bottom));display:flex;flex-direction:column;align-items:flex-end;gap:8px;pointer-events:none}
+#bHome{min-height:34px;padding:0 11px;gap:6px;font-size:12px;border-radius:17px}#bHome svg{width:16px;height:16px}
+body.cardopen #br,body.ride #bHome{display:none}
+#bZoom{font-size:12px;font-weight:700}
+#dest{top:auto!important;bottom:calc(112px + env(safe-area-inset-bottom));transform-origin:calc(100% - 30px) 100%!important}
+
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 </head>
@@ -250,10 +255,10 @@ body.cardopen #joy,body.ride #joy{display:none}
     <button class="chip" type="button" id="bList" aria-expanded="false" aria-controls="list">
       <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span class="txt" data-t="stops">Στάσεις</span><span id="prog"></span></button>
   </div>
-  <button class="chip" type="button" id="bHome"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7M5 10v10h5v-6h4v6h5V10"/></svg><span data-t="home">Επιστροφή στην πλατεία</span></button>
+  <div id="br"><button class="chip" type="button" id="bVespa" aria-expanded="false" aria-controls="dest">
+      <svg viewBox="0 0 24 24"><circle cx="6" cy="17" r="3"/><circle cx="18" cy="17" r="3"/><path d="M6 17h7l3-7h3M13 17l-2-7H8M16 10l-1-4h-2"/></svg><span>Vespa</span></button><button class="chip" type="button" id="bHome"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7M5 10v10h5v-6h4v6h5V10"/></svg><span data-t="home">Επιστροφή στην πλατεία</span></button></div>
   <div id="tr">
-    <button class="chip" type="button" id="bVespa" aria-expanded="false" aria-controls="dest">
-      <svg viewBox="0 0 24 24"><circle cx="6" cy="17" r="3"/><circle cx="18" cy="17" r="3"/><path d="M6 17h7l3-7h3M13 17l-2-7H8M16 10l-1-4h-2"/></svg><span>Vespa</span></button>
+    <button class="chip round" type="button" id="bZoom" aria-label="Zoom">x1</button>
     <button class="chip round" type="button" id="bSnd" aria-pressed="false" aria-label="Μουσική">
       <svg viewBox="0 0 24 24" id="sndOn" hidden><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/></svg>
       <svg viewBox="0 0 24 24" id="sndOff"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M17 9l5 6M22 9l-5 6"/></svg></button>
@@ -261,7 +266,7 @@ body.cardopen #joy,body.ride #joy{display:none}
   <div id="obj" role="status" aria-live="polite"></div>
   <div id="labels"></div>
   <nav id="list" class="panel shut" aria-label="Στάσεις"><button type="button" id="listBack" class="back"></button><h2 id="listH">Οι στάσεις σου</h2><ol id="listOl"></ol>
-    <div class="foot"><span class="demo" style="margin:0" data-t="tapGo">Πάτα μια στάση για να πας εκεί</span><button type="button" id="bSimple" data-t="simple">Απλή έκδοση</button></div><!-- TEMP: testing only, remove before sending the invitation --><button type="button" id="bAdmin" style="display:block;margin:14px auto 0;font-size:11px;opacity:.35;background:none;border:0;color:inherit">admin</button></nav>
+    <div class="foot"><span class="demo" style="margin:0" data-t="tapGo">Πάτα μια στάση για να πας εκεί</span><button type="button" id="bSimple" data-t="simple">Απλή έκδοση</button></div><!-- TEMP: testing only, remove before sending the invitation --><span style="display:flex;justify-content:center;gap:18px;margin:14px auto 0"><button type="button" id="bAdmin" style="font-size:11px;opacity:.35;background:none;border:0;color:inherit">admin</button><button type="button" id="bReset" style="font-size:11px;opacity:.35;background:none;border:0;color:inherit">reset</button></span></nav>
   <nav id="dest" class="panel shut" aria-label="Vespa"><h2 data-t="vespaH">Πού πάμε;</h2><ul id="destUl"></ul></nav>
   <section id="card" class="panel shut" role="dialog" aria-modal="false" aria-labelledby="cardH">
     <button class="x" type="button" id="cardX" aria-label="Κλείσιμο"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
