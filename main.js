@@ -44,6 +44,7 @@ const PLACES={
 };
 const ORDER=["estate","gallery","chapel","club","post","agency"];
 PLACES.arcade={c:[31,-1],w:7,d:8,door:[27,-1],face:-Math.PI/2};
+PLACES.wardrobe={c:[-31,-1],w:7,d:8,door:[-27,-1],face:Math.PI/2};
 const questOf=id=>PLACES[id]&&PLACES[id].quest;const QUEST_OF_ROOM=id=>PLACES[id]&&PLACES[id].quest;
 const agencyOpen=()=>ORDER.filter(id=>!PLACES[id].final).every(id=>state.done[questOf(id)]);
 const nextPlace=()=>ORDER.find(id=>!state.done[questOf(id)]&&(!PLACES[id].final||agencyOpen()))||null;
@@ -355,6 +356,7 @@ function landmark(id){const p=PLACES[id],[cx,cz]=p.c,ry=p.face;
 }
 ORDER.forEach(landmark);
 {const sg=new THREE.Mesh(new THREE.PlaneGeometry(2.6,.65),new THREE.MeshStandardMaterial({map:signTex("ARCADE ★","#6a3cc9","#ffe36b"),roughness:.5,emissive:0x2a1060,emissiveIntensity:.6}));sg.position.set(26.92,2.95,-1);sg.rotation.y=-Math.PI/2;world.add(sg)}
+{const sg=new THREE.Mesh(new THREE.PlaneGeometry(2.8,.65),new THREE.MeshStandardMaterial({map:signTex("✿ "+tx().wardSign,"#b8336a","#fff7f0"),roughness:.5,emissive:0x40101e,emissiveIntensity:.5}));sg.position.set(-26.92,2.75,-1);sg.rotation.y=Math.PI/2;world.add(sg)}
 [[-14.5,-24,8,7,6.5,0,{door:"green",up:-1}],[23,-24,8,8,5,0,{door:"red",bloom:1.4}],[-30,-20,9,9,7,Math.PI/2,{door:"blue"}],[-31,-1,7,8,5.2,Math.PI/2,{door:"blue2",cream:1}],[31,-1,7,8,6,-Math.PI/2,{door:"green",up:1}],
  [-30,14,7,7,4.4,Math.PI/2,{door:"blue",bloom:1.2}],[30,15,7,7,5,-Math.PI/2,{door:"red",cream:1}],[33,-20,9,9,7.2,-Math.PI/2,{door:"blue"}],[0,-33,12,8,8,0,{door:"blue",cream:1,noDoor:1}],[-25,-33,9,8,8.5,0,{noDoor:1}],[18,-32,10,8,9,0,{noDoor:1,cream:1}]]
  .forEach(a=>house(...a));
@@ -642,7 +644,7 @@ function addXray(e){const list=[];e.m.traverse(o=>{if(o.isSkinnedMesh)list.push(
 Promise.all([loadChar("groom"),loadChar("bride")]).then(([g,b])=>{
   const G1=makeEnt(g),B1=makeEnt(b,brideTint);G1.kind="groom";B1.kind="bride";addXray(G1);addXray(B1);[G1,B1].forEach(e=>world.add(e.m));
   G1.pos.set(-.8,0,11);B1.pos.set(.8,0,11);G1.yaw=B1.yaw=Math.PI;window.__ents=[G1,B1];
-  ready=true;$("#pG").disabled=$("#pB").disabled=false;$("#load").style.opacity=0;renderUI();
+  ready=true;setTimeout(()=>{applyOutfits("groom");applyOutfits("bride")},50);$("#pG").disabled=$("#pB").disabled=false;$("#load").style.opacity=0;renderUI();
   /* the rest of the couple's moves (dance, kiss, ride, sit...) arrive in the background */
   [["groom",G1],["bride",B1]].forEach(([n,e])=>loader.load(`assets/${n}_anims.glb`,a=>a.animations.forEach(c=>{if(!e.act[c.name])e.act[c.name]=e.mix.clipAction(c)}),undefined,()=>{}));
 }).catch(err=>{console.error(err);$("#intro").hidden=true;showSimple()});
@@ -664,10 +666,42 @@ const gownTint=m=>repaint(m,(r,g,b)=>{const[h,s,l]=hsl(r,g,b);if(isSkin(h,s,l))r
 /* Dimitra's long dark-green dress: a flared satin skirt hung from the hips bone (bone space is in centimetres) */
 function koumDress(e){const hip=findBone(e.m,/hips/i);if(!hip)return;const g=new THREE.CylinderGeometry(15,34,92,28,1,true);g.translate(0,-40,0);
   const sk=new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:0x1d4a37,roughness:.42,metalness:.05,side:THREE.DoubleSide}));sk.castShadow=true;sk.frustumCulled=false;hip.add(sk)}
+/* ---------- outfits: recolour top / bottom / shoes, found from each triangle's height on the body ---------- */
+const OUTFIT_COLORS=["#1d2b4f","#111214","#6b6f76","#d8c7a8","#f4efe6","#7a1f2b","#2f5d3a","#3f7fbf","#b56b8a","#c9a24a"];
+const gcomp=(A,i,a)=>a===0?A.getX(i):a===1?A.getY(i):A.getZ(i);
+/* body height range over every mesh of the character (hair, eyes and clothes may be separate meshes) */
+function bodyRange(e){const rng=[[1e9,-1e9],[1e9,-1e9],[1e9,-1e9]];e.m.traverse(m=>{if(!m.isSkinnedMesh)return;const Pz=m.geometry.attributes.position;
+    for(let i=0;i<Pz.count;i+=3)for(let a=0;a<3;a++){const v=gcomp(Pz,i,a);if(v<rng[a][0])rng[a][0]=v;if(v>rng[a][1])rng[a][1]=v}});
+  const ax=rng.reduce((b,r,i)=>r[1]-r[0]>rng[b][1]-rng[b][0]?i:b,0);return{ax,lo:rng[ax][0],hi:rng[ax][1]}}
+function regionMask(mesh,W,H,R){const g=mesh.geometry,Pz=g.attributes.position,U=g.attributes.uv,idx=g.index;if(!U)return null;const{ax,lo,hi}=R;
+  const c=document.createElement("canvas");c.width=W;c.height=H;const x=c.getContext("2d");x.fillStyle="#000";x.fillRect(0,0,W,H);x.lineWidth=2;x.lineJoin="round";
+  const n=idx?idx.count:Pz.count,vi=t=>idx?idx.getX(t):t;
+  for(const reg of [1,2,3])for(let t=0;t<n;t+=3){const a=vi(t),b=vi(t+1),d=vi(t+2),h=((gcomp(Pz,a,ax)+gcomp(Pz,b,ax)+gcomp(Pz,d,ax))/3-lo)/(hi-lo);
+    const r=h<.07?3:h<.47?2:h<.79?1:0;if(r!==reg)continue;x.fillStyle=x.strokeStyle=`rgb(${r*80},0,0)`;x.beginPath();
+    [a,b,d].forEach((v,k)=>{const u=((U.getX(v)%1)+1)%1*W,w=((U.getY(v)%1)+1)%1*H;k?x.lineTo(u,w):x.moveTo(u,w)});x.closePath();x.fill();x.stroke()}
+  return x.getImageData(0,0,W,H).data}
+/* most models ship one mesh per garment (Suit, Pants, Shoes…): colour those whole; a one-piece model (the bride) is split by height instead */
+function partOf(name,hasSuit){if(/shoe|boot/i.test(name))return 3;if(/pant|trouser|skirt|short/i.test(name))return 2;if(/suit|jacket|coat/i.test(name))return 1;if(/shirt|top|dress/i.test(name))return hasSuit?0:1;return 0}
+function dressEnt(e,o){if(!e||!o)return;const ms=[];e.m.traverse(m=>{if(m.isSkinnedMesh&&m.material&&m.material.map)ms.push(m)});if(!ms.length)return;
+  const hasSuit=ms.some(m=>/suit|jacket|coat/i.test(m.name)),one=ms.length===1,col=[null,o.top,o.bottom,o.shoes].map(h=>h&&new THREE.Color(h));
+  for(const m of ms){const whole=one?0:partOf(m.name,hasSuit);if(!one&&!whole)continue;
+    if(!m.userData.base){const im=m.material.map.image,W=im.width,H=im.height,c=document.createElement("canvas");c.width=W;c.height=H;c.getContext("2d").drawImage(im,0,0);
+      m.userData.base=c;m.userData.mask=one?regionMask(m,W,H,bodyRange({m})):null;m.material=m.material.clone()}
+    const base=m.userData.base,mask=m.userData.mask;if(one&&!mask)continue;const W=base.width,H=base.height,c=document.createElement("canvas");c.width=W;c.height=H;const g=c.getContext("2d");g.drawImage(base,0,0);
+    const d=g.getImageData(0,0,W,H),px=d.data,regAt=i=>whole||(mask[i]/80|0);
+    /* keep only the fabric's folds and shadows: each pixel's lightness relative to its region's average, so a black suit can become beige */
+    const sum=[0,0,0,0],cnt=[0,0,0,0],L=new Float32Array(px.length/4);
+    for(let i=0,j=0;i<px.length;i+=4,j++){const reg=regAt(i);if(!col[reg])continue;const[hh,ss,l]=hsl(px[i]/255,px[i+1]/255,px[i+2]/255);if(one&&isSkin(hh,ss,l)){L[j]=-1;continue}L[j]=l;sum[reg]+=l;cnt[reg]++}
+    for(let i=0,j=0;i<px.length;i+=4,j++){const reg=regAt(i),cc=col[reg];if(!cc||L[j]<0)continue;const v=THREE.MathUtils.clamp(L[j]/Math.max(.04,sum[reg]/cnt[reg]),.45,1.35);
+      px[i]=Math.min(255,cc.r*255*v);px[i+1]=Math.min(255,cc.g*255*v);px[i+2]=Math.min(255,cc.b*255*v)}
+    g.putImageData(d,0,0);const t=new THREE.CanvasTexture(c);t.flipY=m.material.map.flipY;t.colorSpace=THREE.SRGBColorSpace;m.material.map=t;m.material.needsUpdate=true}
+  if(e.koum==="ka"&&o.top)e.m.traverse(m=>{if(m.isMesh&&!m.isSkinnedMesh&&m.geometry.type==="CylinderGeometry")m.material.color.set(o.top)})}
+const outfitOf=k=>(state.outfit||{})[k];
+function applyOutfits(k){const ents=k==="groom"?[window.__ents&&window.__ents[0]]:k==="bride"?[window.__ents&&window.__ents[1]]:npcs.filter(e=>e.koum===k);ents.forEach(e=>dressEnt(e,outfitOf(k)))}
 const KOUM={kp:{model:"josh",tint:suitTint},ka:{model:"kate",tint:gownTint}};
 const koumTags={};["kp","ka"].forEach(k=>{const t=document.createElement("div");t.className="ktag";t.hidden=true;$("#labels").appendChild(t);koumTags[k]=t});
 function koumbaros(scene,k,x,z,yaw){return loadChar(KOUM[k].model).then(g=>{const e=makeEnt(g,KOUM[k].tint);e.name=KOUM[k].model;e.koum=k;if(k==="ka")koumDress(e);e.pos.set(x,0,z);e.yaw=yaw;e.home={x,z,yaw};e.act0="idle";
-  scene.add(e.m);e.m.position.copy(e.pos);e.m.rotation.y=yaw;play(e,e.act.idle?"idle":"talk");e.scene=scene;npcs.push(e);return e}).catch(()=>null)}
+  scene.add(e.m);e.m.position.copy(e.pos);e.m.rotation.y=yaw;play(e,e.act.idle?"idle":"talk");e.scene=scene;npcs.push(e);if(outfitOf(k))dressEnt(e,outfitOf(k));return e}).catch(()=>null)}
 const KP_AT=[[-1.15,4.05,.35],[1.15,4.05,-.35]];KP_AT.forEach(([x,z])=>round.push({x,z,r:.38}));
 /* outdoor floor marks: yellow ring at the door of a building whose quest is still open, small green once done; small green discs at everything else you can use */
 const doorMarks=[];function outdoorSpots(){for(const id in PLACES){const[a,b]=doorFront(id,1.3),q=PLACES[id].quest;
@@ -767,6 +801,7 @@ function updateChars(dt){
   if(!room&&mode==="play"){for(const id of ORDER){const p=PLACES[id],d=Math.hypot(P.pos.x-p.door[0],P.pos.z-p.door[1]);if(d<1.2){
     if(p.final&&!agencyOpen()){if(!p._warn){p._warn=1;toast(tx().lockedMsg);const[a,b]=doorFront(id,2);walkTo(a,b)}}else enterRoom(id);break}else if(p._warn&&d>3)p._warn=0}}
   if(!room&&mode==="play"&&Math.hypot(P.pos.x-PLACES.arcade.door[0],P.pos.z-PLACES.arcade.door[1])<1.2)enterRoom("arcade");
+  if(!room&&mode==="play"&&Math.hypot(P.pos.x-PLACES.wardrobe.door[0],P.pos.z-PLACES.wardrobe.door[1])<1.2)enterRoom("wardrobe");
   if(!room&&mode==="play"){const d=Math.hypot(P.pos.x-SECRET.door[0],P.pos.z-SECRET.door[1]);
     if(d<1.6&&!atSecret){atSecret=true;goal=null;secretCard()}else if(d>3.5&&atSecret){atSecret=false;closeCard()}}
   if(room){const ex=room.exit;if(Math.hypot(P.pos.x-ex[0],P.pos.z-ex[1])<1&&P.spd>.2&&room.age>1.5)exitRoom();
@@ -937,12 +972,13 @@ function buildRoom(id){if(rooms[id])return rooms[id];let r;const x=tx();
   }
   if(id==="club")r=buildClub();
   if(id==="arcade")r=buildArcade();
+  if(id==="wardrobe")r=buildWardrobe();
   if(id==="den")r=buildDen();
   /* each building furnished differently with scanned CC0 pieces: [model, x, z, rotation, size, collider radius] */
   (ROOM_PROPS[id]||[]).forEach(([n,x,z,ry,o,cr])=>{prop(n,x,z,ry,o,r.scene);if(cr)r.round.push({x,z,r:cr})});
   r.B.build(r.scene);r.grid=makeGrid(r.bounds,r.solid,r.round,.4);
   /* the glowing spot that marks what to do, and HTML labels for it and for the exit */
-  const ring=new THREE.Mesh(new THREE.RingGeometry(.75,.95,48),new THREE.MeshBasicMaterial({color:id==="arcade"?0xffffff:0xffb24a,transparent:true,opacity:.9,depthWrite:false}));ring.rotation.x=-Math.PI/2;ring.position.set(r.spot[0],.04,r.spot[1]);r.scene.add(ring);r.ring=ring;
+  const ring=new THREE.Mesh(new THREE.RingGeometry(.75,.95,48),new THREE.MeshBasicMaterial({color:id==="arcade"||id==="wardrobe"?0xffffff:0xffb24a,transparent:true,opacity:.9,depthWrite:false}));ring.rotation.x=-Math.PI/2;ring.position.set(r.spot[0],.04,r.spot[1]);r.scene.add(ring);r.ring=ring;
   /* the same spot once its quest is done turns into a small green ring, still usable; every other thing to tap gets a small green disc on the floor */
   const done=new THREE.Mesh(new THREE.RingGeometry(.42,.56,40),new THREE.MeshBasicMaterial({color:0x34c26b,transparent:true,opacity:.85,depthWrite:false}));done.rotation.x=-Math.PI/2;done.position.set(r.spot[0],.045,r.spot[1]);done.visible=false;r.scene.add(done);r.doneRing=done;
   (r.items||[]).forEach(it=>{if(!it.go)return;r.scene.add(greenSpot(it.go[0],it.go[1]))});
@@ -1271,7 +1307,7 @@ function avoidOcclusion(dt){if(room||!P||mode!=="play"){XRAY.visible=false;retur
   XRAY.visible=!clear;if(clear||tAll-userCamT<2.5)return;
   for(const k of [.45,-.45,.9,-.9,1.35,-1.35,1.8,-1.8,2.4,-2.4,Math.PI])if(camClear(camYaw+k)){camTarget=camYaw+k;topView=0;return}
   topView=3}
-let topView=0,roomYaw=0,roomZoom=1.3,roomZoomT=1.3,roomFocusT=0;
+let wardWho="groom",topView=0,roomYaw=0,roomZoom=1.3,roomZoomT=1.3,roomFocusT=0;
 const ROOM_FAR=1.3,ROOM_NEAR=.82;function roomFocus(secs){roomZoomT=ROOM_NEAR;roomFocusT=secs||0}
 let camTarget=null;
 function snapCam(){const f=followPose();camPos.copy(f.p);camLook.copy(f.l)}
@@ -1321,6 +1357,29 @@ requestAnimationFrame(frame);
 
 
 /* ---------- the arcade: three easy games, a name, a live score and a leaderboard ---------- */
+/* ---------- the wardrobe: racks, mirrors, shoes; pick colours for the couple and the koumbaroi ---------- */
+function buildWardrobe(){const r=roomBase("wardrobe",{floor:plankTex("#d9c3a5","#cdb596"),wall:0xf6ece6,trim:0xb8336a,hemi:.85,keyI:.7,bg:0x1a1214});const B=r.B;
+  M.rail=mat({color:0xc9a24a,roughness:.3,metalness:.85});
+  const garments=["#1d2b4f","#111214","#7a1f2b","#f4efe6","#2f5d3a","#d8c7a8","#b56b8a","#6b6f76"];
+  garments.forEach((c,i)=>{M["gar"+i]=mat({color:new THREE.Color(c),roughness:.85})});
+  /* two long rails along the side walls, full of hanging clothes */
+  for(const sx of [-1,1]){const x=sx*6.6;B.add(G.cyl,"rail",x,2.3,-.5,.05,9,.05,0,Math.PI/2).add(G.cyl,"rail",x,1.15,-4.9,.05,2.3,.05).add(G.cyl,"rail",x,1.15,3.9,.05,2.3,.05);
+    for(let k=0;k<14;k++){const z=-4.4+k*.62,c=(k+(sx>0?3:0))%garments.length,long=(k%3===0);
+      B.add(G.box,"gar"+c,x,long?1.45:1.75,z,.42,long?1.5:.95,.08).add(G.box,"rail",x,2.24,z,.04,.1,.04)}
+    r.solid.push({x0:x-.4,z0:-5.1,x1:x+.4,z1:4.1})}
+  /* back wall: tall mirrors and a shoe wall */
+  for(const mx of [-3.2,3.2]){B.add(G.box,"rail",mx,1.9,-6.4,1.5,3.1,.06);const mi=new THREE.Mesh(new THREE.PlaneGeometry(1.32,2.92),new THREE.MeshStandardMaterial({color:0xdfe8ee,roughness:.05,metalness:.95,envMapIntensity:1.4}));mi.position.set(mx,1.9,-6.36);r.scene.add(mi)}
+  for(let row=0;row<4;row++){B.add(G.box,"white",0,.5+row*.55,-6.2,3.4,.05,.45);for(let k=0;k<6;k++)B.add(G.box,"gar"+((k+row*2)%garments.length),-1.4+k*.56,.6+row*.55,-6.1,.3,.13,.36)}
+  r.solid.push({x0:-1.8,z0:-6.5,x1:1.8,z1:-5.8});
+  /* a round pouf in the middle and a fitting rug */
+  rug(r,0,-1.2,4.6,3.2,"#f3d9e2","#b8336a");B.add(G.cyl,"cushion",0,.25,-2.2,1.6,.5,1.6);r.round.push({x:0,z:-2.2,r:.95});
+  plant(B,6.6,5.4,1.1);plant(B,-6.6,5.4,1.1);
+  {const l=new THREE.PointLight(0xffe3cc,8,14,1.3);l.position.set(0,3.8,0);r.scene.add(l)}
+  /* the koumbaroi wait here too, so their colours can be seen */
+  koumbaros(r.scene,"kp",-2.6,-3.6,.4).then(e=>e&&r.round.push({x:-2.6,z:-3.6,r:.45}));koumbaros(r.scene,"ka",2.6,-3.6,-.4).then(e=>e&&r.round.push({x:2.6,z:-3.6,r:.45}));
+  r.spot=[0,-.2,1.4,0,-3];r.spotL=[0,.4,0];r.spotFn=()=>CARDS.wardrobe();
+  r.items=[{label:()=>"✿ "+tx().wardH,at:[0,3.2,-6],go:[0,-.2],fn:()=>CARDS.wardrobe()}];
+  return r}
 function buildArcade(){const r=roomBase("arcade",{floor:canvasTex(256,256,(g,w,h)=>{g.fillStyle="#1b1530";g.fillRect(0,0,w,h);for(let k=0;k<26;k++){g.fillStyle=["#ff4fa3","#3ad1ff","#ffe36b","#7cff6b"][k%4];g.globalAlpha=.22;g.fillRect(rnd()*w,rnd()*h,3+rnd()*6,3+rnd()*6)}g.globalAlpha=1},[6,5]),wall:0x2a2147,trim:0x120d22,hemi:.7,keyI:.5,bg:0x0b0816});const B=r.B;
   M.neonA=mat({color:0xff4fa3,emissive:0xff4fa3,emissiveIntensity:2});M.neonB=mat({color:0x3ad1ff,emissive:0x3ad1ff,emissiveIntensity:2});
   B.add(G.box,"neonA",0,4.3,-6.42,16,.08,.05).add(G.box,"neonB",-7.95,4.3,0,.05,.08,13).add(G.box,"neonB",7.95,4.3,0,.05,.08,13);
@@ -1337,6 +1396,17 @@ function saveScore(game,score){const name=localStorage.getItem("wname")||"?",a=s
 function boardHTML(game){const x=tx(),best={};scoresLocal().filter(s=>s.game===game).forEach(s=>{if(!(s.name in best)||s.score>best[s.name])best[s.name]=s.score});
   const rows=Object.entries(best).sort((a,b)=>b[1]-a[1]).slice(0,8);return rows.length?`<ol class="lb">${rows.map(([n,v])=>`<li><span>${esc(n)}</span><b>${v}</b></li>`).join("")}</ol>`:`<p class="demo">${x.noScores}</p>`}
 Object.assign(CARDS,{
+  wardrobe(who){const x=tx();who=who||wardWho;wardWho=who;const parts=who==="bride"||who==="ka"?["dress","shoes"]:["top","bottom","shoes"],o=outfitOf(who)||{};
+    openCard(x.wardSign,x.wardH,`<p>${x.wardP}</p><div class="seg">${["groom","bride","kp","ka"].map(k=>`<label><input type="radio" name="ww" value="${k}" ${k===who?"checked":""}><span>${x.wardWho[k]}</span></label>`).join("")}</div>
+      ${parts.map(pt=>`<h4 class="sub">${x.wardPart[pt]}</h4><div class="sw">${OUTFIT_COLORS.map(c=>`<button type="button" data-pt="${pt}" data-c="${c}" aria-label="${c}" style="background:${c}" class="${(pt==="dress"?o.top:o[pt])===c?"on":""}"></button>`).join("")}</div>`).join("")}
+      <div class="acts"><button class="btn ghost" type="button" id="wReset">${x.wardReset}</button></div>`,()=>{
+      $("#cardB").querySelectorAll("input[name=ww]").forEach(r=>r.addEventListener("change",()=>CARDS.wardrobe(r.value)));
+      $("#cardB").querySelectorAll("[data-pt]").forEach(b=>b.addEventListener("click",()=>{state.outfit=state.outfit||{};const cur=state.outfit[who]=state.outfit[who]||{};
+        if(b.dataset.pt==="dress"){cur.top=cur.bottom=b.dataset.c}else cur[b.dataset.pt]=b.dataset.c;save();applyOutfits(who);
+        b.parentNode.querySelectorAll("button").forEach(z=>z.classList.toggle("on",z===b));mood("fun",3)}));
+      $("#wReset").addEventListener("click",()=>{if(state.outfit)delete state.outfit[who];save();applyOutfits(who);
+        const ents=who==="groom"?[window.__ents[0]]:who==="bride"?[window.__ents[1]]:npcs.filter(e=>e.koum===who);
+        ents.forEach(e=>e&&e.m.traverse(m=>{if(m.userData.base){const t=new THREE.CanvasTexture(m.userData.base);t.flipY=m.material.map.flipY;t.colorSpace=THREE.SRGBColorSpace;m.material.map=t;m.material.needsUpdate=true}}));CARDS.wardrobe(who)})});cardFn=()=>CARDS.wardrobe(who)},
   arcade(){const x=tx();openCard("ARCADE",x.arcadeH,`<p>${x.arcadeP}</p><div class="acts">${["ttt","snake","maze"].map(k=>`<button class="btn" type="button" data-g="${k}">${x.games[k]}</button>`).join("")}</div>`,()=>$("#cardB").querySelectorAll("[data-g]").forEach(b=>b.addEventListener("click",()=>CARDS.game(b.dataset.g))));cardFn=CARDS.arcade},
   game(k){const x=tx(),nm=localStorage.getItem("wname");
     if(!nm){openCard("ARCADE",x.nameH,`<form id="nf"><label class="f"><span>${x.username}</span><input id="un" maxlength="20" required autocomplete="nickname"></label><div class="acts"><button class="btn" type="submit">${x.play}</button></div></form>`,()=>$("#nf").addEventListener("submit",e=>{e.preventDefault();const v=$("#un").value.trim();if(!v)return;try{localStorage.setItem("wname",v)}catch(er){}CARDS.game(k)}));return}
@@ -1400,4 +1470,4 @@ $("#bReset").addEventListener("click",()=>{try{localStorage.removeItem("wq2")}ca
 /* each entry: distance, and the label of what the next tap does */
 const ZOOMS=[[11,"x1"],[7.5,"x2"],[4.8,"⤢"]];let zoomI=0;$("#bZoom").addEventListener("click",()=>{zoomI=(zoomI+1)%ZOOMS.length;camDist=ZOOMS[zoomI][0];$("#bZoom").textContent=ZOOMS[zoomI][1]});
 $("#bAdmin").addEventListener("click",()=>{ORDER.forEach(k=>state.done[questOf(k)]=1);state.fin=Date.now()-5000;delete state.quiz;delete state.qa;delete state.hint;save();panel("#list",false);renderList();renderObj();renderLabels();toast("admin: 5/5 + 6/6 ✓",2500)});
-window.__w={rinfo:()=>room&&{s:room.solid.map(q=>[q.x0,q.z0,q.x1,q.z1].map(v=>+v.toFixed(1))),r:room.round.map(c=>[c.x,c.z,c.r].map(v=>+v.toFixed(1))),b:room.bounds},exportStatic:async()=>{const {GLTFExporter}=await import("three/addons/exporters/GLTFExporter.js");const sc=new THREE.Scene();STATIC.forEach(m=>{m.updateMatrixWorld();const c=new THREE.Mesh(m.geometry.clone().applyMatrix4(m.matrixWorld),new THREE.MeshStandardMaterial({name:m.name}));c.name=m.name;sc.add(c)});const b=await new GLTFExporter().parseAsync(sc,{binary:true});let s="";const u=new Uint8Array(b);for(let i=0;i<u.length;i+=32768)s+=String.fromCharCode.apply(null,u.subarray(i,i+32768));return btoa(s)},dbgP:()=>({lock:P.lock,goal:goal&&{i:goal.i,n:goal.pts.length,end:goal.pts[goal.pts.length-1].toArray(),tries:goal.tries||0},pos:P.pos.toArray(),spd:P.spd,mode,cur:P.curName,shown:room&&room.shown}),setDist:d=>{camDist=d;camPitch=.3},dog:()=>dog.pos.toArray(),mountVespa,getOff,dogTrick,mode:()=>mode,ready:()=>ready,choose,goPlace,enterRoom,exitRoom,startRide,P:()=>P,room:()=>room&&room.id,tp:(x,z)=>{P.pos.set(x,0,z);N.pos.set(x+1,0,z);goal=null;snapCam()},selfie,info:()=>renderer.info.render,blessing,npcs:()=>npcs.length,complete,driveTo,vespa:()=>vespaObj.position.toArray(),setV:(x,z)=>vespaObj.position.set(x,0,z),vg:()=>vGoal&&{i:vGoal.i,pts:vGoal.pts.map(p=>[+p.x.toFixed(1),+p.z.toFixed(1)])},snd:()=>({soundOn,zone:zone(),zoneOn:{...zoneOn},chant:!chant.paused,club:!clubSong.paused,music:!music.paused}),setSound,card:()=>$("#card").textContent.slice(0,200),cards:()=>CARDS,dance:()=>room&&{t:room.dance&&room.dance.t,w:room.wantDance},quiz:()=>state.quiz,qzKey:i=>tx().qz[i][2]};
+window.__w={rinfo:()=>room&&{s:room.solid.map(q=>[q.x0,q.z0,q.x1,q.z1].map(v=>+v.toFixed(1))),r:room.round.map(c=>[c.x,c.z,c.r].map(v=>+v.toFixed(1))),b:room.bounds},exportStatic:async()=>{const {GLTFExporter}=await import("three/addons/exporters/GLTFExporter.js");const sc=new THREE.Scene();STATIC.forEach(m=>{m.updateMatrixWorld();const c=new THREE.Mesh(m.geometry.clone().applyMatrix4(m.matrixWorld),new THREE.MeshStandardMaterial({name:m.name}));c.name=m.name;sc.add(c)});const b=await new GLTFExporter().parseAsync(sc,{binary:true});let s="";const u=new Uint8Array(b);for(let i=0;i<u.length;i+=32768)s+=String.fromCharCode.apply(null,u.subarray(i,i+32768));return btoa(s)},dbgP:()=>({lock:P.lock,goal:goal&&{i:goal.i,n:goal.pts.length,end:goal.pts[goal.pts.length-1].toArray(),tries:goal.tries||0},pos:P.pos.toArray(),spd:P.spd,mode,cur:P.curName,shown:room&&room.shown}),setDist:d=>{camDist=d;camPitch=.3},dog:()=>dog.pos.toArray(),mountVespa,getOff,dogTrick,mode:()=>mode,ready:()=>ready,choose,goPlace,enterRoom,exitRoom,startRide,P:()=>P,room:()=>room&&room.id,tp:(x,z)=>{P.pos.set(x,0,z);N.pos.set(x+1,0,z);goal=null;snapCam()},selfie,info:()=>renderer.info.render,blessing,npcs:()=>npcs.length,complete,driveTo,vespa:()=>vespaObj.position.toArray(),setV:(x,z)=>vespaObj.position.set(x,0,z),vg:()=>vGoal&&{i:vGoal.i,pts:vGoal.pts.map(p=>[+p.x.toFixed(1),+p.z.toFixed(1)])},snd:()=>({soundOn,zone:zone(),zoneOn:{...zoneOn},chant:!chant.paused,club:!clubSong.paused,music:!music.paused}),setSound,card:()=>$("#card").textContent.slice(0,200),cards:()=>CARDS,dbgBody:k=>{const e=k==="groom"?window.__ents[0]:k==="bride"?window.__ents[1]:npcs.find(n=>n.koum===k);const R=bodyRange(e),out=[];e.m.traverse(m=>{if(!m.isSkinnedMesh)return;const P=m.geometry.attributes.position,n=P.count;let c=[0,0,0,0];for(let i=0;i<n;i+=5){const h=(gcomp(P,i,R.ax)-R.lo)/(R.hi-R.lo);c[h<.07?3:h<.47?2:h<.79?1:0]++}out.push({name:m.name,n,c,norm:P.normalized,arr:P.array.constructor.name})});return{R,out}},dance:()=>room&&{t:room.dance&&room.dance.t,w:room.wantDance},quiz:()=>state.quiz,qzKey:i=>tx().qz[i][2]};
