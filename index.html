@@ -78,7 +78,7 @@ input,textarea,select,#simple{-webkit-user-select:text;user-select:text;touch-ac
 .langs button[aria-pressed=true]{background:var(--paper);color:var(--ink)}
 #load{position:fixed;left:50%;top:calc(70px + env(safe-area-inset-top));transform:translateX(-50%);width:140px;height:3px;background:rgba(255,255,255,.3);border-radius:2px;overflow:hidden;transition:opacity .4s}
 #load i{display:block;height:100%;width:0;background:#fff;transition:width .3s ease}
-@media (max-height:640px){.env.open .invite{transform:translateY(-30%)}}
+@media (max-height:700px){.env.open .invite{transform:translateY(-25%)}}
 
 /* ---------- HUD ---------- */
 #hud{inset:0;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .6s ease .3s}
@@ -105,6 +105,7 @@ body.ride #joy{display:block!important}
 #pass{position:fixed;left:50%;top:38%;z-index:60;transform:translate(-50%,-50%) scale(.6);opacity:0;pointer-events:none;padding:16px 26px;border-radius:18px;background:#2f8f5b;color:#fff;font:800 22px/1.1 var(--sans);box-shadow:0 12px 30px rgba(10,30,20,.35)}
 #pass.show{animation:pass 1.9s cubic-bezier(.2,.9,.3,1.2)}@keyframes pass{12%{opacity:1;transform:translate(-50%,-50%) scale(1)}80%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-56%) scale(.96)}}
 #prog{align-items:center}#prog b{font-size:13px;font-weight:700;margin-right:2px}
+#prog .p6{display:inline-flex;align-items:center;gap:2px;margin-left:4px;font-size:13px;font-weight:700}#prog .p6 .lk{margin-left:0}
 #prog .lk{width:14px;height:14px;stroke:var(--ink2);fill:none;stroke-width:2.2;margin-left:2px}#prog .lk.open{stroke:var(--bloom)}
 #list .back{display:inline-flex;align-items:center;min-height:40px;padding:0 12px;margin:0 0 8px 2px;border-radius:20px;background:var(--paper2);font-size:14px;font-weight:600;color:var(--sea)}
 #list li.final{border-top:1px dashed var(--line);margin-top:4px;padding-top:4px}
@@ -128,7 +129,7 @@ body.cardopen #obj{opacity:0}
 .panel{position:absolute;background:var(--paper);border-radius:18px;box-shadow:var(--shadow);pointer-events:auto;color:var(--ink);
   transition:transform .42s var(--ease),opacity .22s ease,visibility 0s}
 .panel.shut{opacity:0;visibility:hidden;transform:translateY(10px) scale(.98);transition:transform .2s ease,opacity .18s ease,visibility 0s .2s}
-#list{left:calc(12px + env(safe-area-inset-left));top:calc(70px + env(safe-area-inset-top));width:min(360px,calc(100vw - 24px));padding:16px 14px 10px;transform-origin:30px 0;z-index:2}
+#list{left:calc(12px + env(safe-area-inset-left));top:calc(70px + env(safe-area-inset-top));width:min(360px,calc(100vw - 24px));padding:16px 14px 10px;transform-origin:30px 0;z-index:4;max-height:calc(100dvh - 86px - env(safe-area-inset-top) - env(safe-area-inset-bottom));overflow-y:auto;overscroll-behavior:contain}
 #list h2,#dest h2{font-family:var(--serif);font-weight:500;font-size:24px;padding:0 6px 8px}
 #list ol,#dest ul{list-style:none}
 .row{display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:center;width:100%;text-align:left;padding:10px 8px;border-radius:12px;min-height:56px}
@@ -216,12 +217,32 @@ body.cardopen #joy,body.ride #joy{display:none}
   #tl .chip span.txt{display:none}
   #obj{top:calc(68px + env(safe-area-inset-top));font-size:14px}
   #card{padding:18px 16px 16px}
+  /* phones: bigger, calmer type and real thumb-sized targets (most guests are on a phone, many are older) */
+  #card{width:calc(100vw - 12px);max-height:min(82vh,calc(100dvh - 96px));padding:18px 16px calc(16px + env(safe-area-inset-bottom));border-radius:20px 20px 16px 16px}
+  #card::before{content:"";display:block;width:40px;height:4px;border-radius:2px;background:var(--line);margin:-8px auto 10px}
+  #card h3{font-size:25px;line-height:1.12}
+  #card p{font-size:16.5px;line-height:1.5}
+  #card .where{font-size:12.5px}
+  #card .acts .btn{min-height:50px;font-size:16px}
+  .f span{font-size:14.5px}.f input,.f select,.f textarea{font-size:16px;min-height:50px}.f textarea{min-height:90px}
+  .seg{gap:8px}.seg span{min-height:50px;font-size:15.5px}
+  .info dt{font-size:15.5px}.info dd{font-size:15px;line-height:1.4}.info div{padding:12px}
+  h4.sub{font-size:16.5px}
+  .demo{font-size:14px}
+  .row{min-height:62px}.row b{font-size:16.5px}.row small{font-size:14.5px}.row .go{font-size:14px}
+  .qz b{font-size:16px}.qa .chip{min-height:46px;font-size:15px}
+  .lbl{font-size:14px;padding:7px 12px;min-height:38px}
+  #pie button{min-width:96px;min-height:48px;font-size:15px}
+  .ktag{font-size:13px;padding:5px 10px}.ktag small{font-size:10px}
+  #obj{font-size:15px;max-width:calc(100vw - 32px);text-align:center}
 }
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}}
 .invite .koum{font-size:13px;opacity:.8;margin:6px 0 0;line-height:1.35}
 .ktag{position:absolute;left:0;top:0;pointer-events:none;background:rgba(20,39,58,.82);color:#fff;font:600 12px/1.15 Commissioner,sans-serif;padding:4px 9px;border-radius:10px;white-space:nowrap;text-align:center}.ktag small{display:block;font-size:9px;font-weight:500;opacity:.8;letter-spacing:.04em;text-transform:uppercase}
 #br{position:fixed;right:max(12px,env(safe-area-inset-right));bottom:max(16px,env(safe-area-inset-bottom));display:flex;flex-direction:column;align-items:flex-end;gap:8px;pointer-events:none}
-#bHome{min-height:34px;padding:0 11px;gap:6px;font-size:12px;border-radius:17px}#bHome svg{width:16px;height:16px}
+/* Vespa and back-to-square: twins, same box */
+#br .chip{width:148px;min-height:52px;padding:0 12px;justify-content:center;border-radius:26px}
+#bHome{gap:8px;font-size:13.5px;line-height:1.12}#bHome span{white-space:normal;text-align:left}#bHome svg{width:20px;height:20px;flex:none}
 body.cardopen #br,body.ride #bHome{display:none}
 #bZoom{font-size:12px;font-weight:700}
 #dest{top:auto!important;bottom:calc(112px + env(safe-area-inset-bottom));transform-origin:calc(100% - 30px) 100%!important}

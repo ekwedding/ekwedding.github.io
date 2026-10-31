@@ -58,7 +58,13 @@ const DB=(()=>{const b=CONTENT.backend;if(!b.projectId)return null;
     count:()=>req(base+"/stats/liveCounter"+key).then(d=>+(d.fields?.total?.integerValue||0))}})();
 let voteCount=0;try{voteCount=+(localStorage.getItem("wcount")||0)}catch(e){}
 if(DB)DB.count().then(n=>voteCount=n,()=>{});
-function store(col,rec,isVote){
+/* Google Sheet (Apps Script) when configured: every record carries the guest's one name; the sheet de-duplicates by it */
+const SHEET=CONTENT.sheet;
+function sheetPost(col,rec){return fetch(SHEET,{method:"POST",body:JSON.stringify({col,rec})}).then(r=>r.json())}
+function store(col,rec,isVote){rec={...rec,name:rec.name||state.guest||""};
+  if(SHEET)return sheetPost(col,rec).then(r=>{if(isVote&&r.total!=null)voteCount=r.total;return r}).catch(()=>store.local(col,rec,isVote));
+  return store.local(col,rec,isVote)}
+store.local=(col,rec,isVote)=>{
   const local=()=>{try{const k="w_"+col,a=JSON.parse(localStorage.getItem(k)||"[]");a.push(rec);localStorage.setItem(k,JSON.stringify(a));if(isVote){voteCount++;localStorage.setItem("wcount",voteCount)}}catch(e){}return false};
   if(!DB)return Promise.resolve(local());
   return DB.add(col,{...rec,createdAt:new Date()}).then(()=>isVote?DB.bump().then(DB.count).then(n=>{voteCount=n;return true}):true).catch(local);
@@ -77,10 +83,10 @@ function renderUI(){
   renderList();renderObj();renderLabels();
 }
 function renderList(){
-  const x=tx(),main5=ORDER.filter(id=>!PLACES[id].final),n5=main5.filter(id=>state.done[questOf(id)]).length;$("#prog").innerHTML=`<b>${n5}/5</b>`+main5.map(id=>`<i class="${state.done[questOf(id)]?"on":""}"></i>`).join("")+`<svg class="lk ${agencyOpen()?"open":""}" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="${agencyOpen()?"M8 11V8a4 4 0 0 1 7.5-2":"M8 11V8a4 4 0 0 1 8 0v3"}"/></svg>`;
+  const x=tx(),main5=ORDER.filter(id=>!PLACES[id].final),n5=main5.filter(id=>state.done[questOf(id)]).length;$("#prog").innerHTML=`<b>${n5}/5</b>`+main5.map(id=>`<i class="${state.done[questOf(id)]?"on":""}"></i>`).join("")+`<span class="p6">+${state.done.honey?'<i class="on"></i>':`<svg class="lk ${agencyOpen()?"open":""}" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="${agencyOpen()?"M8 11V8a4 4 0 0 1 7.5-2":"M8 11V8a4 4 0 0 1 8 0v3"}"/></svg>`}1</span>`;
   $("#listBack").textContent="← "+x.backPlaza;$("#listH").textContent=`${x.stopsH} · ${n5}/5 ${x.tasksOf}`;
   $("#listOl").innerHTML=""+ORDER.map(id=>{const q=questOf(id),d=state.done[q],lock=PLACES[id].final&&!agencyOpen();
-    return `<li class="${d?"done":""}${PLACES[id].final?" final":""}"><button class="row" type="button" data-go="${id}" ${lock?'aria-disabled="true"':""}><span class="mark">${d?ICON.check:""}</span><span><b>${x.Q[q][0]}</b><small>${x.P[id]} · ${lock?x.lock6:x.Q[q][1]}</small></span><span class="go">${d?x.done:lock?x.locked:x.go}</span></button></li>`}).join("");
+    return `<li class="${d?"done":""}${PLACES[id].final?" final":""}"><button class="row" type="button" data-go="${id}" ${lock?'aria-disabled="true"':""}><span class="mark">${d?ICON.check:""}</span><span><b>${id==="club"?x.clubName:x.P[id]} – ${x.Q[q][0]}</b><small>${lock?x.lock6:x.Q[q][1]}</small></span><span class="go">${d?x.done:lock?x.locked:x.go}</span></button></li>`}).join("");
   $("#destUl").innerHTML=ORDER.map(id=>{const lock=PLACES[id].final&&!agencyOpen();return `<li><button class="row" type="button" data-ride="${id}" ${lock?'aria-disabled="true"':""}><span class="mark">${state.done[questOf(id)]?ICON.check:""}</span><span><b>${x.P[id]}</b><small>${x.Q[questOf(id)][0]}</small></span><span class="go">${lock?x.locked:"→"}</span></button></li>`}).join("");
 }
 /* the line under the top bar: next stop outside, what to do here inside a building */
@@ -103,7 +109,7 @@ let toastT=0;function toast(s,ms=4200){const t=$("#toast");t.textContent=s;t.cla
 /* ---------- quest cards ---------- */
 let cardFn=null;
 function openCard(where,title,body,bind){const c=$("#card");$("#cardW").textContent=where;$("#cardH").textContent=title;$("#cardB").innerHTML=body;
-  c.classList.remove("shut");document.body.classList.add("cardopen");if(bind)bind()}
+  c.classList.remove("shut");document.body.classList.add("cardopen");if(bind)bind();if(state.guest)["nm","vn","wn","hName"].forEach(id=>{const f=document.getElementById(id);if(f){f.value=state.guest;f.readOnly=true}})}
 function closeCard(){const yf=$("#cardB iframe,#cardB video.prop");if(yf){const wasYt=yf.tagName==="IFRAME";yf.remove();if(wasYt)setTimeout(soundscape,50)}$("#card").classList.add("shut");document.body.classList.remove("cardopen");cardFn=null;if(P&&P.lock>=59&&P.lock<=60.5&&selfieCam>0){selfieCam=0;[P,N].forEach(e=>e.lock=0)}}
 $("#cardX").addEventListener("click",closeCard);
 addEventListener("keydown",e=>{if(e.key==="Escape"){closeCard();panel("#list",false);panel("#dest",false)}});
@@ -141,8 +147,8 @@ const CARDS={
       if(i===CONTENT.story.length-1)complete("story")});cardFn=()=>CARDS.gallery(i)},
   chapel(){const x=tx();openCard(x.P.chapel,x.blessH,`<p>${x.blessP}</p><div class="acts"><button class="btn" type="button" id="aB">${x.blessBtn}</button></div>`,()=>{
       $("#aB").addEventListener("click",()=>{closeCard();blessing();complete("bless")})});cardFn=CARDS.chapel},
-  club(){const x=tx();openCard("DJ",x.clubTracks,`<div class="seg">${CLUB_TRACKS.map((t,i)=>`<label><input type="radio" name="tr" value="${i}" ${i===clubTrack?"checked":""}><span>${t[0]}</span></label>`).join("")}</div><p class="demo" style="color:var(--ink2)">${x.credits}</p>`,()=>{
-      document.querySelectorAll("input[name=tr]").forEach(r=>r.addEventListener("change",()=>{clubTrack=+r.value;if(!soundOn)setSound(true);else soundscape()}))});cardFn=CARDS.club},
+  club(den){const x=tx(),cur=den?denTrack:clubTrack;openCard(den?"VIP":"DJ",x.clubTracks,`<div class="seg">${CLUB_TRACKS.map((t,i)=>`<label><input type="radio" name="tr" value="${i}" ${i===cur?"checked":""}><span>${t[0]}</span></label>`).join("")}</div>`,()=>{
+      document.querySelectorAll("input[name=tr]").forEach(r=>r.addEventListener("change",()=>{if(den)denTrack=+r.value;else clubTrack=+r.value;if(!soundOn)setSound(true);else soundscape()}))});cardFn=()=>CARDS.club(den)},
   den(){const x=tx();openCard("· · ·",x.denH,`<p>${x.denP}</p><h4 class="sub">${x.vipH}</h4>${infoHTML(L2(CONTENT.vip))}<div class="acts"><a class="btn ghost" href="${CONTENT.villa}" target="_blank" rel="noopener">${ICON.ext}${x.villaBtn}</a></div><h4 class="sub">${x.vipIdeaH}</h4><p>${x.vipIdeaP}</p>
     <form id="vf"><label class="f"><span>${x.yourName}</span><input id="vn" maxlength="80" required></label><label class="f"><span>${x.wishText}</span><textarea id="vt" maxlength="800" required></textarea></label><div class="acts"><button class="btn" type="submit">${x.send}</button></div><p class="ok" id="vOk" hidden></p></form>`,()=>{
       $("#vf").addEventListener("submit",e=>{e.preventDefault();const n=$("#vn").value.trim(),w=$("#vt").value.trim();if(!n||!w)return;store("vip",{name:n,text:w,lang}).then(()=>{const o=$("#vOk");o.hidden=false;o.textContent=x.vipSent;$("#vt").value=""})})});cardFn=CARDS.den},
@@ -169,9 +175,9 @@ const CARDS={
         store("wishes",{name:n,text:w,lang}).then(r=>{const o=$("#wOk");o.hidden=false;o.textContent=r?x.thanks:x.thanksLocal;complete("wish")})})});cardFn=CARDS.post},
   agency(){const x=tx();openCard(x.P.agency,x.honeyH,`<p>${x.honeyP}</p><p><b>${x.honeyPick}</b></p><form id="hf"><div class="seg">${CONTENT.honey.map(k=>`<label><input type="radio" name="hm" value="${k}" required><span>${x.opt[k]}</span></label>`).join("")}</div>
     <label class="f"><span>${x.voteName}</span><input id="hName" autocomplete="name" required maxlength="60"></label><p class="demo" style="margin:6px 0 10px">${x.voteOnce}</p><div class="acts" style="align-items:center"><button class="btn" type="submit">${x.vote}</button><span><b id="vc">${voteCount}</b> ${x.voted}</span></div><p class="ok" id="hOk" ${state.done.honey?"":"hidden"}>${x.honeyDone}</p></form>`,()=>{
-      const A=(state.ans||{}).honey;if(A){const r=document.querySelector(`input[name=hm][value=${A}]`);if(r)r.checked=true;$("#hf").querySelectorAll("input,button").forEach(i=>i.disabled=true);if(state.ans.honeyName)$("#hName").value=state.ans.honeyName;$("#hOk").textContent=`${x.yourAns}: ${x.opt[A]} · ${x.honeyDone}`}
+      const A=(state.ans||{}).honey;if(A&&!state.done.honey&&agencyOpen())setTimeout(()=>complete("honey"),300);if(A){const r=document.querySelector(`input[name=hm][value=${A}]`);if(r)r.checked=true;$("#hf").querySelectorAll("input,button").forEach(i=>i.disabled=true);if(state.ans.honeyName)$("#hName").value=state.ans.honeyName;$("#hOk").textContent=`${x.yourAns}: ${x.opt[A]} · ${x.honeyDone}`}
       $("#hf").addEventListener("submit",e=>{e.preventDefault();const v=(document.querySelector("input[name=hm]:checked")||{}).value,nm=$("#hName").value.trim();if(!v||!nm||state.done.honey||(state.ans||{}).honey)return;state.ans=state.ans||{};state.ans.honey=v;state.ans.honeyName=nm;save();$("#hf").querySelectorAll("input,button").forEach(i=>i.disabled=true);
-        store("votes",{optionId:v,name:nm,attending:true},true).then(()=>{$("#vc").textContent=voteCount;$("#hOk").hidden=false;complete("honey")})})});cardFn=CARDS.agency}
+        store("votes",{optionId:v,name:nm,attending:true},true).then(r=>{if(r&&r.dup){state.ans.honey=r.optionId;save();$("#hOk").textContent=`${x.votedAlready}: ${x.opt[r.optionId]||r.optionId}`}$("#vc").textContent=voteCount;$("#hOk").hidden=false;complete("honey")})})});cardFn=CARDS.agency}
 };
 /* drawn placeholder photo: a postcard of the city until the couple adds real pictures */
 const photoCache={};
@@ -196,7 +202,7 @@ function showSimple(){const x=tx(),n=CONTENT.names[lang];$("#simple").hidden=fal
   <section><h2>${x.storyH}</h2><ol style="padding-left:20px">${x.storyT.map(t=>`<li>${t}</li>`).join("")}</ol></section>
   <section><h2>${x.blessH}</h2><p>${x.blessP}</p></section>
   <section><h2>${x.simpleStops}</h2><p>${x.simpleNote}</p><ul style="list-style:none;margin-top:8px">${stops}</ul></section>
-  ${CONTENT.demo?`<p class="demo">${x.demoNote}</p>`:""}<p class="demo" style="color:var(--ink2)">${x.credits}</p>${GL?`<button class="btn ghost" type="button" id="sBack">${x.back}</button>`:""}`;
+  ${CONTENT.demo?`<p class="demo">${x.demoNote}</p>`:""}${GL?`<button class="btn ghost" type="button" id="sBack">${x.back}</button>`:""}`;
   $("#sI").addEventListener("click",downloadICS);const b=$("#sBack");if(b)b.addEventListener("click",()=>{$("#simple").hidden=true});
   $("#simpleB").querySelectorAll("[data-tp]").forEach(bt=>bt.addEventListener("click",()=>{const id=bt.dataset.tp;if(PLACES[id].final&&!agencyOpen()){toast(x.lockedMsg);return}teleport(id)}))}
 /* teleport: straight into a building, from anywhere (also from the intro); without 3D the stop's card opens instead */
@@ -209,16 +215,17 @@ $("#bSimple").addEventListener("click",()=>{panel("#list",false);showSimple()});
 /* ---------- sound: one function decides what plays where ---------- */
 const music=$("#music"),chant=new Audio("assets/chant.m4a"),secretSong=new Audio("assets/music/innerbloom.m4a"),clubSong=new Audio();
 chant.preload=secretSong.preload=clubSong.preload="none";secretSong.loop=clubSong.loop=true;
-const CLUB_TRACKS=[["Καμπάνες","assets/music/kabanes.m4a"],["Funkorama","assets/music/funkorama.m4a"],["Disco Lounge","assets/music/disco_lounge.m4a"],["Electrodoodle","assets/music/electrodoodle.m4a"],["Pamgaea","assets/music/pamgaea.m4a"]];
-let clubTrack=1,soundOn=false,actx=null,chanting=false,atSecret=false;
-const ALL=[music,chant,secretSong,clubSong];
+const CLUB_TRACKS=[["Καμπάνες","assets/music/kabanes.m4a"],["Where Is My Husband!","assets/music/raye_husband.m4a"],["Τόσα Καλοκαίρια","assets/music/tosa_kalokairia.m4a"],["Aicha","assets/music/aicha.m4a"],["Φανάρια","assets/music/fanaria.m4a"],["Innerbloom","assets/music/innerbloom.m4a"]];
+let clubTrack=1,denTrack=5,soundOn=false,actx=null,chanting=false,atSecret=false;
+const denSong=new Audio();denSong.loop=true;denSong.preload="none";const ALL=[music,chant,secretSong,clubSong,denSong];
 const SEG=new Map([[music,[18,180]],[secretSong,[93,1e9]]]);music.loop=secretSong.loop=false;
 SEG.forEach(([a,b],el)=>{el.addEventListener("timeupdate",()=>{const end=Math.min(b,(el.duration||1e9)-.35);if(el.currentTime>=end)el.currentTime=a});el.addEventListener("ended",()=>{el.currentTime=a;el.play().catch(()=>{})})});
 function soundscape(){if(!soundOn){ALL.forEach(a=>a.pause());return}
-  const want=chanting?chant:(room&&room.id==="den")?secretSong:(room&&room.id==="club")?clubSong:room?null:music;
+  const want=chanting?chant:(room&&room.id==="den")?denSong:(room&&room.id==="club")?clubSong:room?null:music;
   if(!want){ALL.forEach(a=>a.pause());return}
   if(want===clubSong&&!clubSong.src.endsWith(CLUB_TRACKS[clubTrack][1]))clubSong.src=CLUB_TRACKS[clubTrack][1];
-  ALL.forEach(a=>{if(a!==want)a.pause()});const sg=SEG.get(want);if(sg&&want.currentTime<sg[0])want.currentTime=sg[0];want.volume=.5;if(want.paused)want.play().catch(()=>{})}
+  if(want===denSong&&!denSong.src.endsWith(CLUB_TRACKS[denTrack][1]))denSong.src=CLUB_TRACKS[denTrack][1];
+  ALL.forEach(a=>{if(a!==want)a.pause()});const sg=SEG.get(want);if(sg&&want.currentTime<sg[0])want.currentTime=sg[0];want.volume=want===denSong&&denTrack===5?.12:.5;if(want.paused)want.play().catch(()=>{})}
 /* every place keeps its own mute: the plaza choice is remembered; rooms start on; the chant always plays when asked for */
 const zoneOn={};const zone=()=>chanting?"chant":room?room.id:"plaza";
 function syncSnd(){const k=zone();applySound(k in zoneOn?zoneOn[k]:true)}
@@ -227,9 +234,9 @@ function applySound(on){soundOn=on;$("#bSnd").setAttribute("aria-pressed",String
   if(on){if(!actx){try{actx=new AudioContext();const n=actx.createBufferSource(),b=actx.createBuffer(1,actx.sampleRate*4,actx.sampleRate),d=b.getChannelData(0);let l=0;for(let i=0;i<d.length;i++){l=l*.985+(Math.random()*2-1)*.015;d[i]=l*3}
       n.buffer=b;n.loop=true;const f=actx.createBiquadFilter();f.type="lowpass";f.frequency.value=600;const g=actx.createGain();g.gain.value=.08;n.connect(f).connect(g).connect(actx.destination);n.start()}catch(e){}}else actx.resume()}
   else if(actx)actx.suspend();soundscape()}
-let primed=false;addEventListener("pointerdown",()=>{if(primed)return;primed=true;if(!clubSong.src)clubSong.src=CLUB_TRACKS[clubTrack][1];
+let primed=false;addEventListener("pointerdown",()=>{if(primed)return;primed=true;if(!clubSong.src)clubSong.src=CLUB_TRACKS[clubTrack][1];if(!denSong.src)denSong.src=CLUB_TRACKS[denTrack][1];
   ALL.forEach(a=>{if(!a.paused)return;const v=a.volume;a.volume=0;a.play().then(()=>{if(a!==soundscapeWant())a.pause();a.volume=v}).catch(()=>{a.volume=v})})},true);
-const soundscapeWant=()=>soundOn?(chanting?chant:(room&&room.id==="den")?secretSong:(room&&room.id==="club")?clubSong:room?null:music):null;
+const soundscapeWant=()=>soundOn?(chanting?chant:(room&&room.id==="den")?denSong:(room&&room.id==="club")?clubSong:room?null:music):null;
 chant.addEventListener("ended",()=>{chanting=false;syncSnd()});
 $("#bSnd").addEventListener("click",()=>setSound(!soundOn));
 function bell(){if(zoneOn[zone()]===false)return;if(!actx){try{actx=new AudioContext()}catch(e){return}}actx.resume&&actx.resume();[0,.9,1.8].forEach((t,i)=>{const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=[392,330,262][i];g.gain.setValueAtTime(.0001,actx.currentTime+t);g.gain.exponentialRampToValueAtTime(.045,actx.currentTime+t+.02);g.gain.exponentialRampToValueAtTime(.0001,actx.currentTime+t+2.4);o.connect(g).connect(actx.destination);o.start(actx.currentTime+t);o.stop(actx.currentTime+t+2.5)})}
@@ -678,7 +685,9 @@ function koumMenu(e,px,py){const x=tx(),k=e.koum;openPie(px,py,[{k:"meet",fn:()=
   {k:"wave",fn:()=>{P.lock=1.6;P.yaw=Math.atan2(e.pos.x-P.pos.x,e.pos.z-P.pos.z);play(P,"wave",.2);play(e,e.act.wave?"wave":"laugh",.3);setTimeout(()=>play(e,"idle",.4),1800);mood("fun",4)}}],k==="kp"?"kpieM":"kpieF")}
 function updKoumTags(scene){if(scene===world)updDoorMarks();const v=new THREE.Vector3(),x=tx();for(const k in koumTags)koumTags[k].hidden=true;if(mode!=="play"&&mode!=="drive")return;
   for(const e of npcs){if(!e.koum||e.scene!==scene)continue;v.copy(e.pos).setY(2.15).project(camera);if(v.z>1||Math.abs(v.x)>1.1||Math.abs(v.y)>1.1)continue;const t=koumTags[e.koum],tg=x[e.koum+"Tag"].split(" · ");t.innerHTML=`<small>${tg[0]}</small>${tg[1]}`;t.hidden=false;
-    t.style.transform=`translate(${(v.x*.5+.5)*innerWidth|0}px,${(-v.y*.5+.5)*innerHeight|0}px) translate(-50%,-100%)`}}
+    t._x=(v.x*.5+.5)*innerWidth;t._y=(-v.y*.5+.5)*innerHeight}
+  const a=koumTags.kp,b=koumTags.ka;if(!a.hidden&&!b.hidden){const need=(a.offsetWidth+b.offsetWidth)/2+4,gap=Math.abs(b._x-a._x);if(gap<need){const m=(a._x+b._x)/2,s=a._x<=b._x?1:-1;a._x=m-s*need/2;b._x=m+s*need/2}}
+  for(const t of [a,b])if(!t.hidden)t.style.transform=`translate(${t._x|0}px,${t._y|0}px) translate(-50%,-100%)`}
 function updNPCs(dt,scene){updKoumTags(scene);for(const e of npcs){if(e.scene!==scene)continue;
   if(e.wander){const tg=e.wander[e.wi||0],dx=tg[0]-e.pos.x,dz=tg[1]-e.pos.z,d=Math.hypot(dx,dz);if(d<.4)e.wi=((e.wi||0)+1)%e.wander.length;else{e.pos.x+=dx/d*1.2*dt;e.pos.z+=dz/d*1.2*dt;e.yaw=angLerp(e.yaw,Math.atan2(dx,dz),dt*4)}}
   else if(e.act0==="talk"||e.act0==="laugh"){e.t-=dt;if(e.t<0){e.t=3+rnd()*4;play(e,e.curName==="talk"?"laugh":"talk",.4)}}
@@ -1036,7 +1045,7 @@ function buildDen(){const r=roomBase("den",{floor:plankTex("#8a5f42","#7d553a"),
   B.add(G.cyl,"darkwood",6.7,1.05,-5.4,.42,.06,.42).add(G.cyl,"black",6.7,.52,-5.4,.05,1.04,.05).add(G.cyl,"black",6.7,.03,-5.4,.3,.05,.3).add(G.cyl,"glass",6.62,1.12,-5.3,.13,.05,.13).add(G.cyl,"glass",6.8,1.18,-5.55,.05,.18,.05).add(G.cyl,"glass",6.55,1.18,-5.6,.05,.18,.05);r.round.push({x:6.7,z:-5.4,r:.45});
   /* a tablet on the coffee table */
   B.add(new RoundedBoxGeometry(.5,.03,.36,2,.012),"black",-1.25,.47,-1.8);const tab=new THREE.Mesh(new THREE.PlaneGeometry(.44,.3),new THREE.MeshBasicMaterial({color:0x9ad0ff}));tab.rotation.x=-Math.PI/2;tab.position.set(-1.25,.49,-1.8);r.scene.add(tab);
-  r.items=[{label:()=>"🎮 "+tx().tvL,at:[0,4.1,-6.3],go:[0,-3.6],fn:()=>CARDS.yt(CONTENT.tvVideo,"Fortnite")},{label:()=>"▶ "+tx().tabletL,at:[-1.25,1.1,-1.8],go:[-1.25,-2.9],fn:()=>CONTENT.proposal?CARDS.proposal():CARDS.yt(CONTENT.tabletVideo,tx().tabletH)}];
+  r.items=[{label:()=>"🎵 "+tx().clubTracks,at:[5.2,1.3,4.9],go:[4.6,3.6],fn:()=>CARDS.club(true)},{label:()=>"🎮 "+tx().tvL,at:[0,4.1,-6.3],go:[0,-3.6],fn:()=>CARDS.yt(CONTENT.tvVideo,"Fortnite")},{label:()=>"▶ "+tx().tabletL,at:[-1.25,1.1,-1.8],go:[-1.25,-2.9],fn:()=>CONTENT.proposal?CARDS.proposal():CARDS.yt(CONTENT.tabletVideo,tx().tabletH)}];
   let tvT=0;r.anim=dt=>{tt+=dt;if((tvT-=dt)<0){tvT=.25;drawTV()}glow.intensity=8+Math.sin(tt*5)*2;smoke.forEach(p=>{p.t+=dt;const a=(p.t%4)/4;p.m.position.set(6+Math.sin(p.t)*.4,1.7+a*2.4,-4.6+Math.cos(p.t*.7)*.4);p.m.material.opacity=.35*(1-a);p.m.scale.setScalar(.6+a*1.6)})};
   return r}
 
@@ -1117,6 +1126,10 @@ function exitRoom(then){if(!room)return;resetJoy();const id=room.id;mode="busy";
   if(id!=="den"){const[a,b]=doorFront(id,2.4);P.pos.set(a,0,b);N.pos.copy(P.pos).addScaledVector(new THREE.Vector3(Math.cos(PLACES[id].face),0,-Math.sin(PLACES[id].face)),1.1)}
   if(id==="den"){P.pos.set(SECRET.door[0],0,SECRET.door[1]+2.4);N.pos.set(SECRET.door[0]+1.1,0,SECRET.door[1]+2.6);P.yaw=N.yaw=0;camYaw=0}else{P.yaw=N.yaw=PLACES[id].face;camYaw=PLACES[id].face}
   atSecret=false;snapCam();mode="play";renderObj();renderLabels();soundscape();then&&then()})}
+function askName(){const x=tx();openCard("· · ·",x.nameH,`<p>${x.nameP}</p><form id="gnf" autocomplete="on"><label class="f"><span>${x.voteName}</span><input id="gn" autocomplete="name" required maxlength="60" style="font-size:17px"></label><div class="acts"><button class="btn" type="submit">${x.nameBtn}</button></div></form>`,
+  ()=>$("#gnf").addEventListener("submit",e=>{e.preventDefault();const n=$("#gn").value.trim().replace(/\s+/g," ");if(n.split(" ").length<2&&n.length<5)return;state.guest=n;save();closeCard();
+    /* already voted from another phone? lock the vote to what was saved */
+    if(SHEET)fetch(SHEET+"?name="+encodeURIComponent(n)).then(r=>r.json()).then(d=>{voteCount=d.total||voteCount;if(d.voted){state.ans=state.ans||{};state.ans.honey=d.voted;state.ans.honeyName=n;save()}}).catch(()=>{})}))}
 function homeNow(){pie.hidden=true;if(mode==="drive"){getOff(homeNow);return}if(room){exitRoom(homeNow);return}if(mode!=="play")return;
   fade(()=>{goal=null;freeLocks();P.pos.set(-.6,0,7.6);N.pos.set(.6,0,7.6);P.yaw=N.yaw=Math.PI;camYaw=0;dog.pos.set(-1.6,0,8.2);snapCam()})}
 $("#bHome").addEventListener("click",homeNow);
@@ -1220,10 +1233,15 @@ function renderLabels(){const x=tx();ORDER.forEach(id=>{const el=mkLabel(id,()=>
 const _p=new THREE.Vector3();
 function place(el,v){_p.copy(v).project(camera);if(_p.z>1||Math.abs(_p.x)>1.15||_p.y<-1.1){el.style.display="none";return}el.style.display="flex";
   const w=(el.offsetWidth||90)/2+8,x=THREE.MathUtils.clamp((_p.x*.5+.5)*innerWidth,w,innerWidth-w),y=THREE.MathUtils.clamp((-_p.y*.5+.5)*innerHeight,150,innerHeight-(touch?170:60));
-  el.style.transform=`translate(${x|0}px,${y|0}px) translate(-50%,-100%)`}
+  el._x=x;el._y=y;el._z=_p.z;el.style.transform=`translate(${x|0}px,${y|0}px) translate(-50%,-100%)`}
+/* building labels must never sit on top of each other (far ones all clamp to the same top line on a phone): nearer wins, the rest step down */
+function declutter(els){const vis=els.filter(e=>e&&e.style.display!=="none").sort((a,b)=>a._z-b._z),done=[];
+  for(const e of vis){const w=e.offsetWidth,h=e.offsetHeight;let y=e._y;
+    for(let k=0;k<6;k++){const hit=done.find(d=>Math.abs(d.x-e._x)<(d.w+w)/2+4&&Math.abs(d.y-y)<(d.h+h)/2+3);if(!hit)break;y=hit.y+(hit.h+h)/2+4}
+    done.push({x:e._x,y,w,h});if(y!==e._y)e.style.transform=`translate(${e._x|0}px,${y|0}px) translate(-50%,-100%)`}}
 function updLabels(){const hide=mode==="intro"||mode==="ride"||mode==="drive";
   for(let i=0;i<4;i++){const el=labelEls["_it"+i];if(el&&(!room||hide))el.style.display="none"}
-  ORDER.forEach(id=>{const el=labelEls[id];if(!el)return;if(room||hide){el.style.display="none";return}const p=PLACES[id];place(el,new THREE.Vector3(p.door[0],id==="chapel"?6.2:5.6,p.door[1]))});
+  ORDER.forEach(id=>{const el=labelEls[id];if(!el)return;if(room||hide){el.style.display="none";return}const p=PLACES[id];place(el,new THREE.Vector3(p.door[0],id==="chapel"?6.2:5.6,p.door[1]))});if(!room&&!hide)declutter(ORDER.map(id=>labelEls[id]));
   const sp=labelEls._spot,ex=labelEls._exit;if(!room||hide){sp&&(sp.style.display="none");ex&&(ex.style.display="none");return}
   place(sp,room.spotL?new THREE.Vector3(...room.spotL):new THREE.Vector3(room.spot[3],2.9,room.spot[4]));place(ex,new THREE.Vector3(0,3,room.exit[1]));
   for(let i=0;i<4;i++){const el=labelEls["_it"+i],it=room.items&&room.items[i];if(!el)continue;if(!it){el.style.display="none";continue}place(el,new THREE.Vector3(...it.at))}
@@ -1252,7 +1270,7 @@ function snapCam(){const f=followPose();camPos.copy(f.p);camLook.copy(f.l)}
 function introPose(t){const a=Math.min(1,t/14),e=1-Math.pow(1-a,3);return{p:new THREE.Vector3(Math.sin(t*.05)*14,26-e*14,78-e*44),l:new THREE.Vector3(0,3.5-e*1.5,-8)}}
 const ease=x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;
 function choose(kind){if(!ready||mode!=="intro")return;if(kind==="bride")startOnVespa=true;const[g,b]=window.__ents;P=kind==="groom"?g:b;N=kind==="groom"?b:g;mode="fly";flyT=0;
-  $("#intro").classList.add("gone");document.body.classList.add("play");let so="1";try{so=localStorage.getItem("wsound")??"1"}catch(e){}setSound(so==="1");plazaGuests();plazaKoum();setTimeout(bell,1500);
+  $("#intro").classList.add("gone");document.body.classList.add("play");let so="1";try{so=localStorage.getItem("wsound")??"1"}catch(e){}setSound(so==="1");plazaGuests();plazaKoum();if(!state.guest)setTimeout(askName,1800);setTimeout(bell,1500);
   setTimeout(seaLife,3000);
   setTimeout(()=>{toast(tx().hint,7000)},reduce?0:2600)}
 $("#seal").addEventListener("click",()=>{const de=document.documentElement;if(touch&&de.requestFullscreen&&!document.fullscreenElement)de.requestFullscreen({navigationUI:"hide"}).catch(()=>{});$("#env").classList.add("open");if(navigator.vibrate)navigator.vibrate(15)});
@@ -1373,5 +1391,5 @@ $("#bReset").addEventListener("click",()=>{try{localStorage.removeItem("wq2")}ca
 /* zoom: far (default) -> x1 -> x2 -> far */
 /* each entry: distance, and the label of what the next tap does */
 const ZOOMS=[[11,"x1"],[7.5,"x2"],[4.8,"⤢"]];let zoomI=0;$("#bZoom").addEventListener("click",()=>{zoomI=(zoomI+1)%ZOOMS.length;camDist=ZOOMS[zoomI][0];$("#bZoom").textContent=ZOOMS[zoomI][1]});
-$("#bAdmin").addEventListener("click",()=>{ORDER.forEach(k=>state.done[questOf(k)]=1);state.fin=Date.now()-5000;delete state.quiz;delete state.qa;save();panel("#list",false);renderList();renderObj();renderLabels();toast("admin: 5/5 + 6/6 ✓",2500)});
-window.__w={rinfo:()=>room&&{s:room.solid.map(q=>[q.x0,q.z0,q.x1,q.z1].map(v=>+v.toFixed(1))),r:room.round.map(c=>[c.x,c.z,c.r].map(v=>+v.toFixed(1))),b:room.bounds},exportStatic:async()=>{const {GLTFExporter}=await import("three/addons/exporters/GLTFExporter.js");const sc=new THREE.Scene();STATIC.forEach(m=>{m.updateMatrixWorld();const c=new THREE.Mesh(m.geometry.clone().applyMatrix4(m.matrixWorld),new THREE.MeshStandardMaterial({name:m.name}));c.name=m.name;sc.add(c)});const b=await new GLTFExporter().parseAsync(sc,{binary:true});let s="";const u=new Uint8Array(b);for(let i=0;i<u.length;i+=32768)s+=String.fromCharCode.apply(null,u.subarray(i,i+32768));return btoa(s)},dbgP:()=>({lock:P.lock,goal:goal&&{i:goal.i,n:goal.pts.length,end:goal.pts[goal.pts.length-1].toArray(),tries:goal.tries||0},pos:P.pos.toArray(),spd:P.spd,mode,cur:P.curName,shown:room&&room.shown}),setDist:d=>{camDist=d;camPitch=.3},dog:()=>dog.pos.toArray(),mountVespa,getOff,dogTrick,mode:()=>mode,ready:()=>ready,choose,goPlace,enterRoom,exitRoom,startRide,P:()=>P,room:()=>room&&room.id,tp:(x,z)=>{P.pos.set(x,0,z);N.pos.set(x+1,0,z);goal=null;snapCam()},selfie,info:()=>renderer.info.render,blessing,npcs:()=>npcs.length,complete,driveTo,vespa:()=>vespaObj.position.toArray(),setV:(x,z)=>vespaObj.position.set(x,0,z),vg:()=>vGoal&&{i:vGoal.i,pts:vGoal.pts.map(p=>[+p.x.toFixed(1),+p.z.toFixed(1)])},snd:()=>({soundOn,zone:zone(),zoneOn:{...zoneOn},chant:!chant.paused,club:!clubSong.paused,music:!music.paused}),setSound,card:()=>$("#card").textContent.slice(0,200),cards:()=>CARDS,quiz:()=>state.quiz};
+$("#bAdmin").addEventListener("click",()=>{ORDER.forEach(k=>state.done[questOf(k)]=1);state.fin=Date.now()-5000;delete state.quiz;delete state.qa;delete state.hint;save();panel("#list",false);renderList();renderObj();renderLabels();toast("admin: 5/5 + 6/6 ✓",2500)});
+window.__w={rinfo:()=>room&&{s:room.solid.map(q=>[q.x0,q.z0,q.x1,q.z1].map(v=>+v.toFixed(1))),r:room.round.map(c=>[c.x,c.z,c.r].map(v=>+v.toFixed(1))),b:room.bounds},exportStatic:async()=>{const {GLTFExporter}=await import("three/addons/exporters/GLTFExporter.js");const sc=new THREE.Scene();STATIC.forEach(m=>{m.updateMatrixWorld();const c=new THREE.Mesh(m.geometry.clone().applyMatrix4(m.matrixWorld),new THREE.MeshStandardMaterial({name:m.name}));c.name=m.name;sc.add(c)});const b=await new GLTFExporter().parseAsync(sc,{binary:true});let s="";const u=new Uint8Array(b);for(let i=0;i<u.length;i+=32768)s+=String.fromCharCode.apply(null,u.subarray(i,i+32768));return btoa(s)},dbgP:()=>({lock:P.lock,goal:goal&&{i:goal.i,n:goal.pts.length,end:goal.pts[goal.pts.length-1].toArray(),tries:goal.tries||0},pos:P.pos.toArray(),spd:P.spd,mode,cur:P.curName,shown:room&&room.shown}),setDist:d=>{camDist=d;camPitch=.3},dog:()=>dog.pos.toArray(),mountVespa,getOff,dogTrick,mode:()=>mode,ready:()=>ready,choose,goPlace,enterRoom,exitRoom,startRide,P:()=>P,room:()=>room&&room.id,tp:(x,z)=>{P.pos.set(x,0,z);N.pos.set(x+1,0,z);goal=null;snapCam()},selfie,info:()=>renderer.info.render,blessing,npcs:()=>npcs.length,complete,driveTo,vespa:()=>vespaObj.position.toArray(),setV:(x,z)=>vespaObj.position.set(x,0,z),vg:()=>vGoal&&{i:vGoal.i,pts:vGoal.pts.map(p=>[+p.x.toFixed(1),+p.z.toFixed(1)])},snd:()=>({soundOn,zone:zone(),zoneOn:{...zoneOn},chant:!chant.paused,club:!clubSong.paused,music:!music.paused}),setSound,card:()=>$("#card").textContent.slice(0,200),cards:()=>CARDS,quiz:()=>state.quiz,qzKey:i=>tx().qz[i][2]};
