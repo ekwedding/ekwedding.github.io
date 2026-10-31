@@ -6,6 +6,7 @@ export const CONTENT={
   schedule:[["19:00","arrive"],["19:30","ceremony"],["21:00","dinner"],["23:30","party"]],
   /* photos for "how we got here": put files in assets/photos and set src, null = drawn placeholder */
   story:[{city:"Θήβα",src:"assets/photo-1.jpg",stamp:"2011"},{city:"Αθήνα",src:"assets/photo-2.jpg"},{city:"Κυψέλη",src:"assets/photo-3.jpg"},{city:"Frankfurt",src:"assets/photo-4.jpg"},{city:"Stuttgart",src:"assets/photo-5.jpg"}],
+  years:[{y:2011,src:"assets/year-2011.jpg"},{y:2012,src:"assets/year-2012.jpg"},{y:2013,src:"assets/year-2013.jpg"},{y:2014,src:"assets/year-2014.jpg"},{y:2015,src:"assets/year-2015.jpg"},{y:2016,src:"assets/year-2016.jpg"},{y:2017,src:"assets/year-2017.jpg"},{y:2018,src:"assets/year-2018.jpg"},{y:2019,src:"assets/year-2019.jpg"},{y:2020,src:"assets/year-2020.jpg"},{y:2021,src:"assets/year-2021.jpg"},{y:2022,src:"assets/year-2022.jpg"},{y:2023,src:"assets/year-2023.jpg"},{y:2024,src:"assets/year-2024.jpg"},{y:2025,src:"assets/year-2025.jpg"},{y:2026,src:"assets/year-2026.jpg"}],
   album:"https://photos.icloud.com/shared/album/022Ho8qTnPNUezFUi4fYDlXkw",
   /* dinner menu at the estate. PLACEHOLDERS */
   menu:{el:[["Ορεκτικά","Ποικιλία με τυριά, ντάκοι, φάβα (DEMO)"],["Σαλάτα","Χωριάτικη με κρίθινο παξιμάδι (DEMO)"],["Κυρίως","Μοσχαράκι ή λαβράκι (DEMO)"],["Γλυκό","Γαμήλια τούρτα (DEMO)"]],en:[["Starters","Cheeses, dakos, fava (DEMO)"],["Salad","Greek salad with barley rusk (DEMO)"],["Main","Veal or sea bass (DEMO)"],["Dessert","Wedding cake (DEMO)"]]},

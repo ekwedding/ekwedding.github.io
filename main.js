@@ -778,7 +778,7 @@ function buildRoom(id){if(rooms[id])return rooms[id];let r;const x=tx();
     {const t=new THREE.TextureLoader().load("assets/collage.jpg");t.colorSpace=THREE.SRGBColorSpace;const cg=new THREE.Mesh(new THREE.PlaneGeometry(1.9,2.375),mat({map:t,roughness:.6}));cg.position.set(-7.9,2.4,-2.6);cg.rotation.y=Math.PI/2;r.scene.add(cg);
       B.add(G.box,"darkwood",-7.96,2.4,-2.6,.06,2.55,2.08);lightCone(r,-5.8,4.4,-2.6,-7.9,-2.6,0xfff4e0,26);
       const yrs=CONTENT.years||[];for(let k=0;k<16;k++){const c=k%4,rw=k/4|0,zz=1.2+c*.62,yy=3.3-rw*.62,y0=CONTENT.years&&CONTENT.years[k];
-        const tx2=y0&&y0.src?new THREE.TextureLoader().load(y0.src):null;if(tx2)tx2.colorSpace=THREE.SRGBColorSpace;
+        const tx2=y0&&y0.src?new THREE.TextureLoader().load(y0.src,tt=>{const ar=tt.image.width/tt.image.height;if(ar>1){tt.repeat.set(1/ar,1);tt.offset.set((1-1/ar)/2,0)}else{tt.repeat.set(1,ar);tt.offset.set(0,(1-ar)/2)}}):null;if(tx2)tx2.colorSpace=THREE.SRGBColorSpace;
         const f=new THREE.Mesh(new THREE.PlaneGeometry(.48,.48),mat(tx2?{map:tx2}:{map:canvasTex(96,96,(g,w,h)=>{g.fillStyle=["#e9d8c0","#cfe0e8","#e8cfd6","#d8e6cf"][k%4];g.fillRect(0,0,w,h);g.fillStyle="#6b6358";g.font="600 22px Commissioner, sans-serif";g.textAlign="center";g.fillText(2011+k,w/2,56)})}));
         f.position.set(-7.9,yy,zz);f.rotation.y=Math.PI/2;r.scene.add(f);B.add(G.box,"black",-7.95,yy,zz,.04,.54,.54)}}
     r.spot=[0,-3.6,1.6,0,-6.4];r.items=[{label:()=>"📷 "+tx().albumL,at:[5.4,2.7,1.5],go:[4.3,2.8],fn:()=>CARDS.album()},{label:()=>tx().kidsL,at:[-7.6,3.9,-2.6],go:[-5.8,-2.6],fn:()=>CARDS.kids()},{label:()=>"2011 – 2026",at:[-7.6,3.9,2.1],go:[-5.6,2.6],fn:()=>CARDS.years()}];
