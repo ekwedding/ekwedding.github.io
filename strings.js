@@ -14,7 +14,7 @@ export const CONTENT={
   honey:["namerica","samerica","oceania","antarctica"],      /* continents we have not been to yet */
   backend:{projectId:"",apiKey:""},
   /* Google Apps Script web-app URL (tools/sheets/Code.gs); empty = answers stay on the phone */
-  sheet:"",                                    /* Firestore; empty = demo, answers stay on the device */
+  sheet:"https://script.google.com/macros/s/AKfycbyXsQxEqpwThf_YAv5o1yZVHXoVl8OiKRJQw1J4kpEOkjMKFUAl4oHK2LMycmeP4wcG3w/exec",                                    /* Firestore; empty = demo, answers stay on the device */
   demo:true,
   /* gifts (post office desk). PLACEHOLDERS: put the real details here; empty = row hidden */
   gift:{holder:"ΟΝΟΜΑΤΕΠΩΝΥΜΟ (DEMO)",iban:"GR00 0000 0000 0000 0000 0000 000",revolut:"demo",iris:"69X XXX XXXX"},
