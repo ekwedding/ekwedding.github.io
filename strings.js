@@ -19,8 +19,13 @@ export const CONTENT={
   info:{el:[["Ντύσιμο","Καλοκαιρινό κομψό. Ανοιχτά χρώματα, άνετα παπούτσια για χώμα και γρασίδι."],["Παιδιά","Ο γάμος είναι μόνο για ενήλικες. Σας ευχαριστούμε για την κατανόηση."],["Πάρκινγκ","Υπάρχει δωρεάν πάρκινγκ στο κτήμα."],["Επιστροφή","Θα υπάρχουν ταξί στο τέλος της βραδιάς."]],
         en:[["Dress code","Summer elegant. Light colours, comfortable shoes for gravel and grass."],["Children","The wedding is adults only. Thank you for understanding."],["Parking","Free parking at the venue."],["Getting home","Taxis will be available at the end of the night."]]},
   /* VIP den, for close friends only. PLACEHOLDERS */
-  vip:{el:[["Ετοιμασία γαμπρού","15:00 · σπίτι του Ευάγγελου (διεύθυνση DEMO)"],["Ετοιμασία νύφης","14:00 · σπίτι της Κωνσταντίνας (διεύθυνση DEMO)"],["Μετά τον γάμο","After party μέχρι το πρωί (DEMO)"],["Την επόμενη μέρα","Θάλασσα και φαγητό όλοι μαζί (DEMO)"]],
-       en:[["Groom getting ready","15:00 · Evangelos' home (address DEMO)"],["Bride getting ready","14:00 · Konstantina's home (address DEMO)"],["After the wedding","After party until the morning (DEMO)"],["The next day","Beach and food all together (DEMO)"]]}
+  vip:{el:[["Πού ετοιμαζόμαστε","Στις Komos Villas. Εδώ θα ετοιμαστούμε: σας περιμένουμε πριν και μετά τον γάμο για μπάνιο και ετοιμασία."],["Τι να φέρετε","Τα ρούχα σας για να ντυθείτε και μαγιό για να κάνουμε μπάνιο."],["Μετά τον γάμο","After party μέχρι το πρωί (DEMO)"],["Την επόμενη μέρα","Θάλασσα και φαγητό όλοι μαζί (DEMO)"]],
+       en:[["Where we get ready","At Komos Villas. This is where we'll get ready: join us before and after the wedding for a swim and to get ready."],["What to bring","Your clothes to change into and a swimsuit for a swim."],["After the wedding","After party until the morning (DEMO)"],["The next day","Beach and food all together (DEMO)"]]},
+  villa:"https://www.booking.com/hotel/gr/komos-villas-by-airstay.html?checkin=2027-07-30&checkout=2027-08-02",
+  /* YouTube videos: the TV in the den, and the tablet (put your own video id here later) */
+  tvVideo:"KHdETjg4BsY",tabletVideo:"cwgodJ4pmzQ",
+  /* the den leaderboard */
+  board:[["junkienadina",20],["kofinisevan",18],["mariastrid",15],["vasglar",0]]
 };
 
 export const T={
@@ -159,21 +164,21 @@ Object.assign(T.en,{backPlaza:"Back to the plaza",tasksOf:"tasks",lock6:"Unlocks
 Object.assign(T.de,{backPlaza:"Zurück zum Platz",tasksOf:"Aufgaben",lock6:"Öffnet bei 5/5",pickG:"Evangelos · zu Fuß",pickB:"Konstantina · mit der Vespa",shout:"DU NOOOOB!"});
 Object.assign(T.ro,{backPlaza:"Înapoi în piață",tasksOf:"misiuni",lock6:"Se deblochează la 5/5",pickG:"Evangelos · pe jos",pickB:"Konstantina · cu Vespa",shout:"EȘTI NOOOOB!"});
 for(const l in T){T[l].pie.shout=T[l].shout}
-/* the end-of-game quiz: 5 questions only close friends would know (PLACEHOLDERS: the couple will replace them).
+/* the end-of-game quiz: 6 questions only close friends would know (PLACEHOLDERS: the couple will replace them).
    Each entry: [question, [answers…], index of the right answer]. The hint appears once all five are right. */
 const QZ={
-el:{qzW:"Πλατεία",qzH:"Συγχαρητήρια!",qzP:"Κάνατε όλα τα quest. Τα παιδιά σας έχουν μια έκπληξη, αν απαντήσετε σωστά σε 5 ερωτήσεις που μόνο εσείς θα ξέρετε.",qzOk:"Σωστό!",qzNo:"Όχι… ξαναπροσπάθησε",qzOf:"σωστές",
-  qzWinH:"Μπράβο!",qzWin:"Ο τελευταίος ανεμόμυλος δεν γυρίζει σαν τους άλλους. Ακολούθησε τις πατουσίτσες και ψάξε την πόρτα με το σκυλάκι.",qzGo:"Πάμε",
-  qz:[["Σε ποια πόλη ξεκίνησε η ιστορία μας;",["Πάτρα","Θήβα","Βόλος"],1],["Τι ράτσα είναι το σκυλάκι μας;",["Μαλτέζ","Πούντλ","Τσιουάουα"],0],["Σε ποια χώρα ζήσαμε μαζί;",["Ιταλία","Αγγλία","Γερμανία"],2],["Τι οδηγεί η Κωνσταντίνα;",["Vespa","Ποδήλατο","Τρακτέρ"],0],["Τι αγαπάει ο Ευάγγελος;",["Το πλέξιμο","Το kitesurf","Το γκολφ"],1]]},
-en:{qzW:"Plaza",qzH:"Congratulations!",qzP:"You finished every quest. The couple has a surprise for you if you get 5 questions right that only you would know.",qzOk:"Right!",qzNo:"No… try again",qzOf:"right",
-  qzWinH:"Well done!",qzWin:"The last windmill doesn't turn like the others. Follow the little pawprints and look for the door with the dog.",qzGo:"Let's go",
-  qz:[["In which town did our story begin?",["Patras","Thebes","Volos"],1],["What breed is our little dog?",["Maltese","Poodle","Chihuahua"],0],["Which country did we live in together?",["Italy","England","Germany"],2],["What does Konstantina ride?",["A Vespa","A bicycle","A tractor"],0],["What does Evangelos love?",["Knitting","Kitesurfing","Golf"],1]]},
-de:{qzW:"Platz",qzH:"Glückwunsch!",qzP:"Du hast alle Quests geschafft. Das Paar hat eine Überraschung, wenn du 5 Fragen richtig beantwortest, die nur du weißt.",qzOk:"Richtig!",qzNo:"Nein… nochmal",qzOf:"richtig",
+el:{qzW:"Πλατεία",qzH:"Συγχαρητήρια!",qzP:"Κάνατε όλα τα quest. Τα παιδιά σας έχουν μια έκπληξη, αν απαντήσετε σωστά σε 6 ερωτήσεις που μόνο εσείς θα ξέρετε.",qzOk:"Σωστό!",qzNo:"Όχι… ξαναπροσπάθησε",qzOf:"σωστές",
+  qzWinH:"Μπράβο!",qzWin:"Αν νιώθεις οικογένειά μας, έλα να μας βρεις στο επόμενο κρυφό δωμάτιο. Θέλει ψάξιμο: ο τελευταίος ανεμόμυλος δεν γυρίζει σαν τους άλλους. Ακολούθησε τις πατουσίτσες. Ο κωδικός κρύβεται σε μια φωτογραφία της γκαλερί. Δεν τον βρίσκεις; Ρώτα μας στο WhatsApp.",qzGo:"Πάμε",
+  qz:[["Ποιος είναι αριστερόχειρας;",["Ο γαμπρός","Η νύφη","Και οι δύο","Κανείς"],0],["Ποιος νυστάζει από τις 23:00, ακόμα κι αν είναι έξω, και θέλει τουλάχιστον 10 ώρες ύπνο;",["Ο γαμπρός","Η νύφη","Και οι δύο"],1],["Ποιος κερδίζει στο Fortnite;",["Ο γαμπρός","Η νύφη"],1],["Σε ποια πόλη ξεκίνησε η ιστορία μας;",["Πάτρα","Θήβα","Βόλος"],1],["Τι ράτσα είναι το σκυλάκι μας;",["Μαλτέζ","Πούντλ","Τσιουάουα"],0],["Σε ποια χώρα ζήσαμε μαζί;",["Ιταλία","Αγγλία","Γερμανία"],2]]},
+en:{qzW:"Plaza",qzH:"Congratulations!",qzP:"You finished every quest. The couple has a surprise for you if you get 6 questions right that only you would know.",qzOk:"Right!",qzNo:"No… try again",qzOf:"right",
+  qzWinH:"Well done!",qzWin:"If you feel like family to us, come and find us in the next hidden room. It takes some searching: the last windmill doesn't turn like the others. Follow the pawprints. The code is hidden in a photo in the gallery. Can't find it? Ask us on WhatsApp.",qzGo:"Let's go",
+  qz:[["Who is left-handed?",["The groom","The bride","Both","Neither"],0],["Who gets sleepy from 23:00, even when out, and needs at least 10 hours of sleep?",["The groom","The bride","Both"],1],["Who wins at Fortnite?",["The groom","The bride"],1],["In which town did our story begin?",["Patras","Thebes","Volos"],1],["What breed is our little dog?",["Maltese","Poodle","Chihuahua"],0],["Which country did we live in together?",["Italy","England","Germany"],2]]},
+de:{qzW:"Platz",qzH:"Glückwunsch!",qzP:"Du hast alle Quests geschafft. Das Paar hat eine Überraschung, wenn du 6 Fragen richtig beantwortest, die nur du weißt.",qzOk:"Richtig!",qzNo:"Nein… nochmal",qzOf:"richtig",
   qzWinH:"Bravo!",qzWin:"Die letzte Windmühle dreht sich nicht wie die anderen. Folge den Pfötchen und such die Tür mit dem Hund.",qzGo:"Los",
-  qz:[["In welcher Stadt begann unsere Geschichte?",["Patras","Theben","Volos"],1],["Welche Rasse ist unser Hündchen?",["Malteser","Pudel","Chihuahua"],0],["In welchem Land haben wir zusammen gelebt?",["Italien","England","Deutschland"],2],["Was fährt Konstantina?",["Eine Vespa","Ein Fahrrad","Einen Traktor"],0],["Was liebt Evangelos?",["Stricken","Kitesurfen","Golf"],1]]},
-ro:{qzW:"Piață",qzH:"Felicitări!",qzP:"Ai terminat toate misiunile. Mirii au o surpriză dacă răspunzi corect la 5 întrebări pe care doar tu le știi.",qzOk:"Corect!",qzNo:"Nu… mai încearcă",qzOf:"corecte",
+  qz:[["Wer ist Linkshänder?",["Der Bräutigam","Die Braut","Beide","Keiner"],0],["Wer wird ab 23:00 müde, auch unterwegs, und braucht mindestens 10 Stunden Schlaf?",["Der Bräutigam","Die Braut","Beide"],1],["Wer gewinnt bei Fortnite?",["Der Bräutigam","Die Braut"],1],["In welcher Stadt begann unsere Geschichte?",["Patras","Theben","Volos"],1],["Welche Rasse ist unser Hündchen?",["Malteser","Pudel","Chihuahua"],0],["In welchem Land haben wir zusammen gelebt?",["Italien","England","Deutschland"],2]]},
+ro:{qzW:"Piață",qzH:"Felicitări!",qzP:"Ai terminat toate misiunile. Mirii au o surpriză dacă răspunzi corect la 6 întrebări pe care doar tu le știi.",qzOk:"Corect!",qzNo:"Nu… mai încearcă",qzOf:"corecte",
   qzWinH:"Bravo!",qzWin:"Ultima moară de vânt nu se învârte ca celelalte. Urmează lăbuțele și caută ușa cu cățelul.",qzGo:"Hai",
-  qz:[["În ce oraș a început povestea noastră?",["Patra","Teba","Volos"],1],["Ce rasă e cățelușul nostru?",["Maltez","Pudel","Chihuahua"],0],["În ce țară am locuit împreună?",["Italia","Anglia","Germania"],2],["Ce conduce Konstantina?",["O Vespa","O bicicletă","Un tractor"],0],["Ce iubește Evangelos?",["Tricotatul","Kitesurfingul","Golful"],1]]}};
+  qz:[["Cine e stângaci?",["Mirele","Mireasa","Amândoi","Niciunul"],0],["Cui i se face somn de la 23:00, chiar și în oraș, și are nevoie de minim 10 ore de somn?",["Mirelui","Miresei","Amândurora"],1],["Cine câștigă la Fortnite?",["Mirele","Mireasa"],1],["În ce oraș a început povestea noastră?",["Patra","Teba","Volos"],1],["Ce rasă e cățelușul nostru?",["Maltez","Pudel","Chihuahua"],0],["În ce țară am locuit împreună?",["Italia","Anglia","Germania"],2]]}};
 for(const l in QZ)Object.assign(T[l],QZ[l]);
 /* gifts, info, VIP ideas, saved answers */
 const MORE4={
@@ -197,3 +202,19 @@ en:{albumL:"Wedding album",albumH:"Our wedding album",albumP:"Took photos? Uploa
   dr:{aperol:"Aperol Spritz",gin:"Gin Tonic",mojito:"Mojito",whisky:"Whisky",wine:"Wine",beer:"Beer"},menuL:"Menu",menuH:"What we'll eat",info:"Info"}};
 for(const l in MORE5)Object.assign(T[l],MORE5[l]);
 for(const l of ["de","ro"])for(const k in T.en)if(!(k in T[l]))T[l][k]=T.en[k];
+Object.assign(T.el,{passed:"Το πέρασες!",questDone:"Quest ολοκληρώθηκε. Περιηγήσου ελεύθερα.",questToPass:"για να το περάσεις"});
+Object.assign(T.en,{passed:"You passed it!",questDone:"Quest done. Look around freely.",questToPass:"to pass the quest"});
+Object.assign(T.de,{passed:"Geschafft!",questDone:"Quest erledigt. Schau dich in Ruhe um.",questToPass:"um die Quest zu schaffen"});
+Object.assign(T.ro,{passed:"Ai reușit!",questDone:"Misiune încheiată. Explorează liniștit.",questToPass:"ca să treci misiunea"});
+Object.assign(T.el,{villaBtn:"Δες τη βίλα στο Booking",tvL:"Fortnite",tabletL:"Tablet",tabletH:"Ένα βίντεο για εμάς",boardH:"Κατάταξη"});
+Object.assign(T.en,{villaBtn:"See the villa on Booking",tvL:"Fortnite",tabletL:"Tablet",tabletH:"A video for us",boardH:"Leaderboard"});
+for(const l of ["de","ro"])for(const k in T.en)if(!(k in T[l]))T[l][k]=T.en[k];
+Object.assign(T.el,{isaiah:"«Ησαΐα χόρευε…» Ελάτε, γύρω-γύρω όλοι μαζί!"});Object.assign(T.en,{isaiah:"“Isaiah, dance…” Come, all around together!"});
+Object.assign(T.de,{isaiah:"„Jesaja, tanze…“ Kommt, alle zusammen im Kreis!"});Object.assign(T.ro,{isaiah:"„Isaie, dănțuiește…” Haideți, toți împreună în cerc!"});
+Object.assign(T.el,{kidsL:"Αυτά τα παιδιά…",kidsH:"Αυτά τα παιδιά παντρεύονται!!",yearsH:"Ένας χρόνος, μία φωτογραφία",yearsSoon:"Οι φωτογραφίες έρχονται σύντομα."});
+Object.assign(T.en,{kidsL:"These kids…",kidsH:"These kids are getting married!!",yearsH:"One year, one photo",yearsSoon:"Photos coming soon."});
+for(const l of ["de","ro"])for(const k in T.en)if(!(k in T[l]))T[l][k]=T.en[k];
+Object.assign(T.el,{games:{ttt:"Τρίλιζα",snake:"Φιδάκι",maze:"Λαβύρινθος"},arcadeH:"Arcade",arcadeP:"Διάλεξε παιχνίδι. Βάλε όνομα και δες πού είσαι στην κατάταξη.",nameH:"Πώς σε λένε;",username:"Όνομα παίκτη",play:"Παίξε",score:"Σκορ",again:"Ξανά",board:"Κατάταξη",noScores:"Κανένα σκορ ακόμα. Γίνε ο πρώτος!",youWin:"Κέρδισες!",youLose:"Έχασες!",draw:"Ισοπαλία",gameOver:"Τέλος παιχνιδιού"});
+Object.assign(T.en,{games:{ttt:"Tic-tac-toe",snake:"Snake",maze:"Maze"},arcadeH:"Arcade",arcadeP:"Pick a game. Enter your name and see where you rank.",nameH:"What's your name?",username:"Player name",play:"Play",score:"Score",again:"Again",board:"Leaderboard",noScores:"No scores yet. Be the first!",youWin:"You win!",youLose:"You lose!",draw:"Draw",gameOver:"Game over"});
+for(const l of ["de","ro"])for(const k in T.en)if(!(k in T[l]))T[l][k]=T.en[k];
+for(const l in T){T[l].guide.arcade=T[l].arcadeP;T[l].spot.arcade=T[l].arcadeH}
