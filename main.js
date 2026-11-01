@@ -217,7 +217,9 @@ function teleport(id){$("#simple").hidden=true;
 $("#bSimple").addEventListener("click",()=>{panel("#list",false);showSimple()});
 
 /* ---------- sound: one function decides what plays where ---------- */
-const music=$("#music"),chant=new Audio("assets/chant.m4a"),secretSong=new Audio("assets/music/innerbloom.m4a"),clubSong=new Audio();
+/* the hymn is attached only while it sings: at rest the element holds a blip of silence, so iOS can unlock it and nothing can ever resume the hymn elsewhere */
+const SILENCE="data:audio/wav;base64,UklGRuwAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YcgAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgA==",HYMN="assets/chant.m4a";
+const music=$("#music"),chant=new Audio(SILENCE),secretSong=new Audio("assets/music/innerbloom.m4a"),clubSong=new Audio();
 chant.preload=secretSong.preload=clubSong.preload="none";secretSong.loop=clubSong.loop=true;
 const CLUB_TRACKS=[["Καμπάνες","assets/music/kabanes.m4a"],["Where Is My Husband!","assets/music/raye_husband.m4a"],["Τόσα Καλοκαίρια","assets/music/tosa_kalokairia.m4a"],["Aicha","assets/music/aicha.m4a"],["Φανάρια","assets/music/fanaria.m4a"],["Innerbloom","assets/music/innerbloom.m4a"]];
 let clubTrack=1,denTrack=5,soundOn=false,actx=null,chanting=false,atSecret=false;
@@ -225,8 +227,7 @@ const denSong=new Audio();denSong.loop=true;denSong.preload="none";const ALL=[mu
 const SEG=new Map([[secretSong,[93,1e9]]]);music.loop=secretSong.loop=false;
 SEG.forEach(([a,b],el)=>{el.addEventListener("timeupdate",()=>{const end=Math.min(b,(el.duration||1e9)-.35);if(el.currentTime>=end)el.currentTime=a});el.addEventListener("ended",()=>{el.currentTime=a;el.play().catch(()=>{})})});
 let denGain=null;function denLevel(v){if(!actx||actx.state!=="running")return;try{if(!denGain){denGain=actx.createGain();actx.createMediaElementSource(denSong).connect(denGain).connect(actx.destination)}denSong.volume=1;denGain.gain.value=v}catch(e){}}
-function soundscape(){if(!soundOn){ALL.forEach(a=>a.pause());return}
-  const want=chanting?chant:(room&&room.id==="den")?denSong:(room&&room.id==="club")?clubSong:room?null:music;
+function soundscape(){const want=soundscapeWant();
   if(!want){ALL.forEach(a=>a.pause());return}
   if(want===clubSong&&!clubSong.src.endsWith(CLUB_TRACKS[clubTrack][1]))clubSong.src=CLUB_TRACKS[clubTrack][1];
   if(want===denSong&&!denSong.src.endsWith(CLUB_TRACKS[denTrack][1]))denSong.src=CLUB_TRACKS[denTrack][1];
@@ -239,10 +240,18 @@ function applySound(on){soundOn=on;$("#bSnd").setAttribute("aria-pressed",String
   if(on){if(!actx){try{actx=new AudioContext();const n=actx.createBufferSource(),b=actx.createBuffer(1,actx.sampleRate*4,actx.sampleRate),d=b.getChannelData(0);let l=0;for(let i=0;i<d.length;i++){l=l*.985+(Math.random()*2-1)*.015;d[i]=l*3}
       n.buffer=b;n.loop=true;const f=actx.createBiquadFilter();f.type="lowpass";f.frequency.value=600;const g=actx.createGain();g.gain.value=.08;n.connect(f).connect(g).connect(actx.destination);n.start()}catch(e){}}else actx.resume()}
   else if(actx)actx.suspend();soundscape()}
-let primed=false;addEventListener("pointerdown",()=>{if(primed)return;primed=true;if(!clubSong.src)clubSong.src=CLUB_TRACKS[clubTrack][1];if(!denSong.src)denSong.src=CLUB_TRACKS[denTrack][1];if(actx&&actx.resume)actx.resume();
+let primed=false;addEventListener("pointerdown",()=>{if(actx&&soundOn&&actx.state!=="running")actx.resume();if(primed)return;primed=true;if(!clubSong.src)clubSong.src=CLUB_TRACKS[clubTrack][1];if(!denSong.src)denSong.src=CLUB_TRACKS[denTrack][1];if(actx&&actx.resume)actx.resume();
   ALL.forEach(a=>{if(!a.paused)return;a.muted=true;a.play().then(()=>{if(a!==soundscapeWant())a.pause();a.muted=false}).catch(()=>{a.muted=false})})},true);
-const soundscapeWant=()=>soundOn?(chanting?chant:(room&&room.id==="den")?denSong:(room&&room.id==="club")?clubSong:room?null:music):null;
-chant.addEventListener("ended",()=>{chanting=false;syncSnd()});
+function singHymn(){chant.src=HYMN;chanting=true;zoneOn.chant=true;syncSnd()}
+function stopHymn(){chanting=false;chant.pause();chant.src=SILENCE}
+function soundscapeWant(){return soundOn&&mode!=="intro"?(chanting?chant:(room&&room.id==="den")?denSong:(room&&room.id==="club")?clubSong:room?null:music):null}
+chant.addEventListener("ended",()=>{if(!chanting)return;stopHymn();syncSnd()});
+/* nothing plays unless this place asks for it, whoever started it (iOS can resume a paused element by itself) */
+ALL.forEach(a=>a.addEventListener("playing",()=>{if(!a.muted&&a!==soundscapeWant())a.pause()}));
+/* leaving the app pauses all sound; coming back plays only what belongs where they are */
+function soundAway(){ALL.forEach(a=>a.pause());if(actx)actx.suspend()}
+function soundBack(){if(soundOn&&actx)actx.resume();soundscape()}
+document.addEventListener("visibilitychange",()=>{document.hidden?soundAway():soundBack()});addEventListener("pagehide",soundAway);addEventListener("pageshow",soundBack);
 $("#bSnd").addEventListener("click",()=>setSound(!soundOn));
 function bell(){if(zoneOn[zone()]===false)return;if(!actx){try{actx=new AudioContext()}catch(e){return}}actx.resume&&actx.resume();[0,.9,1.8].forEach((t,i)=>{const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=[392,330,262][i];g.gain.setValueAtTime(.0001,actx.currentTime+t);g.gain.exponentialRampToValueAtTime(.045,actx.currentTime+t+.02);g.gain.exponentialRampToValueAtTime(.0001,actx.currentTime+t+2.4);o.connect(g).connect(actx.destination);o.start(actx.currentTime+t);o.stop(actx.currentTime+t+2.5)})}
 
@@ -1190,7 +1199,7 @@ function enterRoom(id){if(room||mode!=="play")return;resetJoy();atSecret=false;s
   P.pos.set(-.6,0,5.4);N.pos.set(.6,0,5.8);P.yaw=N.yaw=Math.PI;snapCam();mode="play";renderObj();renderLabels();soundscape();if(id==="chapel"){bell();startIsaiah()}if(id==="den")setTimeout(()=>CARDS.den(),500);mood("fun",6);
   /* walk in toward the thing to do; the guest can take over at any time */
   setTimeout(()=>{if(room&&room.id===id&&!goal&&!room.shown&&!(QUEST_OF_ROOM(id)&&state.done[QUEST_OF_ROOM(id)]))walkTo(room.spot[0],room.spot[1])},reduce?50:700)})}
-function exitRoom(then){if(!room)return;if(dancing()){toast(tx().isaiahWait,2500);return}resetJoy();const id=room.id;mode="busy";closeCard();endChat();chanting=false;delete zoneOn.chant;chant.pause();freeLocks();[P,N].forEach(e=>{e.lock=0;e.pos.y=0;play(e,"idle",.1)});fade(()=>{[P,N].forEach(e=>{room.scene.remove(e.m);world.add(e.m)});room=null;syncSnd();
+function exitRoom(then){if(!room)return;if(dancing()){toast(tx().isaiahWait,2500);return}resetJoy();const id=room.id;mode="busy";closeCard();endChat();stopHymn();delete zoneOn.chant;freeLocks();[P,N].forEach(e=>{e.lock=0;e.pos.y=0;play(e,"idle",.1)});fade(()=>{[P,N].forEach(e=>{room.scene.remove(e.m);world.add(e.m)});room=null;syncSnd();
   if(id!=="den"){const[a,b]=doorFront(id,2.4);P.pos.set(a,0,b);N.pos.copy(P.pos).addScaledVector(new THREE.Vector3(Math.cos(PLACES[id].face),0,-Math.sin(PLACES[id].face)),1.1)}
   if(id==="den"){P.pos.set(SECRET.door[0],0,SECRET.door[1]+2.4);N.pos.set(SECRET.door[0]+1.1,0,SECRET.door[1]+2.6);P.yaw=N.yaw=0;camYaw=0}else{P.yaw=N.yaw=PLACES[id].face;camYaw=PLACES[id].face}
   atSecret=false;snapCam();mode="play";renderObj();renderLabels();soundscape();then&&then()})}
@@ -1223,13 +1232,13 @@ function goPlaza(){if(room){exitRoom(goPlaza);return}walkTo(0,6.5)}
 /* "Isaiah, dance": on entering the chapel the priest leads the couple around in a circle while the hymn plays */
 function chapelKoum(r){if(r.koum)return;r.koum=[];[["kp",-1.7,-.6,.9],["ka",1.7,-.6,-.9]].forEach(([k,x,z,y])=>koumbaros(r.scene,k,x,z,y).then(e=>{if(e){r.koum.push(e);if(r.dance)play(e,"walk",.2)}}))}
 function startIsaiah(){const r=room;if(!r||r.id!=="chapel")return;chapelKoum(r);if(!priest){r.wantDance=1;r.shown=1;return}r.wantDance=0;r.dance={t:0};r.shown=1;goal=null;
-  chant.currentTime=0;chanting=true;zoneOn.chant=true;syncSnd();say(tx().isaiah,7000);[P,N,...(r.koum||[])].forEach(e=>{e.lock=999;play(e,"walk",.2)});play(priest,"walk",.2)}
+  singHymn();say(tx().isaiah,7000);[P,N,...(r.koum||[])].forEach(e=>{e.lock=999;play(e,"walk",.2)});play(priest,"walk",.2)}
 function updIsaiah(dt){const r=room,d=r&&r.dance;if(!d)return;d.t+=dt;const LAPS=2,SP=.75,a=Math.min(d.t*SP,LAPS*Math.PI*2),C=[0,-1.9],R=1.25;
   [[priest,a+1.1],[P,a],[N,a-.75],...(r.koum||[]).map((e,i)=>[e,a-1.6-i*.8])].forEach(([e,th])=>{if(!e)return;e.pos.set(C[0]+Math.sin(th)*R,0,C[1]+Math.cos(th)*R);e.yaw=Math.atan2(Math.cos(th),-Math.sin(th));e.m.position.copy(e.pos);e.m.rotation.y=e.yaw});
   if(a>=LAPS*Math.PI*2){r.dance=null;priest.pos.set(0,0,-3.9);priest.m.position.copy(priest.pos);priest.m.rotation.y=0;play(priest,"idle",.4);[P,N].forEach(e=>{e.lock=0;play(e,"idle",.3)});(r.koum||[]).forEach(e=>{e.lock=0;e.pos.set(e.home.x,0,e.home.z);e.yaw=e.home.yaw;play(e,"idle",.3)});r.shown=0;
     if(!state.done.bless)walkTo(r.spot[0],r.spot[1])}}
 function blessing(){const x=tx();if(priest){play(priest,"bless",.3);priest.lock=6}[P,N].forEach(e=>{e.yaw=Math.atan2(0-e.pos.x,-3.9-e.pos.z)});
-  chant.currentTime=0;chanting=true;zoneOn.chant=true;syncSnd();mood("love",15);
+  singHymn();mood("love",15);
   say(x.priestSays,6000)}
 const sayEl=document.createElement("div");sayEl.className="say";sayEl.hidden=true;$("#labels").appendChild(sayEl);let sayT=0;
 function say(t,ms){sayEl.textContent=t;sayEl.hidden=false;clearTimeout(sayT);sayT=setTimeout(()=>sayEl.hidden=true,ms)}
@@ -1438,7 +1447,7 @@ function buildArcade(){const r=roomBase("arcade",{floor:canvasTex(256,256,(g,w,h
   r.items=games.map(([k],i)=>({label:()=>tx().games[k],at:[-4+i*4,3.1,-5.4],go:[-4+i*4,-3.8],fn:()=>CARDS.game(k)}));
   guest(r.scene,2,5.6,-2,-1.2,"talk");return r}
 const scoresLocal=()=>{try{return JSON.parse(localStorage.getItem("wscores")||"[]")}catch(e){return[]}};
-function saveScore(game,score){const name=localStorage.getItem("wname")||"?",a=scoresLocal();a.push({name,game,score,t:Date.now()});try{localStorage.setItem("wscores",JSON.stringify(a.slice(-300)))}catch(e){}store("scores",{name,game,score,lang})}
+function saveScore(game,score){const name=state.guest||localStorage.getItem("wname")||"?",a=scoresLocal();a.push({name,game,score,t:Date.now()});try{localStorage.setItem("wscores",JSON.stringify(a.slice(-300)))}catch(e){}store("scores",{name,game,score,lang})}
 function boardHTML(game){const x=tx(),best={};scoresLocal().filter(s=>s.game===game).forEach(s=>{if(!(s.name in best)||s.score>best[s.name])best[s.name]=s.score});
   const rows=Object.entries(best).sort((a,b)=>b[1]-a[1]).slice(0,8);return rows.length?`<ol class="lb">${rows.map(([n,v])=>`<li><span>${esc(n)}</span><b>${v}</b></li>`).join("")}</ol>`:`<p class="demo">${x.noScores}</p>`}
 Object.assign(CARDS,{
@@ -1454,7 +1463,7 @@ Object.assign(CARDS,{
         const ents=who==="groom"?[window.__ents[0]]:who==="bride"?[window.__ents[1]]:npcs.filter(e=>e.koum===who);
         ents.forEach(e=>e&&e.m.traverse(m=>{if(m.userData.base){const t=new THREE.CanvasTexture(m.userData.base);t.flipY=m.material.map.flipY;t.colorSpace=THREE.SRGBColorSpace;m.material.map=t;m.material.needsUpdate=true}}));CARDS.wardrobe(who)})});cardFn=()=>CARDS.wardrobe(who)},
   arcade(){const x=tx();openCard("ARCADE",x.arcadeH,`<p>${x.arcadeP}</p><div class="acts">${["ttt","snake","maze"].map(k=>`<button class="btn" type="button" data-g="${k}">${x.games[k]}</button>`).join("")}</div>`,()=>$("#cardB").querySelectorAll("[data-g]").forEach(b=>b.addEventListener("click",()=>CARDS.game(b.dataset.g))));cardFn=CARDS.arcade},
-  game(k){const x=tx(),nm=localStorage.getItem("wname");
+  game(k){const x=tx(),nm=state.guest||localStorage.getItem("wname");
     if(!nm){openCard("ARCADE",x.nameH,`<form id="nf"><label class="f"><span>${x.username}</span><input id="un" maxlength="20" required autocomplete="nickname"></label><div class="acts"><button class="btn" type="submit">${x.play}</button></div></form>`,()=>$("#nf").addEventListener("submit",e=>{e.preventDefault();const v=$("#un").value.trim();if(!v)return;try{localStorage.setItem("wname",v)}catch(er){}CARDS.game(k)}));return}
     openCard("ARCADE · "+esc(nm),x.games[k],`<div class="gm"><div class="gsc">${x.score}: <b id="gs">0</b></div><canvas id="gc" width="300" height="300"></canvas>
       ${k==="ttt"?"":`<div class="pad"><button type="button" data-d="u">▲</button><button type="button" data-d="l">◀</button><button type="button" data-d="d">▼</button><button type="button" data-d="r">▶</button></div>`}
