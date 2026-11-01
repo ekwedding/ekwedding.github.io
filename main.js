@@ -122,11 +122,9 @@ function complete(q){if(state.done[q])return;state.done[q]=1;save();passBanner()
 
 function calText(){const x=tx();return{title:x.calTitle,loc:CONTENT.venue.name+", "+CONTENT.venue.addr,desc:CONTENT.schedule.map(s=>s[0]+" "+x.sched[s[1]]).join(" · ")+(CONTENT.demo?" ("+x.demoNote+")":"")+" "+location.href.split("?")[0]}}
 const icsEsc=s=>s.replace(/[\\;,]/g,m=>"\\"+m).replace(/\n/g,"\\n");
-function downloadICS(){const c=calText(),al=t=>["BEGIN:VALARM","TRIGGER:"+t,"ACTION:DISPLAY","DESCRIPTION:"+icsEsc(c.title),"END:VALARM"];
-  const ics=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//EK//wedding//EL","CALSCALE:GREGORIAN","BEGIN:VEVENT","UID:wedding-20270820@ek","DTSTAMP:20261029T000000Z","DTSTART:"+CONTENT.startUTC,"DTEND:"+CONTENT.endUTC,
-    "SUMMARY:"+icsEsc(c.title),"LOCATION:"+icsEsc(c.loc),"DESCRIPTION:"+icsEsc(c.desc),...al("-P7D"),...al("-P1D"),"END:VEVENT","END:VCALENDAR"].join("\r\n");
-  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([ics],{type:"text/calendar;charset=utf-8"}));a.download="gamos-20-08-2027.ics";document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500)}
-const gcal=()=>{const c=calText();return"https://calendar.google.com/calendar/render?action=TEMPLATE&text="+encodeURIComponent(c.title)+"&dates="+CONTENT.startUTC+"/"+CONTENT.endUTC+"&location="+encodeURIComponent(c.loc)+"&details="+encodeURIComponent(c.desc)};
+/* the calendar is a subscription to one published file (wedding.ics, built by tools/make_ics.mjs): change it once and every subscriber follows */
+const ICS_URL="ekwedding.github.io/wedding.ics",gcal=()=>"https://calendar.google.com/calendar/render?cid="+encodeURIComponent("webcal://"+ICS_URL);
+function downloadICS(){if(/iPhone|iPad|Macintosh/.test(navigator.userAgent))location.href="webcal://"+ICS_URL;else window.open(gcal(),"_blank","noopener")}
 const schedHTML=()=>`<dl class="sched">${CONTENT.schedule.map(s=>`<div><dt>${tx().sched[s[1]]}</dt><dd>${s[0]}</dd></div>`).join("")}</dl>`;
 
 const L2=o=>o[lang]||o.en;
@@ -161,7 +159,8 @@ const CARDS={
   kids(){const x=tx();openCard(x.P.gallery,x.kidsH,`<img class="photo" style="aspect-ratio:auto;width:auto;max-width:100%;max-height:min(64vh,620px);margin:0 auto 12px;object-fit:contain" src="assets/collage.jpg?v=2" alt="${esc(x.kidsH)}">`);cardFn=CARDS.kids},
   years(){const x=tx(),ys=CONTENT.years||[];openCard(x.P.gallery,x.yearsH,ys.length?`<div class="yrs">${ys.map(y=>`<figure><img src="${y.src}" alt="${y.y}" loading="lazy"><figcaption>${y.y}</figcaption></figure>`).join("")}</div>`:`<p class="demo">${x.yearsSoon}</p>`);cardFn=CARDS.years},
   album(){const x=tx();openCard(x.P.gallery,x.albumH,`<p>${x.albumP}</p><div class="acts"><a class="btn" href="${CONTENT.album}" target="_blank" rel="noopener">${ICON.ext}${x.albumBtn}</a></div>`);cardFn=CARDS.album},
-  menu(){const x=tx();openCard(x.P.estate,x.menuH,infoHTML(L2(CONTENT.menu))+(CONTENT.demo?`<p class="demo">${x.demoNote}</p>`:""));cardFn=CARDS.menu},
+  menu(){const x=tx();openCard(x.P.estate,x.menuH,infoHTML(L2(CONTENT.menu)));cardFn=CARDS.menu},
+  seat(){seatCard()},
   /* the proposal, on the den's tablet: the video muted, under a soft track */
   proposal(){const x=tx();openCard("· · ·",x.tabletH,`<video class="prop" src="${CONTENT.proposal}" playsinline autoplay muted loop controls style="display:block;width:auto;max-width:100%;height:min(62vh,560px);margin:0 auto;object-fit:contain;border-radius:12px;background:#000"></video>`);cardFn=null},
   yt(id,title){openCard("· · ·",title,`<div class="yt"><iframe src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}?autoplay=1&playsinline=1&rel=0" title="${esc(title)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>`);ALL.forEach(a=>a.pause());cardFn=null},
@@ -199,6 +198,7 @@ function showSimple(){const x=tx(),n=CONTENT.names[lang];$("#simple").hidden=fal
   $("#simpleB").innerHTML=`<h1>${esc(n[0])} &amp; ${esc(n[1])}</h1><p><b>${x.dateH}</b> · 19:00 · ${x.koropi}</p>
   <section><h2>${x.Q.date[0]}</h2>${schedHTML()}<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px"><button class="btn" type="button" id="sI">${ICON.cal}${x.addCal}</button><a class="btn ghost" href="${gcal()}" target="_blank" rel="noopener">${ICON.ext}${x.gcal}</a><a class="btn ghost" href="${CONTENT.venue.maps}" target="_blank" rel="noopener">${ICON.pin}${x.maps}</a></div></section>
   <section><h2>${x.koumW}</h2>${["kp","ka"].map(k=>`<p style="display:flex;gap:12px;align-items:flex-start"><img src="assets/av_${k}.jpg" alt="" style="width:56px;height:56px;border-radius:50%;object-fit:cover;flex:none"><span><b>${x[k+"Full"]}</b><br>${x[k+"P"]} <i>— ${x[k+"Sig"]}</i></span></p>`).join("")}</section>
+  <section><h2>${x.seatH}</h2>${seatHTML()}</section>
   <section><h2>${x.infoH}</h2>${infoHTML(L2(CONTENT.info))}</section>
   <section><h2>${x.giftH}</h2><p>${x.giftP}</p>${giftRows()}</section>
   <section><h2>${x.albumH}</h2><p>${x.albumP}</p><a class="btn" href="${CONTENT.album}" target="_blank" rel="noopener">${ICON.ext}${x.albumBtn}</a></section>
@@ -206,7 +206,7 @@ function showSimple(){const x=tx(),n=CONTENT.names[lang];$("#simple").hidden=fal
   <section><h2>${x.blessH}</h2><p>${x.blessP}</p></section>
   <section><h2>${x.simpleStops}</h2><p>${x.simpleNote}</p><ul style="list-style:none;margin-top:8px">${stops}</ul></section>
   ${CONTENT.demo?`<p class="demo">${x.demoNote}</p>`:""}${GL?`<button class="btn ghost" type="button" id="sBack">${x.back}</button>`:""}`;
-  $("#sI").addEventListener("click",downloadICS);const b=$("#sBack");if(b)b.addEventListener("click",()=>{$("#simple").hidden=true});
+  $("#sI").addEventListener("click",downloadICS);bindSeat();const b=$("#sBack");if(b)b.addEventListener("click",()=>{$("#simple").hidden=true});
   $("#simpleB").querySelectorAll("[data-tp]").forEach(bt=>bt.addEventListener("click",()=>{const id=bt.dataset.tp;if(PLACES[id].final&&!agencyOpen()){toast(x.lockedMsg);return}teleport(id)}))}
 /* teleport: straight into a building, from anywhere (also from the intro); without 3D the stop's card opens instead */
 function teleport(id){$("#simple").hidden=true;
@@ -219,9 +219,9 @@ $("#bSimple").addEventListener("click",()=>{panel("#list",false);showSimple()});
 const music=$("#music"),chant=new Audio("assets/chant.m4a"),secretSong=new Audio("assets/music/innerbloom.m4a"),clubSong=new Audio();
 chant.preload=secretSong.preload=clubSong.preload="none";secretSong.loop=clubSong.loop=true;
 const CLUB_TRACKS=[["Καμπάνες","assets/music/kabanes.m4a"],["Where Is My Husband!","assets/music/raye_husband.m4a"],["Τόσα Καλοκαίρια","assets/music/tosa_kalokairia.m4a"],["Aicha","assets/music/aicha.m4a"],["Φανάρια","assets/music/fanaria.m4a"],["Innerbloom","assets/music/innerbloom.m4a"]];
-let clubTrack=1,denTrack=5,soundOn=false,actx=null,chanting=false,atSecret=false;
+let clubTrack=0,denTrack=5,soundOn=false,actx=null,chanting=false,atSecret=false;
 const denSong=new Audio();denSong.loop=true;denSong.preload="none";const ALL=[music,chant,secretSong,clubSong,denSong];
-const SEG=new Map([[music,[18,180]],[secretSong,[93,1e9]]]);music.loop=secretSong.loop=false;
+const SEG=new Map([[secretSong,[93,1e9]]]);music.loop=secretSong.loop=false;
 SEG.forEach(([a,b],el)=>{el.addEventListener("timeupdate",()=>{const end=Math.min(b,(el.duration||1e9)-.35);if(el.currentTime>=end)el.currentTime=a});el.addEventListener("ended",()=>{el.currentTime=a;el.play().catch(()=>{})})});
 function soundscape(){if(!soundOn){ALL.forEach(a=>a.pause());return}
   const want=chanting?chant:(room&&room.id==="den")?denSong:(room&&room.id==="club")?clubSong:room?null:music;
@@ -842,6 +842,18 @@ function roomBase(id,o){const s=new THREE.Scene();s.background=new THREE.Color(o
 function lightCone(r,x,y,z,tx,tz,color=0xfff1d6,i=26){const l=new THREE.SpotLight(color,i,12,.42,.7,1.6);l.position.set(x,y,z);l.target.position.set(tx,0,tz);r.scene.add(l,l.target)}
 function rug(r,x,z,w,d,c1,c2){const t=canvasTex(256,256,(g,W,H)=>{g.fillStyle=c1;g.fillRect(0,0,W,H);g.strokeStyle=c2;g.lineWidth=10;g.strokeRect(14,14,W-28,H-28);g.lineWidth=3;g.strokeRect(30,30,W-60,H-60);
   for(let i=0;i<6;i++){g.beginPath();g.arc(W/2,H/2,20+i*14,0,7);g.stroke()}});const m=new THREE.Mesh(new THREE.PlaneGeometry(w,d),mat({map:t,roughness:1}));m.rotation.x=-Math.PI/2;m.position.set(x,.02,z);m.receiveShadow=true;r.scene.add(m)}
+/* the "find your seat" easel, same family as the invitation easel */
+function seatEasel(r,x,z,ry,go){const t=tx(),c=new THREE.Mesh(new THREE.PlaneGeometry(1.2,1.6),mat({map:canvasTex(300,400,(g,w,h)=>{g.fillStyle="#fbfaf7";g.fillRect(0,0,w,h);g.strokeStyle="#b08a3e";g.lineWidth=4;g.strokeRect(14,14,w-28,h-28);g.fillStyle="#14273a";g.textAlign="center";
+    g.font="300 40px Piazzolla, Georgia, serif";t.seatL.split(" ").reduce((y,wd,i,a)=>{g.fillText(wd,w/2,110+i*46);return y},0);g.font="600 20px Commissioner, sans-serif";g.fillStyle="#b81d5b";g.fillText("· "+t.seatBoard+" ·",w/2,330)})}));
+  const off=new THREE.Vector3(0,0,-.15).applyAxisAngle(UP,ry),s2=new THREE.Vector3(.3,0,.1).applyAxisAngle(UP,ry),s3=new THREE.Vector3(-.3,0,.1).applyAxisAngle(UP,ry);
+  c.position.set(x,1.7,z);c.rotation.set(-.12,ry,0,"YXZ");r.scene.add(c);r.B.at(0,0,0);r.B.add(G.box,"wood",x+off.x,.85,z+off.z,.06,1.9,.06,ry,-.12).add(G.box,"wood",x+s2.x,.85,z+s2.z,.06,1.9,.06,ry,.15).add(G.box,"wood",x+s3.x,.85,z+s3.z,.06,1.9,.06,ry,.15);
+  r.round.push({x,z,r:.6});r.items=(r.items||[]).concat({label:()=>tx().seatL,at:[x,2.8,z],go,fn:()=>CARDS.seat()})}
+const seatHTML=()=>{const x=tx();return `<p>${x.seatP}</p><form id="stf" autocomplete="on"><label class="f"><span>${x.voteName}</span><input id="stq" required maxlength="60" autocomplete="name" value="${esc(state.guest||"")}" style="font-size:17px"></label><div class="acts" style="margin-top:12px"><button class="btn" type="submit">${x.seatBtn}</button></div></form><div class="seatres" id="stR" aria-live="polite"></div>`};
+function bindSeat(){const x=tx(),out=$("#stR"),run=()=>{const q=$("#stq").value.trim();if(q.length<3)return;out.innerHTML=`<p class="demo">…</p>`;
+    if(!SHEET){out.innerHTML=`<p>${x.seatSoon}</p>`;return}
+    fetch(SHEET+"?seat="+encodeURIComponent(q)).then(r=>r.json()).then(d=>{out.innerHTML=!d.ready?`<p>${x.seatSoon}</p>`:d.found.length?(d.close?`<p>${x.seatClose}</p>`:"")+d.found.map(f=>`<div><span>${esc(f.name)}</span><b>${x.seatT} ${esc(f.table)}</b></div>`).join(""):`<p>${x.seatNone}</p>`}).catch(()=>{out.innerHTML=`<p>${x.seatErr}</p>`})};
+  $("#stf").addEventListener("submit",e=>{e.preventDefault();run()});if(state.guest)run()}
+function seatCard(){openCard("· · ·",tx().seatH,seatHTML(),bindSeat);cardFn=CARDS.seat}
 function plant(B,x,z,s=1){B.add(G.cyl,"terra",x,.35*s,z,.7*s,.7*s,.7*s);for(let k=0;k<7;k++){const a=k/7*Math.PI*2;B.add(G.cone,"palm",x+Math.cos(a)*.25*s,1.1*s,z+Math.sin(a)*.25*s,.35*s,1.3*s,.12*s,a,Math.cos(a)*.5,Math.sin(a)*.5)}}
 /* painted icon: gold leaf ground, arched frame, a haloed figure in a red-brown robe (original, stylised) */
 function iconTex(i){return canvasTex(256,384,(g,w,h)=>{const gr=g.createLinearGradient(0,0,w,h);gr.addColorStop(0,"#e8c46a");gr.addColorStop(.5,"#c99a3a");gr.addColorStop(1,"#e2b95a");g.fillStyle="#5a2a1a";g.fillRect(0,0,w,h);
@@ -929,7 +941,7 @@ function buildRoom(id){if(rooms[id])return rooms[id];let r;const x=tx();
     card.position.set(5,1.7,-4.6);card.rotation.set(-.12,-.5,0);r.scene.add(card);B.add(G.box,"wood",5,.85,-4.75,.06,1.9,.06,-.5,-.12).add(G.box,"wood",4.7,.85,-4.4,.06,1.9,.06,-.5,.15).add(G.box,"wood",5.3,.85,-4.5,.06,1.9,.06,-.5,.15);
     lightCone(r,5,4.4,-2.6,5,-4.6,0xfff1d6,22);r.round.push({x:5,z:-4.6,r:.6});
     plant(B,6.8,4.5,1.2);plant(B,-6.8,4.5,1.2);
-    r.spot=[4.2,-3,1.6,5,-4.6];r.items=[{label:()=>tx().menuL,at:[-1,1.7,0],go:[-1,1.9],fn:()=>CARDS.menu()}];
+    r.spot=[4.2,-3,1.6,5,-4.6];r.items=[{label:()=>tx().menuL,at:[-1,1.7,0],go:[-1,1.9],fn:()=>CARDS.menu()}];seatEasel(r,6.2,1.4,-.75,[5,2.4]);
     [[-2.2,1.6,Math.PI,"talk"],[-1,1.6,Math.PI,"laugh"]].forEach(([gx,gz,gy,a],i)=>guest(r.scene,i,gx,gz,gy,a).then(e=>e&&r.round.push({x:gx,z:gz,r:.5})));
   }else if(id==="post"){
     r=roomBase(id,{floor:canvasTex(256,256,(g,w,h)=>{g.fillStyle="#d8d2c6";g.fillRect(0,0,w,h);for(let k=0;k<900;k++){g.fillStyle=["#9b8f7c","#efe9dd","#6e7a86","#b85a3a"][k%4];g.fillRect(rnd()*w,rnd()*h,2+rnd()*3,2+rnd()*3)}},[6,5]),wall:0xf2e7c4,trim:0x1f5fae,hemi:.75,keyI:.9});const B=r.B;
@@ -1022,7 +1034,7 @@ function buildClub(){const id="club",s=new THREE.Scene();makeSky(s,.14);s.fog=ne
   caique(s,-8,-26,.4,0x2a6fb5,0xf2c94c,-2.12);caique(s,10,-30,-.3,0xf4f0e8,0xc94b3b,-2.12);
   const floorL=[0xff4f8b,0x4fc3ff,0xffc24a].map((c,i)=>{const l=new THREE.SpotLight(c,30,16,.45,.6,1.5);l.position.set(-5+i*5,5,0);l.target.position.set(0,0,-2);s.add(l,l.target);return l});
   r.spot=[0,-1.4,1.8,0,-6.6];r.spotL=[0,.4,-1.2];r.spotFn=()=>{coupleDance();complete("dance");mood("party",25);toast(tx().danceHint,3500)};
-  r.items=[{label:()=>"DJ · "+tx().clubTracks,at:[0,3.6,-6.6],go:[0,-5.2],fn:()=>CARDS.club()},{label:()=>"Bar",at:[7.2,2.4,5],go:[5.6,4.4],fn:()=>{[P,N].forEach(e=>{e.lock=3;play(e,"laugh",.3)});CARDS.drinks()}}];
+  r.items=[{label:()=>"DJ · "+tx().clubTracks,at:[0,3.6,-6.6],go:[0,-5.2],fn:()=>CARDS.club()},{label:()=>"Bar",at:[7.2,2.4,5],go:[5.6,4.4],fn:()=>{[P,N].forEach(e=>{e.lock=3;play(e,"laugh",.3)});CARDS.drinks()}}];seatEasel(r,-6.2,6.6,.75,[-5,5.4]);
   /* the crowd: guests from both sides dancing on the deck */
   const dances=["dance","dance2","dance3","dance4"];
   [[-4,-3.5],[-2.6,-4.8],[-1.2,-3],[2,-4.4],[3.4,-3],[4.6,-4.6],[-4.6,-.8],[4.4,-.4],[-3,1.4],[3,1.8],[-.8,-5],[1.4,-2],[5.6,2.4],[-5.6,2.6]].slice(0,mobile?8:14).forEach(([gx,gz],i)=>
