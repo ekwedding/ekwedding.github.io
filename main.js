@@ -42,6 +42,7 @@ const PLACES={
   club:{quest:"dance",c:[21,7],w:8,d:8,door:[16.9,7],face:-Math.PI/2},
   agency:{quest:"honey",c:[13,-22],w:7,d:7,door:[13,-17.9],face:0,final:true}
 };
+const FREE_PLACES=["arcade","wardrobe"];
 const ORDER=["estate","gallery","chapel","club","post","agency"];
 PLACES.arcade={c:[31,-1],w:7,d:8,door:[27,-1],face:-Math.PI/2};
 PLACES.wardrobe={c:[-31,-1],w:7,d:8,door:[-27,-1],face:Math.PI/2};
@@ -219,16 +220,17 @@ $("#bSimple").addEventListener("click",()=>{panel("#list",false);showSimple()});
 const music=$("#music"),chant=new Audio("assets/chant.m4a"),secretSong=new Audio("assets/music/innerbloom.m4a"),clubSong=new Audio();
 chant.preload=secretSong.preload=clubSong.preload="none";secretSong.loop=clubSong.loop=true;
 const CLUB_TRACKS=[["Καμπάνες","assets/music/kabanes.m4a"],["Where Is My Husband!","assets/music/raye_husband.m4a"],["Τόσα Καλοκαίρια","assets/music/tosa_kalokairia.m4a"],["Aicha","assets/music/aicha.m4a"],["Φανάρια","assets/music/fanaria.m4a"],["Innerbloom","assets/music/innerbloom.m4a"]];
-let clubTrack=0,denTrack=5,soundOn=false,actx=null,chanting=false,atSecret=false;
+let clubTrack=1,denTrack=5,soundOn=false,actx=null,chanting=false,atSecret=false;
 const denSong=new Audio();denSong.loop=true;denSong.preload="none";const ALL=[music,chant,secretSong,clubSong,denSong];
 const SEG=new Map([[secretSong,[93,1e9]]]);music.loop=secretSong.loop=false;
 SEG.forEach(([a,b],el)=>{el.addEventListener("timeupdate",()=>{const end=Math.min(b,(el.duration||1e9)-.35);if(el.currentTime>=end)el.currentTime=a});el.addEventListener("ended",()=>{el.currentTime=a;el.play().catch(()=>{})})});
+let denGain=null;function denLevel(v){if(!actx||actx.state!=="running")return;try{if(!denGain){denGain=actx.createGain();actx.createMediaElementSource(denSong).connect(denGain).connect(actx.destination)}denSong.volume=1;denGain.gain.value=v}catch(e){}}
 function soundscape(){if(!soundOn){ALL.forEach(a=>a.pause());return}
   const want=chanting?chant:(room&&room.id==="den")?denSong:(room&&room.id==="club")?clubSong:room?null:music;
   if(!want){ALL.forEach(a=>a.pause());return}
   if(want===clubSong&&!clubSong.src.endsWith(CLUB_TRACKS[clubTrack][1]))clubSong.src=CLUB_TRACKS[clubTrack][1];
   if(want===denSong&&!denSong.src.endsWith(CLUB_TRACKS[denTrack][1]))denSong.src=CLUB_TRACKS[denTrack][1];
-  ALL.forEach(a=>{if(a!==want)a.pause()});const sg=SEG.get(want);if(sg&&want.currentTime<sg[0])want.currentTime=sg[0];want.volume=want===denSong&&denTrack===5?.12:.5;if(want.paused)want.play().catch(()=>{})}
+  ALL.forEach(a=>{if(a!==want)a.pause()});const sg=SEG.get(want);if(sg&&want.currentTime<sg[0])want.currentTime=sg[0];const low=want===denSong&&denTrack===5;want.volume=low?.12:.5;if(want===denSong)denLevel(low?.12:.5);if(want.paused)want.play().catch(()=>{})}
 /* every place keeps its own mute: the plaza choice is remembered; rooms start on; the chant always plays when asked for */
 const zoneOn={};const zone=()=>chanting?"chant":room?room.id:"plaza";
 function syncSnd(){const k=zone();applySound(k in zoneOn?zoneOn[k]:true)}
@@ -237,8 +239,8 @@ function applySound(on){soundOn=on;$("#bSnd").setAttribute("aria-pressed",String
   if(on){if(!actx){try{actx=new AudioContext();const n=actx.createBufferSource(),b=actx.createBuffer(1,actx.sampleRate*4,actx.sampleRate),d=b.getChannelData(0);let l=0;for(let i=0;i<d.length;i++){l=l*.985+(Math.random()*2-1)*.015;d[i]=l*3}
       n.buffer=b;n.loop=true;const f=actx.createBiquadFilter();f.type="lowpass";f.frequency.value=600;const g=actx.createGain();g.gain.value=.08;n.connect(f).connect(g).connect(actx.destination);n.start()}catch(e){}}else actx.resume()}
   else if(actx)actx.suspend();soundscape()}
-let primed=false;addEventListener("pointerdown",()=>{if(primed)return;primed=true;if(!clubSong.src)clubSong.src=CLUB_TRACKS[clubTrack][1];if(!denSong.src)denSong.src=CLUB_TRACKS[denTrack][1];
-  ALL.forEach(a=>{if(!a.paused)return;const v=a.volume;a.volume=0;a.play().then(()=>{if(a!==soundscapeWant())a.pause();a.volume=v}).catch(()=>{a.volume=v})})},true);
+let primed=false;addEventListener("pointerdown",()=>{if(primed)return;primed=true;if(!clubSong.src)clubSong.src=CLUB_TRACKS[clubTrack][1];if(!denSong.src)denSong.src=CLUB_TRACKS[denTrack][1];if(actx&&actx.resume)actx.resume();
+  ALL.forEach(a=>{if(!a.paused)return;a.muted=true;a.play().then(()=>{if(a!==soundscapeWant())a.pause();a.muted=false}).catch(()=>{a.muted=false})})},true);
 const soundscapeWant=()=>soundOn?(chanting?chant:(room&&room.id==="den")?denSong:(room&&room.id==="club")?clubSong:room?null:music):null;
 chant.addEventListener("ended",()=>{chanting=false;syncSnd()});
 $("#bSnd").addEventListener("click",()=>setSound(!soundOn));
@@ -849,9 +851,15 @@ function seatEasel(r,x,z,ry,go){const t=tx(),c=new THREE.Mesh(new THREE.PlaneGeo
   c.position.set(x,1.7,z);c.rotation.set(-.12,ry,0,"YXZ");r.scene.add(c);r.B.at(0,0,0);r.B.add(G.box,"wood",x+off.x,.85,z+off.z,.06,1.9,.06,ry,-.12).add(G.box,"wood",x+s2.x,.85,z+s2.z,.06,1.9,.06,ry,.15).add(G.box,"wood",x+s3.x,.85,z+s3.z,.06,1.9,.06,ry,.15);
   r.round.push({x,z,r:.6});r.items=(r.items||[]).concat({label:()=>tx().seatL,at:[x,2.8,z],go,fn:()=>CARDS.seat()})}
 const seatHTML=()=>{const x=tx();return `<p>${x.seatP}</p><form id="stf" autocomplete="on"><label class="f"><span>${x.voteName}</span><input id="stq" required maxlength="60" autocomplete="name" value="${esc(state.guest||"")}" style="font-size:17px"></label><div class="acts" style="margin-top:12px"><button class="btn" type="submit">${x.seatBtn}</button></div></form><div class="seatres" id="stR" aria-live="polite"></div>`};
+/* one result: name (note, when two people share a name), table, and whoever comes with them */
+const seatRow=f=>{const x=tx();return `<div class="seatrow"><p><span>${esc(f.name)}${f.note?` <small>(${esc(f.note)})</small>`:""}</span><b>${x.seatT} ${esc(f.table)}</b></p>${f.with&&f.with.length?`<small>${x.seatWith}: ${f.with.map(esc).join(", ")}</small>`:""}</div>`};
 function bindSeat(){const x=tx(),out=$("#stR"),run=()=>{const q=$("#stq").value.trim();if(q.length<3)return;out.innerHTML=`<p class="demo">…</p>`;
     if(!SHEET){out.innerHTML=`<p>${x.seatSoon}</p>`;return}
-    fetch(SHEET+"?seat="+encodeURIComponent(q)).then(r=>r.json()).then(d=>{out.innerHTML=!d.ready?`<p>${x.seatSoon}</p>`:d.found.length?(d.close?`<p>${x.seatClose}</p>`:"")+d.found.map(f=>`<div><span>${esc(f.name)}</span><b>${x.seatT} ${esc(f.table)}</b></div>`).join(""):`<p>${x.seatNone}</p>`}).catch(()=>{out.innerHTML=`<p>${x.seatErr}</p>`})};
+    fetch(SHEET+"?seat="+encodeURIComponent(q)).then(r=>r.json()).then(d=>{if(!d.ready){out.innerHTML=`<p>${x.seatSoon}</p>`;return}if(!d.found.length){out.innerHTML=`<p>${x.seatNone}</p>`;return}
+      if(!d.close){out.innerHTML=d.found.map(seatRow).join("");return}
+      /* misspelt or greeklish: offer the nearest names, the table shows once they pick */
+      out.innerHTML=`<p>${x.seatClose}</p>`+d.found.map((f,i)=>`<button class="btn ghost" type="button" data-sp="${i}">${esc(f.name)}${f.note?` (${esc(f.note)})`:""}</button>`).join("");
+      out.querySelectorAll("[data-sp]").forEach(b=>b.addEventListener("click",()=>{out.innerHTML=seatRow(d.found[+b.dataset.sp])}))}).catch(()=>{out.innerHTML=`<p>${x.seatErr}</p>`})};
   $("#stf").addEventListener("submit",e=>{e.preventDefault();run()});if(state.guest)run()}
 function seatCard(){openCard("· · ·",tx().seatH,seatHTML(),bindSeat);cardFn=CARDS.seat}
 function plant(B,x,z,s=1){B.add(G.cyl,"terra",x,.35*s,z,.7*s,.7*s,.7*s);for(let k=0;k<7;k++){const a=k/7*Math.PI*2;B.add(G.cone,"palm",x+Math.cos(a)*.25*s,1.1*s,z+Math.sin(a)*.25*s,.35*s,1.3*s,.12*s,a,Math.cos(a)*.5,Math.sin(a)*.5)}}
@@ -941,7 +949,7 @@ function buildRoom(id){if(rooms[id])return rooms[id];let r;const x=tx();
     card.position.set(5,1.7,-4.6);card.rotation.set(-.12,-.5,0);r.scene.add(card);B.add(G.box,"wood",5,.85,-4.75,.06,1.9,.06,-.5,-.12).add(G.box,"wood",4.7,.85,-4.4,.06,1.9,.06,-.5,.15).add(G.box,"wood",5.3,.85,-4.5,.06,1.9,.06,-.5,.15);
     lightCone(r,5,4.4,-2.6,5,-4.6,0xfff1d6,22);r.round.push({x:5,z:-4.6,r:.6});
     plant(B,6.8,4.5,1.2);plant(B,-6.8,4.5,1.2);
-    r.spot=[4.2,-3,1.6,5,-4.6];r.items=[{label:()=>tx().menuL,at:[-1,1.7,0],go:[-1,1.9],fn:()=>CARDS.menu()}];seatEasel(r,6.2,1.4,-.75,[5,2.4]);
+    r.spot=[4.2,-3,1.6,5,-4.6];r.items=[{label:()=>tx().menuL,at:[-1,1.7,0],go:[-1,1.9],fn:()=>CARDS.menu()}];seatEasel(r,-5.6,2.7,.75,[-4.4,3.5]);
     [[-2.2,1.6,Math.PI,"talk"],[-1,1.6,Math.PI,"laugh"]].forEach(([gx,gz,gy,a],i)=>guest(r.scene,i,gx,gz,gy,a).then(e=>e&&r.round.push({x:gx,z:gz,r:.5})));
   }else if(id==="post"){
     r=roomBase(id,{floor:canvasTex(256,256,(g,w,h)=>{g.fillStyle="#d8d2c6";g.fillRect(0,0,w,h);for(let k=0;k<900;k++){g.fillStyle=["#9b8f7c","#efe9dd","#6e7a86","#b85a3a"][k%4];g.fillRect(rnd()*w,rnd()*h,2+rnd()*3,2+rnd()*3)}},[6,5]),wall:0xf2e7c4,trim:0x1f5fae,hemi:.75,keyI:.9});const B=r.B;
@@ -1034,7 +1042,7 @@ function buildClub(){const id="club",s=new THREE.Scene();makeSky(s,.14);s.fog=ne
   caique(s,-8,-26,.4,0x2a6fb5,0xf2c94c,-2.12);caique(s,10,-30,-.3,0xf4f0e8,0xc94b3b,-2.12);
   const floorL=[0xff4f8b,0x4fc3ff,0xffc24a].map((c,i)=>{const l=new THREE.SpotLight(c,30,16,.45,.6,1.5);l.position.set(-5+i*5,5,0);l.target.position.set(0,0,-2);s.add(l,l.target);return l});
   r.spot=[0,-1.4,1.8,0,-6.6];r.spotL=[0,.4,-1.2];r.spotFn=()=>{coupleDance();complete("dance");mood("party",25);toast(tx().danceHint,3500)};
-  r.items=[{label:()=>"DJ · "+tx().clubTracks,at:[0,3.6,-6.6],go:[0,-5.2],fn:()=>CARDS.club()},{label:()=>"Bar",at:[7.2,2.4,5],go:[5.6,4.4],fn:()=>{[P,N].forEach(e=>{e.lock=3;play(e,"laugh",.3)});CARDS.drinks()}}];seatEasel(r,-6.2,6.6,.75,[-5,5.4]);
+  r.items=[{label:()=>"DJ · "+tx().clubTracks,at:[0,3.6,-6.6],go:[0,-5.2],fn:()=>CARDS.club()},{label:()=>"Bar",at:[7.2,2.4,5],go:[5.6,4.4],fn:()=>{[P,N].forEach(e=>{e.lock=3;play(e,"laugh",.3)});CARDS.drinks()}}];seatEasel(r,-6.6,0,1,[-5.4,.7]);
   /* the crowd: guests from both sides dancing on the deck */
   const dances=["dance","dance2","dance3","dance4"];
   [[-4,-3.5],[-2.6,-4.8],[-1.2,-3],[2,-4.4],[3.4,-3],[4.6,-4.6],[-4.6,-.8],[4.4,-.4],[-3,1.4],[3,1.8],[-.8,-5],[1.4,-2],[5.6,2.4],[-5.6,2.6]].slice(0,mobile?8:14).forEach(([gx,gz],i)=>
@@ -1280,6 +1288,7 @@ canvas.addEventListener("wheel",e=>{e.preventDefault();camDist=THREE.MathUtils.c
 function mkLabel(key,onClick){let el=labelEls[key];if(!el){el=labelEls[key]=document.createElement("button");el.type="button";el.className="lbl";el.addEventListener("click",onClick);$("#labels").appendChild(el)}return el}
 function renderLabels(){const x=tx();ORDER.forEach(id=>{const el=mkLabel(id,()=>{if(PLACES[id].final&&!agencyOpen()){toast(x.lockedMsg);return}goPlace(id)});
   el.textContent=id==="club"?x.clubName:x.P[id];el.classList.toggle("done",!!state.done[questOf(id)]);el.classList.toggle("todo",!state.done[questOf(id)]);el.classList.toggle("lock",!!PLACES[id].final&&!agencyOpen())});
+  FREE_PLACES.forEach(id=>{const el=mkLabel(id,()=>goPlace(id));el.textContent=id==="arcade"?x.arcadeH:x.wardH;el.classList.add("done")});
   mkLabel("_spot",()=>room&&walkTo(room.spot[0],room.spot[1])).textContent=room?x.spot[room.id]:"";
   const ex=mkLabel("_exit",()=>{if(!room)return;walkTo(room.exit[0],room.exit[1]-.2,()=>exitRoom())});ex.textContent=x.exitLbl;ex.classList.add("exit");
   for(let i=0;i<4;i++){const it=room&&room.items&&room.items[i],el=mkLabel("_it"+i,()=>{const q=room&&room.items&&room.items[i];if(q)walkTo(q.go[0],q.go[1],()=>{P.yaw=Math.atan2(q.at[0]-P.pos.x,q.at[2]-P.pos.z);q.fn()})});el.textContent=it?it.label():"";el.dataset.on=it?"1":""}}
@@ -1294,7 +1303,7 @@ function declutter(els){const vis=els.filter(e=>e&&e.style.display!=="none").sor
     done.push({x:e._x,y,w,h});if(y!==e._y)e.style.transform=`translate(${e._x|0}px,${y|0}px) translate(-50%,-100%)`}}
 let labelTop=0;function updLabels(){const hide=mode==="intro"||mode==="ride"||mode==="drive";{const o=$("#obj");labelTop=o&&o.offsetParent?o.getBoundingClientRect().bottom:0}
   for(let i=0;i<4;i++){const el=labelEls["_it"+i];if(el&&(!room||hide))el.style.display="none"}
-  ORDER.forEach(id=>{const el=labelEls[id];if(!el)return;if(room||hide){el.style.display="none";return}const p=PLACES[id];place(el,new THREE.Vector3(p.door[0],id==="chapel"?6.2:5.6,p.door[1]))});if(!room&&!hide)declutter(ORDER.map(id=>labelEls[id]));
+  ORDER.forEach(id=>{const el=labelEls[id];if(!el)return;if(room||hide){el.style.display="none";return}const p=PLACES[id];place(el,new THREE.Vector3(p.door[0],id==="chapel"?6.2:5.6,p.door[1]))});FREE_PLACES.forEach(id=>{const el=labelEls[id];if(!el)return;if(room||hide){el.style.display="none";return}const p=PLACES[id];place(el,new THREE.Vector3(p.door[0],5.2,p.door[1]))});if(!room&&!hide)declutter(ORDER.concat(FREE_PLACES).map(id=>labelEls[id]));
   const sp=labelEls._spot,ex=labelEls._exit;if(!room||hide){sp&&(sp.style.display="none");ex&&(ex.style.display="none");return}
   place(sp,room.spotL?new THREE.Vector3(...room.spotL):new THREE.Vector3(room.spot[3],2.9,room.spot[4]));place(ex,new THREE.Vector3(0,3,room.exit[1]));
   for(let i=0;i<4;i++){const el=labelEls["_it"+i],it=room.items&&room.items[i];if(!el)continue;if(!it){el.style.display="none";continue}place(el,new THREE.Vector3(...it.at))}
@@ -1307,7 +1316,7 @@ function followPose(){const portrait=innerWidth<innerHeight;if(window.__dogCam){
   if(selfieCam>0&&P){const f=new THREE.Vector3(Math.sin(P.yaw),0,Math.cos(P.yaw)),mid=P.pos.clone().lerp(N.pos,.5);return{p:mid.clone().addScaledVector(f,3.2).setY(1.75),l:mid.clone().setY(1.35)}}
   if(room){const k=portrait?1.45:1,o=room.outdoor?1.25:1,l=new THREE.Vector3(P.pos.x*.55,.8,P.pos.z*.5-2);
     /* rooms: pulled back to show everything, closer while something happens; the guest can swing it round, but only within the room */
-    const off=new THREE.Vector3(P.pos.x*.45,7.8*k*o,P.pos.z*.5+8.6*k*o).sub(l).multiplyScalar(roomZoom).applyAxisAngle(UP,roomYaw);return{p:l.clone().add(off),l}}
+    const off=new THREE.Vector3(P.pos.x*.45,7.8*k*o,P.pos.z*.5+8.6*k*o).sub(l).multiplyScalar(roomZoom*roomZoomK).applyAxisAngle(UP,roomYaw);return{p:l.clone().add(off),l}}
   if((mode==="ride"&&ride)||mode==="drive"){const v=vespaObj.position,d=9*(portrait?1.3:1),pt=topView>0?1.1:.42;return{p:new THREE.Vector3(v.x+Math.sin(camYaw)*Math.cos(pt)*d,1.4+Math.sin(pt)*d,v.z+Math.cos(camYaw)*Math.cos(pt)*d),l:v.clone().setY(1)}}
   const d=camDist*(portrait?1.3:1),pt=topView>0?1.32:camPitch;return{p:new THREE.Vector3(P.pos.x+Math.sin(camYaw)*Math.cos(pt)*d,1.4+Math.sin(pt)*d,P.pos.z+Math.cos(camYaw)*Math.cos(pt)*d),l:new THREE.Vector3(P.pos.x,1.3,P.pos.z)}}
 /* when a house stands between the camera and the couple, swing round to the nearest clear angle */
@@ -1319,7 +1328,7 @@ function avoidOcclusion(dt){if(room||!P||mode!=="play"){XRAY.visible=false;retur
   XRAY.visible=!clear;if(clear||tAll-userCamT<2.5)return;
   for(const k of [.45,-.45,.9,-.9,1.35,-1.35,1.8,-1.8,2.4,-2.4,Math.PI])if(camClear(camYaw+k)){camTarget=camYaw+k;topView=0;return}
   topView=3}
-let wardWho="groom",topView=0,roomYaw=0,roomZoom=1.3,roomZoomT=1.3,roomFocusT=0;
+let roomZoomK=1,wardWho="groom",topView=0,roomYaw=0,roomZoom=1.3,roomZoomT=1.3,roomFocusT=0;
 const ROOM_FAR=1.3,ROOM_NEAR=.82;function roomFocus(secs){roomZoomT=ROOM_NEAR;roomFocusT=secs||0}
 let camTarget=null;
 function snapCam(){const f=followPose();camPos.copy(f.p);camLook.copy(f.l)}
@@ -1480,6 +1489,6 @@ setInterval(()=>{if(!state.quiz&&state.fin&&Date.now()-state.fin>4000&&mode==="p
 $("#bReset").addEventListener("click",()=>{try{localStorage.removeItem("wq2")}catch(e){}location.reload()});
 /* zoom: far (default) -> x1 -> x2 -> far */
 /* each entry: distance, and the label of what the next tap does */
-const ZOOMS=[[11,"x1"],[7.5,"x2"],[4.8,"⤢"]];let zoomI=0;$("#bZoom").addEventListener("click",()=>{zoomI=(zoomI+1)%ZOOMS.length;camDist=ZOOMS[zoomI][0];$("#bZoom").textContent=ZOOMS[zoomI][1]});
+const ZOOMS=[[11,"x1",1],[7.5,"x2",.8],[4.8,"x3",.62]];let zoomI=0;$("#bZoom").addEventListener("click",()=>{zoomI=(zoomI+1)%ZOOMS.length;camDist=ZOOMS[zoomI][0];roomZoomK=ZOOMS[zoomI][2];$("#bZoom").textContent=ZOOMS[zoomI][1]});
 $("#bAdmin").addEventListener("click",()=>{ORDER.forEach(k=>state.done[questOf(k)]=1);state.fin=Date.now()-5000;delete state.quiz;delete state.qa;delete state.hint;save();panel("#list",false);renderList();renderObj();renderLabels();toast("admin: 5/5 + 6/6 ✓",2500)});
 window.__w={rinfo:()=>room&&{s:room.solid.map(q=>[q.x0,q.z0,q.x1,q.z1].map(v=>+v.toFixed(1))),r:room.round.map(c=>[c.x,c.z,c.r].map(v=>+v.toFixed(1))),b:room.bounds},exportStatic:async()=>{const {GLTFExporter}=await import("three/addons/exporters/GLTFExporter.js");const sc=new THREE.Scene();STATIC.forEach(m=>{m.updateMatrixWorld();const c=new THREE.Mesh(m.geometry.clone().applyMatrix4(m.matrixWorld),new THREE.MeshStandardMaterial({name:m.name}));c.name=m.name;sc.add(c)});const b=await new GLTFExporter().parseAsync(sc,{binary:true});let s="";const u=new Uint8Array(b);for(let i=0;i<u.length;i+=32768)s+=String.fromCharCode.apply(null,u.subarray(i,i+32768));return btoa(s)},dbgP:()=>({lock:P.lock,goal:goal&&{i:goal.i,n:goal.pts.length,end:goal.pts[goal.pts.length-1].toArray(),tries:goal.tries||0},pos:P.pos.toArray(),spd:P.spd,mode,cur:P.curName,shown:room&&room.shown}),setDist:d=>{camDist=d;camPitch=.3},dog:()=>dog.pos.toArray(),mountVespa,getOff,dogTrick,mode:()=>mode,ready:()=>ready,choose,goPlace,enterRoom,exitRoom,startRide,P:()=>P,room:()=>room&&room.id,tp:(x,z)=>{P.pos.set(x,0,z);N.pos.set(x+1,0,z);goal=null;snapCam()},selfie,info:()=>renderer.info.render,blessing,npcs:()=>npcs.length,complete,driveTo,vespa:()=>vespaObj.position.toArray(),setV:(x,z)=>vespaObj.position.set(x,0,z),vg:()=>vGoal&&{i:vGoal.i,pts:vGoal.pts.map(p=>[+p.x.toFixed(1),+p.z.toFixed(1)])},snd:()=>({soundOn,zone:zone(),zoneOn:{...zoneOn},chant:!chant.paused,club:!clubSong.paused,music:!music.paused}),setSound,card:()=>$("#card").textContent.slice(0,200),cards:()=>CARDS,dbgBody:k=>{const e=k==="groom"?window.__ents[0]:k==="bride"?window.__ents[1]:npcs.find(n=>n.koum===k);const R=bodyRange(e),out=[];e.m.traverse(m=>{if(!m.isSkinnedMesh)return;const P=m.geometry.attributes.position,n=P.count;let c=[0,0,0,0];for(let i=0;i<n;i+=5){const h=(gcomp(P,i,R.ax)-R.lo)/(R.hi-R.lo);c[h<.07?3:h<.47?2:h<.79?1:0]++}out.push({name:m.name,n,c,norm:P.normalized,arr:P.array.constructor.name})});return{R,out}},dance:()=>room&&{t:room.dance&&room.dance.t,w:room.wantDance},quiz:()=>state.quiz,qzKey:i=>tx().qz[i][2]};
