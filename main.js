@@ -21,7 +21,7 @@ const mobile=touch||Math.min(innerWidth,innerHeight)<700;
 let lang="el";try{const l=localStorage.getItem("wlang");if(T[l])lang=l}catch(e){}
 const tx=()=>T[lang];
 let state={done:{}};try{state=JSON.parse(localStorage.getItem("wq2")||"null")||state}catch(e){}
-const save=()=>{try{localStorage.setItem("wq2",JSON.stringify(state))}catch(e){}};
+const save=()=>{if(save.off)return;try{localStorage.setItem("wq2",JSON.stringify(state))}catch(e){}};
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const ICON={cal:'<svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4M12 13v5M9.5 15.5h5"/></svg>',
   ext:'<svg viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>',
@@ -81,7 +81,7 @@ function renderUI(){
   const x=tx(),n=CONTENT.names[lang];document.documentElement.lang=lang;
   document.querySelectorAll("[data-t]").forEach(e=>{const v=x[e.dataset.t];if(typeof v==="string")e.textContent=v});
   $("#names").innerHTML=`${esc(n[0])}<span>|</span>${esc(n[1])}`;
-  const iv=CONTENT.invite;$("#invWhere").textContent=iv.church?x.invChurch.replace("{c}",iv.church):x.invIn;$("#invTime").textContent=iv.time;$("#invRec").textContent=iv.venue?x.invRecAt.replace("{v}",iv.venue):x.invRec;$("#clock").setAttribute("aria-label",x.clockL);
+  $("#invWhere").textContent=x.invAt.replace("{v}",CONTENT.invite.venue);$("#clock").setAttribute("aria-label",x.clockL);
   const pc=Math.round((prog.groom+prog.bride)/2*100);$("#pG").textContent=ready?x.pickG:x.loading+(pc?" "+pc+"%":"");$("#pB").textContent=ready?x.pickB:x.loading+(pc?" "+pc+"%":"");
   document.querySelectorAll(".langs button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.l===lang)));
   $("#cardX").setAttribute("aria-label",x.close);$("#bSnd").setAttribute("aria-label",x.music);
@@ -97,8 +97,8 @@ function renderList(){
 /* the line under the top bar: next stop outside, what to do here inside a building */
 function renderObj(){const x=tx(),narrow=innerWidth<560,o=$("#obj");
   if(room){const q=questOf(room.id);if(q&&room.id!=="den"&&!PLACES[room.id].final||q==="honey"){o.innerHTML=state.done[q]?`<span class="qd">✓</span> ${x.questDone}`:`<b>Quest:</b> ${x.Q[q][1]} ${x.questToPass}`;return}o.innerHTML=`<b>${x.guide[room.id]}</b>${narrow?"":" · "+x.exitHint}`;return}
-  const id=nextPlace();o.innerHTML=id?(narrow?`${x.nextStop}: <b>${x.P[id]}</b> ${x.nextGo}`:`${x.nextStop}: <b>${x.Q[questOf(id)][0]}</b> · ${x.P[id]} ${x.nextGo}`):state.quiz>=2?x.objEnd:x.honeyDone}
-$("#obj").addEventListener("click",()=>{if(mode!=="play")return;if(room){if(room.id==="den"||state.done[questOf(room.id)]){const id=nextPlace();if(id&&id!==room.id)goPlace(id)}else walkTo(room.spot[0],room.spot[1]);return}const id=nextPlace();if(id)goPlace(id)});
+  const id=nextPlace();o.innerHTML=id?(narrow?`${x.nextStop}: <b>${x.P[id]}</b> ${x.nextGo}`:`${x.nextStop}: <b>${x.Q[questOf(id)][0]}</b> · ${x.P[id]} ${x.nextGo}`):state.quiz>=2?(state.quiz===2&&!state.secret?x.objPaws:x.objEnd):x.honeyDone}
+$("#obj").addEventListener("click",()=>{if(mode!=="play")return;if(room){if(room.id==="den"||state.done[questOf(room.id)]){const id=nextPlace();if(id&&id!==room.id)goPlace(id)}else walkTo(room.spot[0],room.spot[1]);return}const id=nextPlace();if(id)goPlace(id);else if(state.quiz===2&&!state.secret)quizWinCard()});
 function panel(sel,open){const p=$(sel);open=open==null?p.classList.contains("shut"):open;p.classList.toggle("shut",!open);
   const b=sel==="#list"?$("#bList"):$("#bVespa");b.setAttribute("aria-expanded",String(open));if(open)panel(sel==="#list"?"#dest":"#list",false)}
 $("#bList").addEventListener("click",()=>panel("#list"));
@@ -113,7 +113,7 @@ let toastT=0;function toast(s,ms=4200){const t=$("#toast");t.textContent=s;t.cla
 
 /* ---------- quest cards ---------- */
 let cardFn=null;
-function openCard(where,title,body,bind){const c=$("#card");$("#cardW").textContent=where;$("#cardH").textContent=title;$("#cardB").innerHTML=body;
+function openCard(where,title,body,bind){const c=$("#card");c.scrollTop=0;$("#cardW").textContent=where;$("#cardH").textContent=title;$("#cardB").innerHTML=body;
   c.classList.remove("shut");document.body.classList.add("cardopen");if(room)roomFocus(0);if(bind)bind();c.querySelectorAll("form").forEach(f=>f.addEventListener("submit",()=>{const b=f.querySelector("button[type=submit]");if(b&&f.checkValidity()){b.disabled=true;b.style.opacity=.6;setTimeout(()=>{b.disabled=false;b.style.opacity=""},2500)}}));if(state.guest)["nm","vn","wn","hName"].forEach(id=>{const f=document.getElementById(id);if(f){f.value=state.guest;f.readOnly=true}})}
 function closeCard(){if(nameGate)return;const yf=$("#cardB iframe,#cardB video.prop");if(yf){const wasYt=yf.tagName==="IFRAME";yf.remove();if(wasYt)setTimeout(soundscape,50)}$("#card").classList.add("shut");document.body.classList.remove("cardopen");if(room)roomZoomT=ROOM_FAR;if(posing)endPose();cardFn=null;if(P&&P.lock>=59&&P.lock<=60.5&&selfieCam>0){selfieCam=0;[P,N].forEach(e=>e.lock=0)}}
 $("#cardX").addEventListener("click",closeCard);
@@ -127,6 +127,9 @@ const icsEsc=s=>s.replace(/[\\;,]/g,m=>"\\"+m).replace(/\n/g,"\\n");
 /* the calendar is a subscription to one published file (wedding.ics, built by tools/make_ics.mjs): change it once and every subscriber follows */
 const ICS_URL="ekwedding.github.io/wedding.ics",gcal=()=>"https://calendar.google.com/calendar/render?cid="+encodeURIComponent("webcal://"+ICS_URL);
 function downloadICS(){if(/iPhone|iPad|Macintosh/.test(navigator.userAgent))location.href="webcal://"+ICS_URL;else window.open(gcal(),"_blank","noopener")}
+/* iPhones get both map apps; everyone else Google Maps, which opens the app if it is installed */
+const isIOS=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+const mapsBtns=()=>{const v=CONTENT.venue,a=(u,t)=>`<a class="btn ghost" href="${u}" target="_blank" rel="noopener">${ICON.pin}${t}</a>`;return(isIOS?a(v.apple,"Apple Maps"):"")+a(v.maps,"Google Maps")};
 const schedHTML=()=>`<dl class="sched">${CONTENT.schedule.map(s=>`<div><dt>${tx().sched[s[1]]}</dt><dd>${s[0]}</dd></div>`).join("")}</dl>`;
 
 const L2=o=>o[lang]||o.en;
@@ -134,7 +137,7 @@ const infoHTML=rows=>`<dl class="info">${rows.map(r=>`<div><dt>${esc(r[0])}</dt>
 function passBanner(){let b=$("#pass");if(!b){b=document.createElement("div");b.id="pass";document.body.appendChild(b)}b.textContent="✓ "+tx().passed;b.classList.remove("show");void b.offsetWidth;b.classList.add("show")}
 const CARDS={
   estate(tab="cal"){const x=tx();const tabs=`<div class="seg" role="tablist" style="margin:0 0 10px"><label><input type="radio" name="et" value="cal" ${tab==="cal"?"checked":""}><span>${x.tabCal}</span></label><label><input type="radio" name="et" value="rsvp" ${tab==="rsvp"?"checked":""}><span>${x.tabRsvp}</span></label></div>`;
-    const body=tab==="cal"?`<p>${x.dateP}</p>${schedHTML()}<div class="acts"><button class="btn" type="button" id="aIcs">${ICON.cal}${x.addCal}</button><a class="btn ghost" id="aG" href="${gcal()}" target="_blank" rel="noopener">${ICON.ext}${x.gcal}</a><a class="btn ghost" href="${CONTENT.venue.maps}" target="_blank" rel="noopener">${ICON.pin}${x.maps}</a></div>${CONTENT.demo?`<p class="demo">${x.demoNote}</p>`:""}`
+    const body=tab==="cal"?`<p>${x.dateP}</p>${schedHTML()}<div class="acts"><button class="btn" type="button" id="aIcs">${ICON.cal}${x.addCal}</button><a class="btn ghost" id="aG" href="${gcal()}" target="_blank" rel="noopener">${ICON.ext}${x.gcal}</a>${mapsBtns()}</div>${CONTENT.demo?`<p class="demo">${x.demoNote}</p>`:""}`
       :`<form id="rsvp" autocomplete="off"><label class="f"><span>${x.yourName}</span><input id="nm" required maxlength="80"></label>
       <div class="seg"><label><input type="radio" name="att" value="yes" checked><span>${x.yes}</span></label><label><input type="radio" name="att" value="no"><span>${x.no}</span></label></div>
       <div class="acts" style="align-items:end"><label class="f" style="margin:0;flex:0 0 120px"><span>${x.guests}</span><select id="gs"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></label><button class="btn" type="submit" style="flex:1">${x.send}</button></div><p class="ok" id="rOk" hidden></p></form>`;
@@ -198,7 +201,7 @@ function showSimple(){const x=tx(),n=CONTENT.names[lang];$("#simple").hidden=fal
   const stops=ORDER.map(id=>{const q=questOf(id),lock=PLACES[id].final&&!agencyOpen();
     return `<li class="${state.done[q]?"done":""}"><div class="row" style="cursor:default"><span class="mark">${state.done[q]?ICON.check:""}</span><span><b>${x.Q[q][0]}</b><small>${id==="club"?x.clubName:x.P[id]}</small></span><button class="btn ${lock?"ghost":""}" type="button" data-tp="${id}" ${lock?'aria-disabled="true"':""}>${lock?x.locked:x.teleport}</button></div></li>`}).join("");
   $("#simpleB").innerHTML=`<h1>${esc(n[0])} &amp; ${esc(n[1])}</h1><p><b>${x.dateH}</b> · 19:00 · ${x.koropi}</p>
-  <section><h2>${x.Q.date[0]}</h2>${schedHTML()}<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px"><button class="btn" type="button" id="sI">${ICON.cal}${x.addCal}</button><a class="btn ghost" href="${gcal()}" target="_blank" rel="noopener">${ICON.ext}${x.gcal}</a><a class="btn ghost" href="${CONTENT.venue.maps}" target="_blank" rel="noopener">${ICON.pin}${x.maps}</a></div></section>
+  <section><h2>${x.Q.date[0]}</h2>${schedHTML()}<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px"><button class="btn" type="button" id="sI">${ICON.cal}${x.addCal}</button><a class="btn ghost" href="${gcal()}" target="_blank" rel="noopener">${ICON.ext}${x.gcal}</a>${mapsBtns()}</div></section>
   <section><h2>${x.koumW}</h2>${["kp","ka"].map(k=>`<p style="display:flex;gap:12px;align-items:flex-start"><img src="assets/av_${k}.jpg" alt="" style="width:56px;height:56px;border-radius:50%;object-fit:cover;flex:none"><span><b>${x[k+"Full"]}</b><br>${x[k+"P"]} <i>— ${x[k+"Sig"]}</i></span></p>`).join("")}</section>
   <section><h2>${x.seatH}</h2>${seatHTML()}</section>
   <section><h2>${x.infoH}</h2>${infoHTML(L2(CONTENT.info))}</section>
@@ -1091,16 +1094,18 @@ function buildDen(){const r=roomBase("den",{floor:plankTex("#8a5f42","#7d553a"),
   const glow=new THREE.PointLight(0x5a8cff,10,9,1.6);glow.position.set(0,2.2,-5.2);r.scene.add(glow);
   /* the TV: the Fortnite kills leaderboard over the victory screenshot, filling the whole screen */
   tvc.width=1600;tvc.height=900;tvt.anisotropy=8;const tvBg=new Image();tvBg.src="assets/tv-bg.jpg";tvBg.onload=()=>drawTV();
-  let tt=0;const drawTV=()=>{const W=1024,H=576;tg.setTransform(1600/1024,0,0,1600/1024,0,0);
+  let timeRows=[];if(SHEET)fetch(SHEET+"?top=1").then(q=>q.json()).then(d=>{timeRows=d.top||[]}).catch(()=>{});
+  const fmtT=t=>{const h=t/3600|0,m=(t%3600)/60|0;return h?h+"h "+m+"\u2032":m+"\u2032"};
+  let tt=0;const drawTV=()=>{const W=1024,H=576;const showT=timeRows.length&&Math.floor(tt/8)%2===1;tg.setTransform(1600/1024,0,0,1600/1024,0,0);
     if(tvBg.complete&&tvBg.naturalWidth){const a=tvBg.naturalWidth/tvBg.naturalHeight,w=a>W/H?H*a:W,h=a>W/H?H:W/a;tg.drawImage(tvBg,(W-w)/2,(H-h)/2,w,h)}
     else{const g0=tg.createLinearGradient(0,0,W,H);g0.addColorStop(0,"#1b2a6b");g0.addColorStop(1,"#5a1f6e");tg.fillStyle=g0;tg.fillRect(0,0,W,H)}
     const sh=tg.createLinearGradient(0,0,W,0);sh.addColorStop(0,"rgba(10,8,24,.15)");sh.addColorStop(.45,"rgba(10,8,24,.55)");sh.addColorStop(1,"rgba(10,8,24,.8)");tg.fillStyle=sh;tg.fillRect(0,0,W,H);
     /* slanted orange banner */
     tg.save();tg.translate(W*.56,86);tg.rotate(-.06);const bg2=tg.createLinearGradient(-300,0,300,0);bg2.addColorStop(0,"#ff7a2e");bg2.addColorStop(1,"#ffb347");tg.fillStyle=bg2;
-    tg.beginPath();tg.moveTo(-330,-46);tg.lineTo(330,-58);tg.lineTo(300,46);tg.lineTo(-300,58);tg.closePath();tg.fill();tg.fillStyle="#fff";tg.textAlign="center";tg.font="italic 900 54px Commissioner, sans-serif";tg.fillText(tx().boardH.toUpperCase(),0,18);tg.restore();
-    CONTENT.board.forEach(([n,k],i)=>{const y=190+i*92,x0=W*.27,pulse=i===0?.5+.5*Math.sin(tt*3):0;tg.fillStyle=`rgba(255,255,255,${.12+pulse*.1})`;tg.beginPath();tg.roundRect(x0,y-50,W*.66,76,14);tg.fill();
+    tg.beginPath();tg.moveTo(-330,-46);tg.lineTo(330,-58);tg.lineTo(300,46);tg.lineTo(-300,58);tg.closePath();tg.fill();tg.fillStyle="#fff";tg.textAlign="center";tg.font="italic 900 54px Commissioner, sans-serif";tg.fillText((showT?tx().boardTime:tx().boardH).toUpperCase(),0,18);tg.restore();
+    (showT?timeRows.map(([n,t])=>[n,fmtT(t)]):CONTENT.board.map(([n,k])=>[n,k+" kills"])).forEach(([n,k],i)=>{const y=190+i*92,x0=W*.27,pulse=i===0?.5+.5*Math.sin(tt*3):0;tg.fillStyle=`rgba(255,255,255,${.12+pulse*.1})`;tg.beginPath();tg.roundRect(x0,y-50,W*.66,76,14);tg.fill();
       tg.fillStyle=["#ffcc33","#d9dde6","#e0904f","#8a86a0"][i];tg.beginPath();tg.arc(x0+50,y-12,30,0,7);tg.fill();tg.fillStyle="#14121c";tg.textAlign="center";tg.font="900 34px Commissioner, sans-serif";tg.fillText("#"+(i+1),x0+50,y);
-      tg.textAlign="left";tg.fillStyle="#fff";tg.font="800 40px Commissioner, sans-serif";tg.fillText(n,x0+100,y);tg.textAlign="right";tg.fillStyle="#ffcc33";tg.font="900 44px Commissioner, sans-serif";tg.fillText(k+" kills",x0+W*.66-24,y);tg.textAlign="left"});
+      tg.textAlign="left";tg.fillStyle="#fff";let fs=40;tg.font=`800 ${fs}px Commissioner, sans-serif`;while(fs>22&&tg.measureText(n).width>W*.66-290){fs-=2;tg.font=`800 ${fs}px Commissioner, sans-serif`}tg.fillText(n,x0+100,y);tg.textAlign="right";tg.fillStyle="#ffcc33";tg.font="900 44px Commissioner, sans-serif";tg.fillText(k,x0+W*.66-24,y);tg.textAlign="left"});
     tvt.needsUpdate=true};
   /* L sofa, bean bags, coffee table with pizza and cans, posters, a rug */
   rug(r,0,-1.5,7,4.6,"#3a2f4a","#c9a24a");
@@ -1110,6 +1115,9 @@ function buildDen(){const r=roomBase("den",{floor:plankTex("#8a5f42","#7d553a"),
   for(const [bx,bz,c] of [[2.6,-2.6,"red"],[3.6,-1.4,"blue2"]]){B.add(G.sph,c,bx,.35,bz,1.1,.7,1.1);r.round.push({x:bx,z:bz,r:.6})}
   ["#e84a5f","#2a9df4","#ffcc33"].forEach((c,i)=>{const po=new THREE.Mesh(new THREE.PlaneGeometry(1.4,2),mat({map:canvasTex(256,360,(g,w,h)=>{const gr=g.createLinearGradient(0,0,0,h);gr.addColorStop(0,c);gr.addColorStop(1,"#14121c");g.fillStyle=gr;g.fillRect(0,0,w,h);g.fillStyle="#fff";g.font="800 44px Commissioner, sans-serif";g.fillText(["LEVEL","PLAYER","GAME"][i],20,70);g.font="800 90px Commissioner, sans-serif";g.fillText(["99","2","ON"][i],20,200)}),emissive:0x111111}));po.position.set(-7.93,2.6,-3.6+i*2.4);po.rotation.y=Math.PI/2;r.scene.add(po)});
   plant(B,6.8,4.6,1.2);plant(B,-6.8,4.6,1.2);
+  /* the bookshelf beside the TV: its label reopens the VIP information any time */
+  B.add(G.box,"darkwood",-6.5,1.5,-6,.1,3,.7).add(G.box,"darkwood",-4.5,1.5,-6,.1,3,.7).add(G.box,"darkwood",-5.5,1.5,-6.31,2,3,.08).add(G.box,"darkwood",-5.5,2.98,-6,2.05,.08,.7);
+  [.12,.82,1.52,2.22].forEach((sy,row)=>{B.add(G.box,"darkwood",-5.5,sy,-6,1.96,.07,.68);let bx=-6.36,k=row;const bk=["red","blue2","linen","terra","cushion","wash"];while(bx<-4.68){const bw=.09+((k*7)%4)*.025,bh=.42+((k*5)%4)*.05;B.add(G.box,bk[k%6],bx+bw/2,sy+.04+bh/2,-6.03,bw,bh,.42);bx+=bw+.012;k++}});r.solid.push({x0:-6.7,z0:-6.4,x1:-4.3,z1:-5.5});
   /* the corner with the smokers: a lazy haze */
   const smoke=[];for(let k=0;k<26;k++){const m=new THREE.Sprite(new THREE.SpriteMaterial({map:heartTex,color:0xbfbcc8,transparent:true,opacity:.0,depthWrite:false}));m.material.map=canvasTex(64,64,(g)=>{const gr=g.createRadialGradient(32,32,2,32,32,30);gr.addColorStop(0,"rgba(255,255,255,.6)");gr.addColorStop(1,"rgba(255,255,255,0)");g.fillStyle=gr;g.fillRect(0,0,64,64)});m.scale.setScalar(1.2);r.scene.add(m);smoke.push({m,t:k/26*4})}
   r.spot=[-.4,-.2,1.4,-.5,.9];
@@ -1122,7 +1130,7 @@ function buildDen(){const r=roomBase("den",{floor:plankTex("#8a5f42","#7d553a"),
   B.add(G.cyl,"darkwood",6.7,1.05,-5.4,.42,.06,.42).add(G.cyl,"black",6.7,.52,-5.4,.05,1.04,.05).add(G.cyl,"black",6.7,.03,-5.4,.3,.05,.3).add(G.cyl,"glass",6.62,1.12,-5.3,.13,.05,.13).add(G.cyl,"glass",6.8,1.18,-5.55,.05,.18,.05).add(G.cyl,"glass",6.55,1.18,-5.6,.05,.18,.05);r.round.push({x:6.7,z:-5.4,r:.45});
   /* a tablet on the coffee table */
   B.add(new RoundedBoxGeometry(.5,.03,.36,2,.012),"black",-1.25,.47,-1.8);const tab=new THREE.Mesh(new THREE.PlaneGeometry(.44,.3),new THREE.MeshBasicMaterial({color:0x9ad0ff}));tab.rotation.x=-Math.PI/2;tab.position.set(-1.25,.49,-1.8);r.scene.add(tab);
-  r.items=[{label:()=>"🎵 "+tx().clubTracks,at:[5.2,1.3,4.9],go:[4.6,3.6],fn:()=>CARDS.club(true)},{label:()=>"🎮 "+tx().tvL,at:[0,4.75,-6.3],go:[0,-3.6],fn:()=>CARDS.yt(CONTENT.tvVideo,"Fortnite")},{label:()=>"▶ "+tx().tabletL,at:[-1.25,1.1,-1.8],go:[-1.25,-2.9],fn:()=>CONTENT.proposal?CARDS.proposal():CARDS.yt(CONTENT.tabletVideo,tx().tabletH)}];
+  r.items=[{label:()=>"📖 "+tx().vipShelf,at:[-5.5,3.5,-6],go:[-5.5,-4.7],fn:()=>CARDS.den()},{label:()=>"🎵 "+tx().clubTracks,at:[5.2,1.3,4.9],go:[4.6,3.6],fn:()=>CARDS.club(true)},{label:()=>"🎮 "+tx().tvL,at:[0,4.75,-6.3],go:[0,-3.6],fn:()=>CARDS.yt(CONTENT.tvVideo,"Fortnite")},{label:()=>"▶ "+tx().tabletL,at:[-1.25,1.1,-1.8],go:[-1.25,-2.9],fn:()=>CONTENT.proposal?CARDS.proposal():CARDS.yt(CONTENT.tabletVideo,tx().tabletH)}];
   let tvT=0;r.anim=dt=>{tt+=dt;if((tvT-=dt)<0){tvT=.25;drawTV()}glow.intensity=8+Math.sin(tt*5)*2;smoke.forEach(p=>{p.t+=dt;const a=(p.t%4)/4;p.m.position.set(6+Math.sin(p.t)*.4,1.7+a*2.4,-4.6+Math.cos(p.t*.7)*.4);p.m.material.opacity=.35*(1-a);p.m.scale.setScalar(.6+a*1.6)})};
   return r}
 
@@ -1214,7 +1222,7 @@ function endPose(){posing=false;[P,N].forEach(e=>{e.lock=0;play(e,"idle",.2)});d
 /* nobody starts without being on the guest list. Network trouble or an empty list never locks a guest out */
 let nameGate=false;
 function acceptGuest(f){state.guest=f.name+(f.note?` (${f.note})`:"");state.guestSeat=f;state.guestOk=1;save();nameGate=false;document.body.classList.remove("gate");closeCard();
-  if(SHEET)fetch(SHEET+"?name="+encodeURIComponent(state.guest)).then(r=>r.json()).then(d=>{voteCount=d.total||voteCount;if(d.voted){state.ans=state.ans||{};state.ans.honey=d.voted;state.ans.honeyName=state.guest;save()}}).catch(()=>{})}
+  if(SHEET)fetch(SHEET+"?name="+encodeURIComponent(state.guest)).then(r=>r.json()).then(d=>{voteCount=d.total||voteCount;if(d.voted){state.ans=state.ans||{};state.ans.honey=d.voted;state.ans.honeyName=state.guest;save()}if(d.secs>(state.secs||0)){state.secs=d.secs;save();paintClock()}}).catch(()=>{})}
 function askName(){if(mode==="fly"||mode==="busy"){setTimeout(askName,300);return}const x=tx();startPose();nameGate=true;document.body.classList.add("gate");
   openCard("· · ·",x.nameH,`<p>${x.nameP}</p><form id="gnf" autocomplete="on"><label class="f"><span>${x.voteName}</span><input id="gn" autocomplete="name" required maxlength="60" style="font-size:17px"></label><div class="acts"><button class="btn" type="submit">${x.nameBtn}</button></div></form><div class="seatres" id="gnR" aria-live="polite"></div>`,()=>{let seq=0;const out=$("#gnR");
     const pass=n=>{state.guest=n;state.guestOk=1;save();nameGate=false;document.body.classList.remove("gate");closeCard()};
@@ -1516,21 +1524,26 @@ function showPaws(){if(paws)return;const pts=findPath(gridNow(),new THREE.Vector
       [[0,0,.055],[-.045,.06,.02],[0,.075,.02],[.045,.06,.02]].forEach(([x,z,rr])=>{const g=new THREE.CircleGeometry(rr,10).rotateX(-Math.PI/2).translate(x,0,z).rotateY(yaw).translate(c.x,.025,c.z);gs.push(g.toNonIndexed())})}}
   paws=new THREE.Mesh(mergeGeometries(gs),new THREE.MeshBasicMaterial({color:0x8a5a3c,transparent:true,opacity:.75,depthWrite:false}));world.add(paws)}
 if(state.quiz===2)setTimeout(()=>{try{showPaws()}catch(e){}},3000);
+/* the way to the hidden room: shows once by itself, and again whenever they tap the reminder at the top */
+function quizWinCard(){const x=tx();openCard("· · ·",x.qzWinH,`<p>${x.qzWin}</p><div class="acts"><button class="btn" type="button" id="qgo">${x.qzGo}</button></div>`,()=>$("#qgo").addEventListener("click",closeCard))}
 function quizCard(){const x=tx(),got=state.qa||{};if(state.quiz===3){openCard(x.qzW,x.qzH,`<p>${x.qzFail}</p>`);return}state.quiz=1;save();
   const body=`<p class="qwarn">${x.qzOnce}</p><p>${x.qzP}</p><ol class="qz">${x.qz.map((q,i)=>`<li><b>${q[0]}</b><div class="qa">${q[1].map((a,j)=>`<button type="button" class="chip${got[i]===j?" ok":""}" data-q="${i}" data-a="${j}">${a}</button>`).join("")}</div><small class="qr" id="qr${i}">${got[i]!=null?x.qzOk:""}</small></li>`).join("")}</ol><p class="qscore" id="qsc"></p>`;
   openCard(x.qzW,x.qzH,body,()=>{const upd=()=>{const n=Object.keys(got).length;$("#qsc").textContent=`${n}/${x.qz.length} ${x.qzOf}`;
-      if(n===x.qz.length&&!state.hint){/* the hint shows once, for 11 seconds, never again */state.quiz=2;state.hint=1;save();showPaws();renderObj();setTimeout(()=>{openCard("· · ·",x.qzWinH,`<p>${x.qzWin}</p><div class="acts"><button class="btn" type="button" id="qgo">${x.qzGo}</button></div>`,()=>$("#qgo").addEventListener("click",closeCard));setTimeout(()=>{if($("#qgo"))closeCard()},11000)},900)}};
+      if(n===x.qz.length&&!state.hint){/* the hint shows once, for 11 seconds, never again */state.quiz=2;state.hint=1;save();showPaws();renderObj();setTimeout(()=>{quizWinCard();setTimeout(()=>{if($("#qgo"))closeCard()},11000)},900)}};
     upd();$("#cardB").querySelectorAll("[data-q]").forEach(b=>b.addEventListener("click",()=>{const i=+b.dataset.q,j=+b.dataset.a;if(got[i]!=null)return;
       if(x.qz[i][2]===j){got[i]=j;state.qa=got;save();b.classList.add("ok");$("#qr"+i).textContent=x.qzOk;upd()}else{/* one chance only: a wrong answer ends the test for good */b.classList.add("no");$("#qr"+i).textContent=x.qzNo;state.quiz=3;save();$("#cardB").querySelectorAll("[data-q]").forEach(c=>c.disabled=true);$("#qsc").textContent=x.qzFail}}))})}
 setInterval(()=>{if(!state.quiz&&state.fin&&Date.now()-state.fin>4000&&mode==="play"&&!room&&ORDER.every(k=>state.done[questOf(k)])&&!document.body.classList.contains("cardopen"))quizCard()},1500);
 /* TEMP admin (testing only, remove before sending): marks every quest done, finale already seen */
-$("#bReset").addEventListener("click",()=>{try{localStorage.removeItem("wq2")}catch(e){}location.reload()});
+$("#bReset").addEventListener("click",()=>{save.off=true;try{localStorage.removeItem("wq2")}catch(e){}location.reload()});
 /* zoom: far (default) -> x1 -> x2 -> far */
 /* each entry: distance, and the label of what the next tap does */
 const ZOOMS=[[11,"x1",1],[7.5,"x2",.8],[4.8,"x3",.62]];let zoomI=0;$("#bZoom").addEventListener("click",()=>{zoomI=(zoomI+1)%ZOOMS.length;camDist=ZOOMS[zoomI][0];roomZoomK=ZOOMS[zoomI][2];$("#bZoom").textContent=ZOOMS[zoomI][1]});
 $("#bAdmin").addEventListener("click",()=>{ORDER.forEach(k=>state.done[questOf(k)]=1);state.fin=Date.now()-5000;delete state.quiz;delete state.qa;delete state.hint;save();panel("#list",false);renderList();renderObj();renderLabels();toast("admin: 5/5 + 6/6 ✓",2500)});
 /* total play time: runs only while the game is on screen, and carries on from where it stopped on the next visit */
 function paintClock(){const t=state.secs||0,h=t/3600|0,m=(t%3600)/60|0,p=n=>String(n).padStart(2,"0");$("#clockT").textContent=(h?h+":"+p(m):m)+":"+p(t%60)}
-paintClock();setInterval(()=>{if(document.hidden||mode==="intro"||nameGate||!state.guestOk)return;state.secs=(state.secs||0)+1;paintClock();if(state.secs%5===0)save()},1000);
-document.addEventListener("visibilitychange",()=>{if(document.hidden)save()});addEventListener("pagehide",save);
+/* the total also goes to the sheet: every 2 minutes of play and whenever they leave */
+let playSent=state.secs||0,countedVisit=false;
+function sendPlay(){if(save.off||!SHEET||!state.guest||!state.secs||state.secs===playSent)return;playSent=state.secs;sheetPost("play",{name:state.guest,secs:state.secs,minutes:Math.round(state.secs/60),visits:state.visits||1,quests:ORDER.filter(id=>state.done[questOf(id)]).length,lang}).catch(()=>{})}
+paintClock();setInterval(()=>{if(document.hidden||mode==="intro"||nameGate||!state.guestOk)return;if(!countedVisit){countedVisit=true;state.visits=(state.visits||0)+1}state.secs=(state.secs||0)+1;paintClock();if(state.secs%5===0)save();if(state.secs%120===0)sendPlay()},1000);
+const leaveSave=()=>{save();sendPlay()};document.addEventListener("visibilitychange",()=>{if(document.hidden)leaveSave()});addEventListener("pagehide",leaveSave);
 window.__w={secs:()=>state.secs||0,rinfo:()=>room&&{s:room.solid.map(q=>[q.x0,q.z0,q.x1,q.z1].map(v=>+v.toFixed(1))),r:room.round.map(c=>[c.x,c.z,c.r].map(v=>+v.toFixed(1))),b:room.bounds},exportStatic:async()=>{const {GLTFExporter}=await import("three/addons/exporters/GLTFExporter.js");const sc=new THREE.Scene();STATIC.forEach(m=>{m.updateMatrixWorld();const c=new THREE.Mesh(m.geometry.clone().applyMatrix4(m.matrixWorld),new THREE.MeshStandardMaterial({name:m.name}));c.name=m.name;sc.add(c)});const b=await new GLTFExporter().parseAsync(sc,{binary:true});let s="";const u=new Uint8Array(b);for(let i=0;i<u.length;i+=32768)s+=String.fromCharCode.apply(null,u.subarray(i,i+32768));return btoa(s)},dbgP:()=>({lock:P.lock,goal:goal&&{i:goal.i,n:goal.pts.length,end:goal.pts[goal.pts.length-1].toArray(),tries:goal.tries||0},pos:P.pos.toArray(),spd:P.spd,mode,cur:P.curName,shown:room&&room.shown}),setDist:d=>{camDist=d;camPitch=.3},dog:()=>dog.pos.toArray(),mountVespa,getOff,dogTrick,mode:()=>mode,ready:()=>ready,choose,goPlace,enterRoom,exitRoom,startRide,P:()=>P,room:()=>room&&room.id,tp:(x,z)=>{P.pos.set(x,0,z);N.pos.set(x+1,0,z);goal=null;snapCam()},selfie,info:()=>renderer.info.render,blessing,npcs:()=>npcs.length,complete,driveTo,vespa:()=>vespaObj.position.toArray(),setV:(x,z)=>vespaObj.position.set(x,0,z),vg:()=>vGoal&&{i:vGoal.i,pts:vGoal.pts.map(p=>[+p.x.toFixed(1),+p.z.toFixed(1)])},snd:()=>({soundOn,zone:zone(),zoneOn:{...zoneOn},chant:!chant.paused,club:!clubSong.paused,music:!music.paused}),setSound,card:()=>$("#card").textContent.slice(0,200),cards:()=>CARDS,dbgBody:k=>{const e=k==="groom"?window.__ents[0]:k==="bride"?window.__ents[1]:npcs.find(n=>n.koum===k);const R=bodyRange(e),out=[];e.m.traverse(m=>{if(!m.isSkinnedMesh)return;const P=m.geometry.attributes.position,n=P.count;let c=[0,0,0,0];for(let i=0;i<n;i+=5){const h=(gcomp(P,i,R.ax)-R.lo)/(R.hi-R.lo);c[h<.07?3:h<.47?2:h<.79?1:0]++}out.push({name:m.name,n,c,norm:P.normalized,arr:P.array.constructor.name})});return{R,out}},dance:()=>room&&{t:room.dance&&room.dance.t,w:room.wantDance},quiz:()=>state.quiz,qzKey:i=>tx().qz[i][2]};

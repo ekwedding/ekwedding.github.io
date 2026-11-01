@@ -103,6 +103,7 @@ body.gate #tl,body.gate #br,body.gate #tr,body.gate #obj,body.gate #labels,body.
 .dt b:last-child{transform:translateY(.32em)}
 .dt i{display:block;justify-self:center;width:.22em;height:6.6em;background:#d6ce9b;transform:rotate(28deg)}
 .face .dt2{font-size:1.06em;font-weight:400;letter-spacing:.02em}
+.hrs{font-size:.92em}
 .kb{display:grid;gap:.05em;font-size:1em}
 .kb small{font-size:.92em;color:#bfb98a;margin-bottom:.15em}
 .face .rec{font-size:.98em}
@@ -119,6 +120,7 @@ body.gate #tl,body.gate #br,body.gate #tr,body.gate #obj,body.gate #labels,body.
 .invl{color:#d6ce9b;font:400 .95em Commissioner,system-ui,sans-serif;text-decoration:underline;text-underline-offset:.2em;min-height:40px;padding:0 .8em;background:none;border:0;cursor:pointer}
 #clock{position:absolute;right:0;top:calc(100% + 6px);display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:10px;background:rgba(20,39,58,.82);color:#fff;font-size:12.5px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap;pointer-events:none}
 #clock svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+#obj:empty{display:none}
 .qwarn{color:#c0262d!important;font-weight:800;margin-bottom:6px}
 .qz{list-style:none;padding:0;margin:10px 0 0;display:grid;gap:12px}.qz b{display:block;font-size:15px;margin-bottom:6px}.qa{display:flex;flex-wrap:wrap;gap:6px}.qa .chip{min-height:42px;font-size:14px;padding:0 13px;box-shadow:inset 0 0 0 1.5px #d9d2c4}.qa .chip.ok{background:#2f8f5b;color:#fff;box-shadow:none}.qa .chip.no{background:#c8453c;color:#fff;box-shadow:none}.qr{display:block;min-height:16px;font-size:13px;color:#6b6358;margin-top:3px}.qscore{font-weight:700;margin-top:10px}
 .chip svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
@@ -291,9 +293,9 @@ body.cardopen #br,body.ride #bHome{display:none}
         <h1 id="names"></h1>
         <p class="lead"><span data-t="invLead"></span><br><span id="invWhere"></span></p>
         <div class="dt" aria-label="20.08.2027"><b>20</b><i></i><b>08</b></div>
-        <p class="dt2"><span data-t="when"></span> · 2027 · <span id="invTime"></span></p>
+        <p class="dt2"><span data-t="when"></span> · 2027<br><span class="hrs" data-t="invHours"></span></p>
         <div class="kb"><small data-t="invKoumH"></small><span data-t="invK1"></span><span data-t="invK2"></span></div>
-        <p class="rec" id="invRec"></p>
+        <p class="rec" data-t="invRec"></p>
         <button class="invb" type="button" id="flip"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 14-5l2 2M20 4v5h-5M20 12a8 8 0 0 1-14 5l-2-2M4 20v-5h5"/></svg><span data-t="invFlip"></span></button>
       </div></div>
       <div class="face ib" inert><div class="in">
