@@ -6,9 +6,10 @@
 <meta name="theme-color" content="#14273a">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="E&amp;K">
 <title>Ευάγγελος & Κωνσταντίνα · 20.08.2027</title>
-<meta name="description" content="Η πρόσκληση του γάμου μας: μια βόλτα σε μια πλατεία της Μυκόνου.">
+<meta name="description" content="Με μεγάλη μας χαρά σας προσκαλούμε στον γάμο μας. 20 Αυγούστου 2027, Κορωπί.">
 <meta property="og:title" content="Ευάγγελος & Κωνσταντίνα · 20.08.2027">
-<meta property="og:description" content="Η πρόσκληση του γάμου μας: μια βόλτα σε μια πλατεία της Μυκόνου.">
+<meta property="og:description" content="Με μεγάλη μας χαρά σας προσκαλούμε στον γάμο μας. 20 Αυγούστου 2027, Κορωπί.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://ekwedding.github.io/"><meta property="og:image" content="https://ekwedding.github.io/assets/og.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/icon-32.png"><link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png"><link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Commissioner:wght@300;400;500;600;700&family=GFS+Didot&family=Piazzolla:opsz,wght@8..30,300;8..30,500;8..30,700&display=swap" rel="stylesheet">
@@ -77,6 +78,9 @@ body.play #hud{opacity:1;visibility:visible}
 .sw{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 4px}.sw button{width:40px;height:40px;border-radius:50%;box-shadow:inset 0 0 0 2px rgba(0,0,0,.15)}.sw button.on{box-shadow:0 0 0 3px #fff,0 0 0 5px var(--ink)}
 .seatres{margin-top:12px;display:grid;gap:8px}.seatrow{padding:12px 14px;border-radius:12px;background:#f6f1e7}.seatrow p{display:flex;justify-content:space-between;align-items:center;gap:10px;font-weight:600;margin:0}.seatrow small{font-weight:500;color:var(--ink2);font-size:14px}.seatrow>small{display:block;margin-top:4px}.seatres b{font-size:20px;color:var(--bloom);white-space:nowrap}.seatres .btn{width:100%;font-size:15px;min-height:46px}
 body.gate #tl,body.gate #br,body.gate #tr,body.gate #obj,body.gate #labels,body.gate #cardX{display:none!important}
+.env .back{background-color:#a57b42}
+.env .front.paper{background-color:#bc9357}
+.env .flap.paper{background-color:#b68c50}
 .env.open{filter:none}
 .env.out .back,.env.out .front{transform:translateY(70vh);opacity:0;transition:transform .9s cubic-bezier(.5,0,.8,.4),opacity .7s ease .2s}
 .env.out .flap{opacity:0;transition:opacity .25s}
@@ -108,6 +112,8 @@ body.gate #tl,body.gate #br,body.gate #tr,body.gate #obj,body.gate #labels,body.
 .kb{display:grid;gap:.05em;font-size:1em}
 .kb small{font-size:.92em;color:#bfb98a;margin-bottom:.15em}
 .face .rec{font-size:.98em}
+.face .by{font-size:.98em;font-weight:500;color:#e6dfae}
+.thx .face .kb,.thx .face .rec,.thx .face .by,.thx .hrs,.thx .dt2 br{display:none}
 .invb{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:.55em;min-height:46px;padding:.7em 1.7em;border-radius:3px;border:0;color:#27332a;font:400 1.08em "GFS Didot",var(--serif),serif;letter-spacing:.06em;background:linear-gradient(135deg,#e9e1ae,#c8bd82 55%,#e2d9a4);box-shadow:0 .25em .7em rgba(10,16,12,.35);cursor:pointer}
 .invb::after{content:"";position:absolute;inset:3px;border:1px solid rgba(39,51,42,.4);border-radius:2px;pointer-events:none}
 .invb svg{width:1.3em;height:1.3em;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
@@ -136,12 +142,14 @@ body.gate #tl,body.gate #br,body.gate #tr,body.gate #obj,body.gate #labels,body.
 @keyframes nudge{50%{transform:translateY(3px)}}
 #intro.scroll #moreHint{display:inline-flex}
 #more:empty{display:none}
+#more{min-height:100%;box-sizing:border-box}
 #more{background:#36463a;border-top:.5em solid #b38444;color:#d6ce9b;padding:8px 18px calc(36px + env(safe-area-inset-bottom));font-family:Commissioner,system-ui,sans-serif;line-height:1.45}
 #more section{max-width:480px;margin:0 auto;padding:26px 0;border-bottom:1px solid rgba(214,206,155,.25)}
 #more section:last-child{border-bottom:0;text-align:center}
 #more h2{font-family:"GFS Didot",var(--serif),serif;font-weight:400;font-size:27px;line-height:1.2;color:#dcd49f;margin:0 0 10px}
 #more p{font-size:16px;margin:0 0 6px;max-width:none}
 #more .big{font-size:18px;color:#e6dfae}
+#more .left{font-family:"GFS Didot",var(--serif),serif;font-size:20px;color:#f0e9bb}
 #more .place{margin-top:14px;font-size:17px}
 #more .place b{color:#e6dfae;font-weight:600}
 #more .acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
@@ -336,7 +344,7 @@ body.cardopen #br,body.ride #bHome{display:none}
         <div class="dt" aria-label="20.08.2027"><b>20</b><i></i><b>08</b></div>
         <p class="dt2"><span data-t="when"></span> · 2027<br><span class="hrs" data-t="invHours"></span></p>
         <div class="kb"><small data-t="invKoumH"></small><span data-t="invK1"></span><span data-t="invK2"></span></div>
-        <p class="rec" data-t="invRec"></p>
+        <p class="rec" data-t="invRec"></p><p class="by" data-t="invBy"></p>
         <button class="invb" type="button" id="flip"><svg viewBox="0 0 24 24"><rect x="2.5" y="7" width="19" height="11" rx="4"/><path d="M7.5 10.5v4M5.5 12.5h4"/><path d="M15.5 11.5h.01M18 13.5h.01"/></svg><span data-t="invFlip"></span></button>
       </div></div>
       <div class="face ib" inert><div class="in">

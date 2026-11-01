@@ -16,6 +16,8 @@ import {CONTENT,T} from "./strings.js";
 
 const $=s=>document.querySelector(s);
 const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+/* today, or ?date=2027-08-25 to preview how the site looks on another day */
+const today=new URLSearchParams(location.search).get("date")||new Date().toISOString().slice(0,10),rsvpClosed=today>CONTENT.rsvpBy,thanksMode=today>=CONTENT.thanksFrom;
 const touch=matchMedia("(pointer: coarse)").matches;if(touch)document.body.classList.add("touch");
 const mobile=touch||Math.min(innerWidth,innerHeight)<700;
 let lang="el";try{const l=localStorage.getItem("wlang");if(T[l])lang=l}catch(e){}
@@ -81,7 +83,7 @@ function renderUI(){
   const x=tx(),n=CONTENT.names[lang];document.documentElement.lang=lang;
   document.querySelectorAll("[data-t]").forEach(e=>{const v=x[e.dataset.t];if(typeof v==="string")e.textContent=v});
   $("#names").innerHTML=`${esc(n[0])}<span>|</span>${esc(n[1])}`;
-  $("#invWhere").textContent=x.invAt.replace("{v}",CONTENT.invite.venue);$("#clock").setAttribute("aria-label",x.clockL);
+  $("#invWhere").textContent=thanksMode?"":x.invAt.replace("{v}",CONTENT.invite.venue);if(thanksMode){document.body.classList.add("thx");document.querySelector("[data-t=invLead]").textContent=x.thanksLead;$("[data-t=moreHint]").textContent=x.thanksHint}$("#clock").setAttribute("aria-label",x.clockL);
   const pc=Math.round((prog.groom+prog.bride)/2*100);[["#pG",x.pickG,n[0]],["#pB",x.pickB,n[1]]].forEach(([id,label,who])=>{const b=$(id),[nm,how]=label.split(" · ");b.innerHTML=`<i>${esc(who[0])}</i><span><b>${esc(nm)}</b><small>${esc(ready?how:x.loading+(pc?" "+pc+"%":""))}</small></span><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>`});
   document.querySelectorAll(".langs button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.l===lang)));
   $("#cardX").setAttribute("aria-label",x.close);$("#bSnd").setAttribute("aria-label",x.music);
@@ -141,12 +143,13 @@ function giftHTML(){const x=tx(),g=CONTENT.gift,cp=v=>`<button class="btn ghost 
     </div>`}
 function bindCopy(root){const x=tx();root.querySelectorAll("[data-cp]").forEach(b=>b.addEventListener("click",()=>{navigator.clipboard&&navigator.clipboard.writeText(b.dataset.cp).then(()=>{b.textContent=x.copied;setTimeout(()=>b.textContent=x.copy,1600)}).catch(()=>{})}))}
 /* the guest's own answers, the same in the game and on the invitation page, and kept in step with the sheet */
-const plusSel=id=>`<select id="${id}">${[0,1,2,3,4].map(n=>`<option value="${n}">${n}</option>`).join("")}</select>`;
+const plusSel=id=>`<select id="${id}">${Array.from({length:CONTENT.plusMax+1},(_,n)=>n).map(n=>`<option value="${n}">${n}</option>`).join("")}</select>`;
 const fillIn=(s,n)=>s.replace("{n}",n);
 function rsvpLine(a,changed){const x=tx(),what=!a.att?x.rsvpNo:a.count>1?fillIn(x.rsvpPlus,a.count-1):x.rsvpAlone;return (changed?x.rsvpChanged:x.rsvpChosen)+" "+what}
 function saveRsvp(name,att,plus,okEl){const prev=(state.ans||{}).rsvp,count=att?plus+1:0,changed=!!prev&&(prev.att!==att||prev.count!==count),a={name,att,count};state.ans=state.ans||{};state.ans.rsvp=a;save();store("rsvp",{name,attending:att,count,notes:"",lang});okEl.hidden=false;okEl.textContent=rsvpLine(a,changed)}
 function bindRsvp(form,sel,radio,okEl){const dis=()=>{sel.disabled=form.querySelector(`input[name=${radio}]:checked`).value==="no"};form.querySelectorAll(`input[name=${radio}]`).forEach(r=>r.addEventListener("change",dis));
-  const a=(state.ans||{}).rsvp;if(a){form.querySelector(`input[name=${radio}][value=${a.att?"yes":"no"}]`).checked=true;sel.value=String(a.att?Math.max(0,a.count-1):0);okEl.hidden=false;okEl.textContent=rsvpLine(a,false)}dis()}
+  const a=(state.ans||{}).rsvp;if(a){form.querySelector(`input[name=${radio}][value=${a.att?"yes":"no"}]`).checked=true;sel.value=String(a.att?Math.max(0,a.count-1):0);okEl.hidden=false;okEl.textContent=rsvpLine(a,false)}dis();
+  if(rsvpClosed){form.querySelectorAll("input,select,button").forEach(c=>{c.disabled=true});form.querySelector("button[type=submit]").hidden=true;okEl.hidden=false;okEl.textContent=(a?rsvpLine(a,false)+" ":"")+tx().rsvpClosedT}}
 const wishLine=()=>{const x=tx(),n=(state.ans||{}).wishN||((state.ans||{}).wish?1:0);return n>1?fillIn(x.wishMany,n):n===1?x.wishOne:""};
 function saveWish(name,text,okEl){const a=state.ans=state.ans||{};a.wishN=(a.wishN||(a.wish?1:0))+1;a.wish={n:name,w:text};save();store("wishes",{name,text,lang});okEl.hidden=false;okEl.textContent=wishLine()}
 function showWish(okEl){const l=wishLine();if(l){okEl.hidden=false;okEl.textContent=l}}
@@ -158,7 +161,7 @@ function passBanner(){let b=$("#pass");if(!b){b=document.createElement("div");b.
 const CARDS={
   estate(tab="cal"){const x=tx();const tabs=`<div class="seg" role="tablist" style="margin:0 0 10px"><label><input type="radio" name="et" value="cal" ${tab==="cal"?"checked":""}><span>${x.tabCal}</span></label><label><input type="radio" name="et" value="rsvp" ${tab==="rsvp"?"checked":""}><span>${x.tabRsvp}</span></label></div>`;
     const body=tab==="cal"?`<p>${x.dateP}</p>${schedHTML()}<div class="acts"><button class="btn" type="button" id="aIcs">${ICON.cal}${x.addCal}</button><a class="btn ghost" id="aG" href="${gcal()}" target="_blank" rel="noopener">${ICON.ext}${x.gcal}</a>${mapsBtns()}</div>${CONTENT.demo?`<p class="demo">${x.demoNote}</p>`:""}`
-      :`<form id="rsvp" autocomplete="off"><label class="f"><span>${x.yourName}</span><input id="nm" required maxlength="80"></label>
+      :`<p>${x.invBy}</p><form id="rsvp" autocomplete="off"><label class="f"><span>${x.yourName}</span><input id="nm" required maxlength="80"></label>
       <div class="seg"><label><input type="radio" name="att" value="yes" checked><span>${x.yes}</span></label><label><input type="radio" name="att" value="no"><span>${x.no}</span></label></div>
       <div class="acts" style="align-items:end"><label class="f" style="margin:0;flex:0 0 120px"><span>${x.plusL}</span>${plusSel("gs")}</label><button class="btn" type="submit" style="flex:1">${x.send}</button></div><p class="ok" id="rOk" hidden></p></form>`;
     openCard(x.P.estate,x.dateH,tabs+body,()=>{document.querySelectorAll("input[name=et]").forEach(r=>r.addEventListener("change",()=>CARDS.estate(r.value)));
@@ -219,7 +222,6 @@ function showSimple(){const x=tx(),n=CONTENT.names[lang];$("#simple").hidden=fal
   <section><h2>${x.seatH}</h2>${seatHTML()}</section>
   <section><h2>${x.infoH}</h2>${infoHTML(L2(CONTENT.info))}</section>
   <section><h2>${x.giftH}</h2><p>${x.giftP}</p>${giftRows()}</section>
-  <section><h2>${x.albumH}</h2><p>${x.albumP}</p><a class="btn" href="${CONTENT.album}" target="_blank" rel="noopener">${ICON.ext}${x.albumBtn}</a></section>
   <section><h2>${x.storyH}</h2><ol style="padding-left:20px">${x.storyT.map(t=>`<li>${t}</li>`).join("")}</ol></section>
   <section><h2>${x.blessH}</h2><p>${x.blessP}</p></section>
   <section><h2>${x.simpleStops}</h2><p>${x.simpleNote}</p><ul style="list-style:none;margin-top:8px">${stops}</ul></section>
@@ -1403,10 +1405,12 @@ $("#seal").addEventListener("click",()=>{const de=document.documentElement;if(to
 $("#intro").addEventListener("scroll",e=>e.target.classList.toggle("scrolled",e.target.scrollTop>40),{passive:true});
 $("#moreHint").addEventListener("click",()=>$("#more").scrollIntoView({behavior:reduce?"auto":"smooth"}));
 /* below the invitation: everything a guest needs without playing */
-function renderMore(){const x=tx(),v=CONTENT.venue,m=$("#more"),moreLang=lang;
-  m.innerHTML=`<section><h2>${x.moreWhen}</h2><p class="big">${x.dateH}</p>${schedHTML()}<p class="place"><b>${esc(v.name)}</b><br>${x.koropi} 166 72</p><div class="acts">${mapsBtns()}<button class="btn" type="button" id="mCal">${ICON.cal}${x.addCal}</button><a class="btn ghost" href="${gcal()}" target="_blank" rel="noopener">${ICON.ext}${x.gcal}</a></div></section>
+function renderThanks(){const x=tx(),c=CONTENT.thanks,m=$("#more");moreLang=lang;
+  m.innerHTML=`<section><h2>${x.thanksH}</h2>${c.photos.length?`<div class="yrs">${c.photos.map(p=>`<figure><img src="${p}" alt="" loading="lazy"></figure>`).join("")}</div>`:`<p>${x.thanksSoon}</p>`}<p style="margin-top:14px">${x.thanksAlbumP}</p><div class="acts"><a class="btn" href="${CONTENT.album}" target="_blank" rel="noopener">${ICON.ext}${x.albumBtn}</a>${c.upload?`<a class="btn ghost" href="${c.upload}" target="_blank" rel="noopener">${ICON.ext}${x.thanksUp}</a>`:""}</div></section>`}
+function renderMore(){if(thanksMode){renderThanks();return}const x=tx(),v=CONTENT.venue,m=$("#more"),moreLang=lang;
+  m.innerHTML=`<section><h2>${x.moreWhen}</h2><p class="big">${x.dateH}</p>${(d=>d>1?`<p class="left">${fillIn(x.daysLeft,d)}</p>`:d===1?`<p class="left">${x.dayLeft}</p>`:"")(Math.ceil((Date.UTC(2027,7,20)-Date.parse(today))/864e5))}${schedHTML()}<p class="place"><b>${esc(v.name)}</b><br>${x.koropi} 166 72</p><div class="acts">${mapsBtns()}<button class="btn" type="button" id="mCal">${ICON.cal}${x.addCal}</button><a class="btn ghost" href="${gcal()}" target="_blank" rel="noopener">${ICON.ext}${x.gcal}</a>${CONTENT.wallet.google&&!isIOS?`<a class="btn ghost" href="${CONTENT.wallet.google}" target="_blank" rel="noopener">${ICON.ext}${x.walletBtn}</a>`:""}</div></section>
   <section><h2>${x.infoH}</h2>${infoHTML(L2(CONTENT.info))}</section>
-  <section><h2>${x.tabRsvp}</h2><form id="mRsvp" autocomplete="off"><label class="f"><span>${x.yourName}</span><input id="mN" required maxlength="80" autocomplete="name"></label>
+  <section><h2>${x.tabRsvp}</h2><p>${x.invBy}</p><form id="mRsvp" autocomplete="off"><label class="f"><span>${x.yourName}</span><input id="mN" required maxlength="80" autocomplete="name"></label>
     <div class="seg"><label><input type="radio" name="matt" value="yes" checked><span>${x.yes}</span></label><label><input type="radio" name="matt" value="no"><span>${x.no}</span></label></div>
     <div class="acts" style="align-items:end"><label class="f" style="margin:0;flex:0 0 110px"><span>${x.plusL}</span>${plusSel("mC")}</label><button class="btn" type="submit" style="flex:1">${x.send}</button></div></form><div class="seatres" id="mR" aria-live="polite"></div><p class="ok" id="mOk" hidden></p></section>
   <section><h2>${x.seatH}</h2><div id="mSeat">${seatHTML()}</div></section>
