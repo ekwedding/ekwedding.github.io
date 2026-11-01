@@ -38,7 +38,7 @@ input,textarea,select,#simple{-webkit-user-select:text;user-select:text;touch-ac
 .btn svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
 
 /* ---------- intro: an invitation in an envelope, closed with a wax seal ---------- */
-#intro{inset:0;display:grid;place-items:center;padding:16px;background:radial-gradient(80% 70% at 50% 55%,rgba(11,22,34,.15),rgba(11,22,34,.55));transition:opacity .7s ease,visibility 0s .7s}
+#intro{inset:0;overflow:hidden;background:radial-gradient(80% 70% at 50% 55%,rgba(11,22,34,.15),rgba(11,22,34,.55));transition:opacity .7s ease,visibility 0s .7s}
 #intro.gone{opacity:0;visibility:hidden;pointer-events:none}
 .env{position:relative;width:min(440px,90vw);aspect-ratio:.78;width:min(420px,92vw,calc(70vh*.78));perspective:1400px;transition:transform .9s cubic-bezier(.2,.8,.2,1) .5s;filter:drop-shadow(0 24px 40px rgba(8,16,26,.45))}
 .env .back,.env .front,.env .flap{position:absolute;inset:0;border-radius:6px}
@@ -121,6 +121,39 @@ body.gate #tl,body.gate #br,body.gate #tr,body.gate #obj,body.gate #labels,body.
 #clock{position:absolute;right:0;top:calc(100% + 6px);display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:10px;background:rgba(20,39,58,.82);color:#fff;font-size:12.5px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap;pointer-events:none}
 #clock svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
 #obj:empty{display:none}
+.ifirst{position:relative;height:100%;display:grid;place-items:center;padding:16px}
+#intro.scroll{overflow-y:auto;-webkit-overflow-scrolling:touch}
+.env.done .back,.env.done .front,.env.done .flap,.env.done #seal,.env.done #sealHint{display:none}
+#moreHint{position:absolute;left:50%;bottom:calc(10px + env(safe-area-inset-bottom));transform:translateX(-50%);display:none;align-items:center;gap:4px;min-height:44px;padding:0 16px;border-radius:22px;background:rgba(20,32,26,.78);color:#e6dfae;font:500 15px Commissioner,system-ui,sans-serif;white-space:nowrap;cursor:pointer}
+#moreHint svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;animation:nudge 1.5s ease-in-out infinite}
+@keyframes nudge{50%{transform:translateY(3px)}}
+#intro.scroll #moreHint{display:inline-flex}
+#more:empty{display:none}
+#more{background:#36463a;border-top:.5em solid #b38444;color:#d6ce9b;padding:8px 18px calc(36px + env(safe-area-inset-bottom));font-family:Commissioner,system-ui,sans-serif;line-height:1.45}
+#more section{max-width:480px;margin:0 auto;padding:26px 0;border-bottom:1px solid rgba(214,206,155,.25)}
+#more section:last-child{border-bottom:0;text-align:center}
+#more h2{font-family:"GFS Didot",var(--serif),serif;font-weight:400;font-size:27px;line-height:1.2;color:#dcd49f;margin:0 0 10px}
+#more p{font-size:16px;margin:0 0 6px;max-width:none}
+#more .big{font-size:18px;color:#e6dfae}
+#more .place{margin-top:14px;font-size:17px}
+#more .place b{color:#e6dfae;font-weight:600}
+#more .acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+#more section:last-child .acts{justify-content:center}
+#more .acts>.btn{flex:1 1 150px}
+#more .btn{background:#d6ce9b;color:#27332a;box-shadow:none}
+#more .btn.ghost{background:transparent;color:#e6dfae;box-shadow:inset 0 0 0 1.5px #d6ce9b}
+#more .sched{grid-template-columns:repeat(3,1fr)}
+#more .sched div,#more .info>div,#more .seatrow{background:rgba(255,255,255,.08);color:#e6dfae}
+#more .sched dt,#more .info dt,#more .f span,#more .seatrow small,#more .ok,#more .demo{color:#d6ce9b}
+#more .sched dd,#more .info dd{color:#f0e9bb}
+#more .seatrow b{color:#f0e9bb}
+#more .seg span{background:transparent;color:#e6dfae;box-shadow:inset 0 0 0 1.5px #d6ce9b}
+#more .seg input:checked+span{background:#d6ce9b;color:#27332a}
+#introFoot{transition:opacity .2s}
+#intro.scrolled #introFoot{opacity:0;pointer-events:none}
+#more .gft .btn.ghost{color:#27332a;box-shadow:inset 0 0 0 1.5px #27332a}
+#more .gft{color:#27332a}
+#more .seatres .btn{width:100%;margin-top:6px}
 .qwarn{color:#c0262d!important;font-weight:800;margin-bottom:6px}
 .qz{list-style:none;padding:0;margin:10px 0 0;display:grid;gap:12px}.qz b{display:block;font-size:15px;margin-bottom:6px}.qa{display:flex;flex-wrap:wrap;gap:6px}.qa .chip{min-height:42px;font-size:14px;padding:0 13px;box-shadow:inset 0 0 0 1.5px #d9d2c4}.qa .chip.ok{background:#2f8f5b;color:#fff;box-shadow:none}.qa .chip.no{background:#c8453c;color:#fff;box-shadow:none}.qr{display:block;min-height:16px;font-size:13px;color:#6b6358;margin-top:3px}.qscore{font-weight:700;margin-top:10px}
 .chip svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
@@ -187,7 +220,7 @@ body.cardopen #obj{opacity:0}
 #card h3{font-family:var(--serif);font-weight:500;font-size:clamp(26px,5vw,34px);line-height:1.08;margin:6px 44px 10px 0;text-wrap:balance}
 #card p{font-size:16px;line-height:1.55;max-width:62ch}
 #card .acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
-.sched{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
+.sched{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
 .sched div{background:var(--paper2);border-radius:10px;padding:9px 10px}
 .sched dt{font-size:12px;font-weight:600;color:var(--ink2)}
 .sched dd{font-size:18px;font-weight:700;font-variant-numeric:tabular-nums}
@@ -286,7 +319,7 @@ body.cardopen #br,body.ride #bHome{display:none}
 <canvas id="gl" aria-label="Μια πλατεία στη Μύκονο"></canvas><div id="vig"></div>
 
 <div id="intro" class="ui">
-  <div class="env" id="env">
+  <div class="ifirst"><div class="env" id="env">
     <div class="back"></div>
     <div class="invcard" id="inv"><div class="inv3d" id="inv3d">
       <div class="face if"><div class="in">
@@ -310,7 +343,8 @@ body.cardopen #br,body.ride #bHome{display:none}
     <div class="front paper"></div><div class="flap paper"></div>
     <button id="seal" type="button" aria-label="Άνοιξε την πρόσκληση">Ε&amp;Κ</button>
     <div id="sealHint" data-t="sealHint">Πάτα τη σφραγίδα</div>
-  </div>
+  </div><button id="moreHint" type="button"><span data-t="moreHint"></span><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button></div>
+  <div id="more"></div>
   <div id="introFoot"><div class="langs" role="group" aria-label="Γλώσσα"><button data-l="el">EL</button><button data-l="en">EN</button><button data-l="de">DE</button><button data-l="ro">RO</button></div></div>
   <div id="load" aria-hidden="true"><i></i></div>
 </div>

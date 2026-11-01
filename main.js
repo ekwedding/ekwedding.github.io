@@ -76,7 +76,7 @@ store.local=(col,rec,isVote)=>{
 
 /* ================= UI ================= */
 const labelEls={};let ready=false;const prog={groom:0,bride:0};
-let mode="intro",goal=null,camYaw=0,camPitch=.42,camDist=11,room=null,userCamT=-9,tAll=0;
+let moreLang=null,mode="intro",goal=null,camYaw=0,camPitch=.42,camDist=11,room=null,userCamT=-9,tAll=0;
 function renderUI(){
   const x=tx(),n=CONTENT.names[lang];document.documentElement.lang=lang;
   document.querySelectorAll("[data-t]").forEach(e=>{const v=x[e.dataset.t];if(typeof v==="string")e.textContent=v});
@@ -85,7 +85,7 @@ function renderUI(){
   const pc=Math.round((prog.groom+prog.bride)/2*100);$("#pG").textContent=ready?x.pickG:x.loading+(pc?" "+pc+"%":"");$("#pB").textContent=ready?x.pickB:x.loading+(pc?" "+pc+"%":"");
   document.querySelectorAll(".langs button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.l===lang)));
   $("#cardX").setAttribute("aria-label",x.close);$("#bSnd").setAttribute("aria-label",x.music);
-  renderList();renderObj();renderLabels();
+  renderList();renderObj();renderLabels();if(moreLang&&moreLang!==lang)renderMore();
 }
 function renderList(){
   const x=tx(),main5=ORDER.filter(id=>!PLACES[id].final),n5=main5.filter(id=>state.done[questOf(id)]).length;$("#prog").innerHTML=`<b>${n5}/5</b>`+main5.map(id=>`<i class="${state.done[questOf(id)]?"on":""}"></i>`).join("")+`<span class="p6">+${state.done.honey?'<i class="on"></i>':`<svg class="lk ${agencyOpen()?"open":""}" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="${agencyOpen()?"M8 11V8a4 4 0 0 1 7.5-2":"M8 11V8a4 4 0 0 1 8 0v3"}"/></svg>`}1</span>`;
@@ -134,6 +134,12 @@ const schedHTML=()=>`<dl class="sched">${CONTENT.schedule.map(s=>`<div><dt>${tx(
 
 const L2=o=>o[lang]||o.en;
 const infoHTML=rows=>`<dl class="info">${rows.map(r=>`<div><dt>${esc(r[0])}</dt><dd>${esc(r[1])}</dd></div>`).join("")}</dl>`;
+function giftHTML(){const x=tx(),g=CONTENT.gift,cp=v=>`<button class="btn ghost sm" type="button" data-cp="${esc(v)}">${x.copy}</button>`;return `<p>${x.giftP}</p><div class="gifts">
+      ${g.iban?`<div class="gft"><img src="assets/logo-nbg.svg" alt="NBG" height="22"><small>${x.holder}: <b>${esc(g.holder)}</b></small><code>${esc(g.iban)}</code>${cp(g.iban.replace(/\s/g,""))}</div>`:""}
+      ${g.iris?`<div class="gft"><span class="iris">IRIS</span><small>${x.irisP}</small><code>${esc(g.iris)}</code>${cp(g.iris.replace(/\s/g,""))}</div>`:""}
+      ${g.revolut?`<div class="gft"><img src="assets/logo-revolut.svg" alt="Revolut" height="20"><code>@${esc(g.revolut)}</code><a class="btn sm" href="https://revolut.me/${encodeURIComponent(g.revolut)}" target="_blank" rel="noopener">${x.openRev}</a></div>`:""}
+    </div>`}
+function bindCopy(root){const x=tx();root.querySelectorAll("[data-cp]").forEach(b=>b.addEventListener("click",()=>{navigator.clipboard&&navigator.clipboard.writeText(b.dataset.cp).then(()=>{b.textContent=x.copied;setTimeout(()=>b.textContent=x.copy,1600)}).catch(()=>{})}))}
 function passBanner(){let b=$("#pass");if(!b){b=document.createElement("div");b.id="pass";document.body.appendChild(b)}b.textContent="✓ "+tx().passed;b.classList.remove("show");void b.offsetWidth;b.classList.add("show")}
 const CARDS={
   estate(tab="cal"){const x=tx();const tabs=`<div class="seg" role="tablist" style="margin:0 0 10px"><label><input type="radio" name="et" value="cal" ${tab==="cal"?"checked":""}><span>${x.tabCal}</span></label><label><input type="radio" name="et" value="rsvp" ${tab==="rsvp"?"checked":""}><span>${x.tabRsvp}</span></label></div>`;
@@ -169,13 +175,8 @@ const CARDS={
   /* the proposal, on the den's tablet: the video muted, under a soft track */
   proposal(){const x=tx();openCard("· · ·",x.tabletH,`<video class="prop" src="${CONTENT.proposal}" playsinline autoplay muted loop controls style="display:block;width:auto;max-width:100%;height:min(62vh,560px);margin:0 auto;object-fit:contain;border-radius:12px;background:#000"></video>`);cardFn=null},
   yt(id,title){openCard("· · ·",title,`<div class="yt"><iframe src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}?autoplay=1&playsinline=1&rel=0" title="${esc(title)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>`);ALL.forEach(a=>a.pause());cardFn=null},
-  gift(){const x=tx(),g=CONTENT.gift,cp=(id,v)=>`<button class="btn ghost sm" type="button" data-cp="${esc(v)}">${x.copy}</button>`;
-    openCard(x.P.agency,x.giftH,`<p>${x.giftP}</p><div class="gifts">
-      ${g.iban?`<div class="gft"><img src="assets/logo-nbg.svg" alt="NBG" height="22"><small>${x.holder}: <b>${esc(g.holder)}</b></small><code>${esc(g.iban)}</code>${cp(0,g.iban.replace(/\s/g,""))}</div>`:""}
-      ${g.iris?`<div class="gft"><span class="iris">IRIS</span><small>${x.irisP}</small><code>${esc(g.iris)}</code>${cp(1,g.iris.replace(/\s/g,""))}</div>`:""}
-      ${g.revolut?`<div class="gft"><img src="assets/logo-revolut.svg" alt="Revolut" height="20"><code>@${esc(g.revolut)}</code><a class="btn sm" href="https://revolut.me/${encodeURIComponent(g.revolut)}" target="_blank" rel="noopener">${x.openRev}</a></div>`:""}
-    </div>${CONTENT.demo?`<p class="demo">${x.demoNote}</p>`:""}`,()=>{$("#cardB").querySelectorAll("[data-cp]").forEach(b=>b.addEventListener("click",()=>{navigator.clipboard&&navigator.clipboard.writeText(b.dataset.cp).then(()=>{b.textContent=x.copied;setTimeout(()=>b.textContent=x.copy,1600)}).catch(()=>{})}))});cardFn=CARDS.gift},
-  post(){const x=tx();openCard(x.P.post,x.wishH,`<p>${x.wishP}</p><form id="wf"><label class="f"><span>${x.yourName}</span><input id="wn" maxlength="80" required></label><label class="f"><span>${x.wishText}</span><textarea id="wt" maxlength="800" required></textarea></label>
+  gift(){const x=tx();openCard(x.P.agency,x.giftH,giftHTML(),()=>bindCopy($("#cardB")));cardFn=CARDS.gift},
+    post(){const x=tx();openCard(x.P.post,x.wishH,`<p>${x.wishP}</p><form id="wf"><label class="f"><span>${x.yourName}</span><input id="wn" maxlength="80" required></label><label class="f"><span>${x.wishText}</span><textarea id="wt" maxlength="800" required></textarea></label>
     <div class="acts"><button class="btn" type="submit">${x.send}</button></div><p class="ok" id="wOk" hidden></p></form>`,()=>{
       const A=(state.ans||{}).wish;if(A){$("#wn").value=A.n;$("#wt").value=A.w;const o=$("#wOk");o.hidden=false;o.textContent=x.yourAns+" ✓"}
       $("#wf").addEventListener("submit",e=>{e.preventDefault();const n=$("#wn").value.trim(),w=$("#wt").value.trim();if(!n||!w)return;state.ans=state.ans||{};state.ans.wish={n,w};save();
@@ -200,7 +201,7 @@ function giftRows(){const g=CONTENT.gift,x=tx();return infoHTML([g.iban&&["NBG �
 function showSimple(){const x=tx(),n=CONTENT.names[lang];$("#simple").hidden=false;
   const stops=ORDER.map(id=>{const q=questOf(id),lock=PLACES[id].final&&!agencyOpen();
     return `<li class="${state.done[q]?"done":""}"><div class="row" style="cursor:default"><span class="mark">${state.done[q]?ICON.check:""}</span><span><b>${x.Q[q][0]}</b><small>${id==="club"?x.clubName:x.P[id]}</small></span><button class="btn ${lock?"ghost":""}" type="button" data-tp="${id}" ${lock?'aria-disabled="true"':""}>${lock?x.locked:x.teleport}</button></div></li>`}).join("");
-  $("#simpleB").innerHTML=`<h1>${esc(n[0])} &amp; ${esc(n[1])}</h1><p><b>${x.dateH}</b> · 19:00 · ${x.koropi}</p>
+  $("#simpleB").innerHTML=`<h1>${esc(n[0])} &amp; ${esc(n[1])}</h1><p><b>${x.dateH}</b> · ${CONTENT.schedule[1][0]} · ${x.koropi}</p>
   <section><h2>${x.Q.date[0]}</h2>${schedHTML()}<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px"><button class="btn" type="button" id="sI">${ICON.cal}${x.addCal}</button><a class="btn ghost" href="${gcal()}" target="_blank" rel="noopener">${ICON.ext}${x.gcal}</a>${mapsBtns()}</div></section>
   <section><h2>${x.koumW}</h2>${["kp","ka"].map(k=>`<p style="display:flex;gap:12px;align-items:flex-start"><img src="assets/av_${k}.jpg" alt="" style="width:56px;height:56px;border-radius:50%;object-fit:cover;flex:none"><span><b>${x[k+"Full"]}</b><br>${x[k+"P"]} <i>— ${x[k+"Sig"]}</i></span></p>`).join("")}</section>
   <section><h2>${x.seatH}</h2>${seatHTML()}</section>
@@ -1221,17 +1222,19 @@ function endPose(){posing=false;[P,N].forEach(e=>{e.lock=0;play(e,"idle",.2)});d
   if(startOnVespa){startOnVespa=false;vespaObj.position.set(P.pos.x+1.4,0,P.pos.z);vespaObj.rotation.y=Math.PI;mountVespa()}}
 /* nobody starts without being on the guest list. Network trouble or an empty list never locks a guest out */
 let nameGate=false;
-function acceptGuest(f){state.guest=f.name+(f.note?` (${f.note})`:"");state.guestSeat=f;state.guestOk=1;save();nameGate=false;document.body.classList.remove("gate");closeCard();
+function setGuest(f){state.guest=f.name+(f.note?` (${f.note})`:"");state.guestSeat=f;state.guestOk=1;save();
   if(SHEET)fetch(SHEET+"?name="+encodeURIComponent(state.guest)).then(r=>r.json()).then(d=>{voteCount=d.total||voteCount;if(d.voted){state.ans=state.ans||{};state.ans.honey=d.voted;state.ans.honeyName=state.guest;save()}if(d.secs>(state.secs||0)){state.secs=d.secs;save();paintClock()}}).catch(()=>{})}
+function acceptGuest(f){setGuest(f);nameGate=false;document.body.classList.remove("gate");closeCard()}
+/* one lookup for the gate and the info page: a clear match goes straight through, close ones become buttons, no match stays here; trouble with the list never locks anyone out */
+function guestCheck(n,out,found,pass){const x=tx(),my=guestCheck.seq=(guestCheck.seq||0)+1;if(!SHEET){pass();return}out.innerHTML=`<p class="demo">${x.seatWait}</p>`;
+  guestLookup(n).then(d=>{if(my!==guestCheck.seq)return;if(d.listed===false){out.innerHTML="";pass();return}
+    if(!d.close&&d.found.length===1&&n.split(" ").length>1){out.innerHTML="";found(d.found[0]);return}
+    if(!d.found.length){const wa=CONTENT.secret&&CONTENT.secret.whatsapp;out.innerHTML=`<p>${x.gateNone}</p>${wa?`<a class="btn ghost" href="https://wa.me/${wa}" target="_blank" rel="noopener">${x.gateAsk}</a>`:""}`;out.scrollIntoView({block:"nearest"});return}
+    out.innerHTML=`<p>${x.gatePick}</p>`+d.found.map((f,i)=>`<button class="btn ghost" type="button" data-sp="${i}">${esc(f.name)}${f.note?` (${esc(f.note)})`:""}</button>`).join("");out.scrollIntoView({block:"nearest"});
+    out.querySelectorAll("[data-sp]").forEach(b=>b.addEventListener("click",()=>{out.innerHTML="";found(d.found[+b.dataset.sp])}))}).catch(()=>{if(my===guestCheck.seq){out.innerHTML="";pass()}})}
 function askName(){if(mode==="fly"||mode==="busy"){setTimeout(askName,300);return}const x=tx();startPose();nameGate=true;document.body.classList.add("gate");
-  openCard("· · ·",x.nameH,`<p>${x.nameP}</p><form id="gnf" autocomplete="on"><label class="f"><span>${x.voteName}</span><input id="gn" autocomplete="name" required maxlength="60" style="font-size:17px"></label><div class="acts"><button class="btn" type="submit">${x.nameBtn}</button></div></form><div class="seatres" id="gnR" aria-live="polite"></div>`,()=>{let seq=0;const out=$("#gnR");
-    const pass=n=>{state.guest=n;state.guestOk=1;save();nameGate=false;document.body.classList.remove("gate");closeCard()};
-    $("#gnf").addEventListener("submit",e=>{e.preventDefault();const n=$("#gn").value.trim().replace(/\s+/g," ");if(n.length<3)return;if(!SHEET){pass(n);return}const my=++seq;out.innerHTML=`<p class="demo">${x.seatWait}</p>`;
-      guestLookup(n).then(d=>{if(my!==seq)return;if(d.listed===false){pass(n);return}
-        const words=n.split(" ").length;if(!d.close&&d.found.length===1&&words>1){acceptGuest(d.found[0]);return}
-        if(!d.found.length){const wa=CONTENT.secret&&CONTENT.secret.whatsapp;out.innerHTML=`<p>${x.gateNone}</p>${wa?`<a class="btn ghost" href="https://wa.me/${wa}" target="_blank" rel="noopener">${x.gateAsk}</a>`:""}`;out.scrollIntoView({block:"nearest"});return}
-        out.innerHTML=`<p>${x.gatePick}</p>`+d.found.map((f,i)=>`<button class="btn ghost" type="button" data-sp="${i}">${esc(f.name)}${f.note?` (${esc(f.note)})`:""}</button>`).join("");out.scrollIntoView({block:"nearest"});
-        out.querySelectorAll("[data-sp]").forEach(b=>b.addEventListener("click",()=>acceptGuest(d.found[+b.dataset.sp])))}).catch(()=>{if(my===seq)pass(n)})})})}
+  openCard("· · ·",x.nameH,`<p>${x.nameP}</p><form id="gnf" autocomplete="on"><label class="f"><span>${x.voteName}</span><input id="gn" autocomplete="name" required maxlength="60" style="font-size:17px"></label><div class="acts"><button class="btn" type="submit">${x.nameBtn}</button></div></form><div class="seatres" id="gnR" aria-live="polite"></div>`,()=>{
+    $("#gnf").addEventListener("submit",e=>{e.preventDefault();const n=$("#gn").value.trim().replace(/\s+/g," ");if(n.length<3)return;guestCheck(n,$("#gnR"),acceptGuest,()=>{state.guest=n;state.guestOk=1;save();nameGate=false;document.body.classList.remove("gate");closeCard()})})})}
 function homeNow(){pie.hidden=true;if(dancing()){toast(tx().isaiahWait,2500);return}if(mode==="drive"){getOff(homeNow);return}if(room){exitRoom(homeNow);return}if(mode!=="play")return;
   fade(()=>{goal=null;freeLocks();P.pos.set(-.6,0,7.6);N.pos.set(.6,0,7.6);P.yaw=N.yaw=Math.PI;camYaw=0;dog.pos.set(-1.6,0,8.2);snapCam()})}
 $("#bHome").addEventListener("click",homeNow);
@@ -1378,11 +1381,38 @@ function snapCam(){const f=followPose();camPos.copy(f.p);camLook.copy(f.l)}
 function introPose(t){const a=Math.min(1,t/14),e=1-Math.pow(1-a,3);return{p:new THREE.Vector3(Math.sin(t*.05)*14,26-e*14,78-e*44),l:new THREE.Vector3(0,3.5-e*1.5,-8)}}
 const ease=x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;
 function choose(kind){if(!ready||mode!=="intro")return;if(kind==="bride")startOnVespa=true;const[g,b]=window.__ents;P=kind==="groom"?g:b;N=kind==="groom"?b:g;mode="fly";flyT=0;
-  $("#intro").classList.add("gone");document.body.classList.add("play");let so="1";try{so=localStorage.getItem("wsound")??"1"}catch(e){}setSound(so==="1");plazaGuests();plazaKoum();if(!state.guestOk)setTimeout(askName,1800);setTimeout(bell,1500);
+  $("#intro").classList.add("gone");$("#more").innerHTML="";moreLang=null;document.body.classList.add("play");let so="1";try{so=localStorage.getItem("wsound")??"1"}catch(e){}setSound(so==="1");plazaGuests();plazaKoum();if(!state.guestOk)setTimeout(askName,1800);setTimeout(bell,1500);
   setTimeout(seaLife,3000);
   setTimeout(()=>{toast(tx().hint,7000)},reduce?0:2600)}
 $("#seal").addEventListener("click",()=>{const de=document.documentElement;if(touch&&de.requestFullscreen&&!document.fullscreenElement)de.requestFullscreen({navigationUI:"hide"}).catch(()=>{});const env=$("#env"),inv=$("#inv");inv.style.setProperty("--s",(env.offsetWidth*.86/inv.offsetWidth).toFixed(3));env.classList.add("open");if(navigator.vibrate)navigator.vibrate(15);
-  setTimeout(()=>env.classList.add("rise"),reduce?0:750);setTimeout(()=>env.classList.add("out"),reduce?0:1750)});
+  setTimeout(()=>env.classList.add("rise"),reduce?0:750);setTimeout(()=>env.classList.add("out"),reduce?0:1750);
+  /* the envelope is gone: the invitation can now be scrolled into the information below it */
+  setTimeout(()=>{env.classList.add("done");$("#intro").classList.add("scroll");renderMore()},reduce?50:2800)});
+$("#intro").addEventListener("scroll",e=>e.target.classList.toggle("scrolled",e.target.scrollTop>40),{passive:true});
+$("#moreHint").addEventListener("click",()=>$("#more").scrollIntoView({behavior:reduce?"auto":"smooth"}));
+/* below the invitation: everything a guest needs without playing */
+function renderMore(){const x=tx(),v=CONTENT.venue,m=$("#more"),A=(state.ans||{}).rsvp,W=(state.ans||{}).wish;moreLang=lang;
+  m.innerHTML=`<section><h2>${x.moreWhen}</h2><p class="big">${x.dateH}</p>${schedHTML()}<p class="place"><b>${esc(v.name)}</b><br>${esc(v.addr)}</p><div class="acts">${mapsBtns()}<button class="btn" type="button" id="mCal">${ICON.cal}${x.addCal}</button><a class="btn ghost" href="${gcal()}" target="_blank" rel="noopener">${ICON.ext}${x.gcal}</a></div></section>
+  <section><h2>${x.tabRsvp}</h2><form id="mRsvp" autocomplete="off"><label class="f"><span>${x.yourName}</span><input id="mN" required maxlength="80" autocomplete="name"></label>
+    <div class="seg"><label><input type="radio" name="matt" value="yes" checked><span>${x.yes}</span></label><label><input type="radio" name="matt" value="no"><span>${x.no}</span></label></div>
+    <div class="acts" style="align-items:end"><label class="f" style="margin:0;flex:0 0 110px"><span>${x.guests}</span><select id="mC"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></label><button class="btn" type="submit" style="flex:1">${x.send}</button></div></form><div class="seatres" id="mR" aria-live="polite"></div><p class="ok" id="mOk" hidden></p></section>
+  <section><h2>${x.seatH}</h2><div id="mSeat">${seatHTML()}</div></section>
+  <section><h2>${x.menuH}</h2>${infoHTML(L2(CONTENT.menu))}</section>
+  <section><h2>${x.giftH}</h2>${giftHTML()}</section>
+  <section><h2>${x.wishH}</h2><p>${x.wishP}</p><form id="mW"><label class="f"><span>${x.yourName}</span><input id="mWn" maxlength="80" required autocomplete="name"></label><label class="f"><span>${x.wishText}</span><textarea id="mWt" maxlength="800" required></textarea></label><div class="acts"><button class="btn" type="submit">${x.send}</button></div><p class="ok" id="mWo" hidden></p></form></section>
+  <section class="end"><h2>${x.moreGame}</h2><p>${x.moreGameP}</p><div class="acts"><button class="btn" type="button" id="mGame">${x.moreGameBtn}</button></div></section>`;
+  $("#mCal").addEventListener("click",downloadICS);bindCopy(m);bindSeat();
+  const known=()=>{if(state.guestOk&&state.guest){["mN","mWn"].forEach(id=>{const f=$("#"+id);f.value=state.guest;f.readOnly=true})}};known();
+  const showA=a=>{const o=$("#mOk");o.hidden=false;o.textContent=`${x.yourAns}: ${a.att?x.attY:x.attN} · ${a.count} ${x.persons}`};
+  if(A){document.querySelector(`input[name=matt][value=${A.att?"yes":"no"}]`).checked=true;$("#mC").value=String(A.count);showA(A)}
+  if(W){$("#mWt").value=W.w;const o=$("#mWo");o.hidden=false;o.textContent=x.yourAns+" ✓"}
+  $("#mRsvp").addEventListener("submit",e=>{e.preventDefault();const typed=$("#mN").value.trim().replace(/\s+/g," ");if(typed.length<3)return;const att=document.querySelector("input[name=matt]:checked").value==="yes",count=+$("#mC").value;
+    const send=name=>{state.ans=state.ans||{};state.ans.rsvp={name,att,count};save();store("rsvp",{name,attending:att,count,notes:"",lang});showA(state.ans.rsvp);$("#mOk").textContent=x.thanks+" · "+$("#mOk").textContent;known()};
+    if(state.guestOk&&state.guest===typed){send(typed);return}
+    /* someone on the list: their table and answers follow them into the game */
+    guestCheck(typed,$("#mR"),f=>{setGuest(f);$("#mSeat").innerHTML=seatHTML();bindSeat();send(state.guest)},()=>send(typed))});
+  $("#mW").addEventListener("submit",e=>{e.preventDefault();const n=$("#mWn").value.trim(),w=$("#mWt").value.trim();if(!n||!w)return;state.ans=state.ans||{};state.ans.wish={n,w};save();store("wishes",{name:n,text:w,lang});const o=$("#mWo");o.hidden=false;o.textContent=x.thanks});
+  $("#mGame").addEventListener("click",()=>{$("#intro").scrollTo({top:0,behavior:reduce?"auto":"smooth"});flipCard(true)})}
 function flipCard(back){$("#inv3d").classList.toggle("flipped",back);$(".face.if").inert=back;$(".face.ib").inert=!back}
 $("#flip").addEventListener("click",()=>flipCard(true));$("#unflip").addEventListener("click",()=>flipCard(false));
 $("#pG").addEventListener("click",()=>choose("groom"));$("#pB").addEventListener("click",()=>choose("bride"));
@@ -1401,6 +1431,7 @@ setInterval(()=>{if((canvas.clientWidth+"x"+canvas.clientHeight)!==lastWH)resize
 
 let last=performance.now();
 function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-last)/1000);last=now;tAll+=dt;
+  if(mode==="intro"&&$("#intro").scrollTop>=innerHeight)return;
   adaptRes(dt);
   if(mode==="intro"){introT+=dt;const a=introPose(introT);camPos.copy(a.p);camLook.copy(a.l);(window.__ents||[]).forEach(e=>{e.m.position.copy(e.pos);e.m.rotation.y=e.yaw;e.mix.update(dt)})}
   else{if(mode==="ride")updateRide(dt);else if(mode==="drive")updDrive(dt);else if(P&&mode!=="busy")updateChars(dt);updVespaHome(dt);if(room){if(roomFocusT>0&&(roomFocusT-=dt)<=0)roomZoomT=ROOM_FAR;roomZoom+=(roomZoomT-roomZoom)*Math.min(1,dt*2)}const f=followPose();
