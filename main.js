@@ -135,7 +135,7 @@ const schedHTML=()=>`<dl class="sched">${CONTENT.schedule.map(s=>`<div><dt>${tx(
 const L2=o=>o[lang]||o.en;
 const infoHTML=rows=>`<dl class="info">${rows.map(r=>`<div><dt>${esc(r[0])}</dt><dd>${esc(r[1])}</dd></div>`).join("")}</dl>`;
 function giftHTML(){const x=tx(),g=CONTENT.gift,cp=v=>`<button class="btn ghost sm" type="button" data-cp="${esc(v)}">${x.copy}</button>`;return `<p>${x.giftP}</p><div class="gifts">
-      ${g.iban?`<div class="gft"><img src="assets/logo-nbg.svg" alt="NBG" height="22"><small>${x.holder}: <b>${esc(g.holder)}</b></small><code>${esc(g.iban)}</code>${cp(g.iban.replace(/\s/g,""))}</div>`:""}
+      ${g.iban?`<div class="gft"><img src="assets/logo-nbg.svg" alt="NBG" height="22"><small>${x.holder}: <b>${esc(x.holderName)}</b></small><code>${esc(g.iban)}</code>${cp(g.iban.replace(/\s/g,""))}</div>`:""}
       ${g.iris?`<div class="gft"><span class="iris">IRIS</span><small>${x.irisP}</small><code>${esc(g.iris)}</code>${cp(g.iris.replace(/\s/g,""))}</div>`:""}
       ${g.revolut?`<div class="gft"><img src="assets/logo-revolut.svg" alt="Revolut" height="20"><code>@${esc(g.revolut)}</code><a class="btn sm" href="https://revolut.me/${encodeURIComponent(g.revolut)}" target="_blank" rel="noopener">${x.openRev}</a></div>`:""}
     </div>`}
@@ -197,11 +197,11 @@ function photoURL(i){if(photoCache[i])return photoCache[i];const c=document.crea
   return photoCache[i]=c.toDataURL("image/jpeg",.85)}
 
 /* ---------- simple version ---------- */
-function giftRows(){const g=CONTENT.gift,x=tx();return infoHTML([g.iban&&["NBG · IBAN",g.iban+" · "+g.holder],g.iris&&["IRIS",g.iris],g.revolut&&["Revolut","@"+g.revolut]].filter(Boolean))}
+function giftRows(){const g=CONTENT.gift,x=tx();return infoHTML([g.iban&&["NBG · IBAN",g.iban+" · "+x.holderName],g.iris&&["IRIS",g.iris],g.revolut&&["Revolut","@"+g.revolut]].filter(Boolean))}
 function showSimple(){const x=tx(),n=CONTENT.names[lang];$("#simple").hidden=false;
   const stops=ORDER.map(id=>{const q=questOf(id),lock=PLACES[id].final&&!agencyOpen();
     return `<li class="${state.done[q]?"done":""}"><div class="row" style="cursor:default"><span class="mark">${state.done[q]?ICON.check:""}</span><span><b>${x.Q[q][0]}</b><small>${id==="club"?x.clubName:x.P[id]}</small></span><button class="btn ${lock?"ghost":""}" type="button" data-tp="${id}" ${lock?'aria-disabled="true"':""}>${lock?x.locked:x.teleport}</button></div></li>`}).join("");
-  $("#simpleB").innerHTML=`<h1>${esc(n[0])} &amp; ${esc(n[1])}</h1><p><b>${x.dateH}</b> · ${CONTENT.schedule[1][0]} · ${x.koropi}</p>
+  $("#simpleB").innerHTML=`<h1>${esc(n[0])} &amp; ${esc(n[1])}</h1><p><b>${x.dateH}</b> · ${CONTENT.schedule[0][0]} · ${x.koropi}</p>
   <section><h2>${x.Q.date[0]}</h2>${schedHTML()}<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px"><button class="btn" type="button" id="sI">${ICON.cal}${x.addCal}</button><a class="btn ghost" href="${gcal()}" target="_blank" rel="noopener">${ICON.ext}${x.gcal}</a>${mapsBtns()}</div></section>
   <section><h2>${x.koumW}</h2>${["kp","ka"].map(k=>`<p style="display:flex;gap:12px;align-items:flex-start"><img src="assets/av_${k}.jpg" alt="" style="width:56px;height:56px;border-radius:50%;object-fit:cover;flex:none"><span><b>${x[k+"Full"]}</b><br>${x[k+"P"]} <i>— ${x[k+"Sig"]}</i></span></p>`).join("")}</section>
   <section><h2>${x.seatH}</h2>${seatHTML()}</section>
@@ -1392,7 +1392,8 @@ $("#intro").addEventListener("scroll",e=>e.target.classList.toggle("scrolled",e.
 $("#moreHint").addEventListener("click",()=>$("#more").scrollIntoView({behavior:reduce?"auto":"smooth"}));
 /* below the invitation: everything a guest needs without playing */
 function renderMore(){const x=tx(),v=CONTENT.venue,m=$("#more"),A=(state.ans||{}).rsvp,W=(state.ans||{}).wish;moreLang=lang;
-  m.innerHTML=`<section><h2>${x.moreWhen}</h2><p class="big">${x.dateH}</p>${schedHTML()}<p class="place"><b>${esc(v.name)}</b><br>${esc(v.addr)}</p><div class="acts">${mapsBtns()}<button class="btn" type="button" id="mCal">${ICON.cal}${x.addCal}</button><a class="btn ghost" href="${gcal()}" target="_blank" rel="noopener">${ICON.ext}${x.gcal}</a></div></section>
+  m.innerHTML=`<section><h2>${x.moreWhen}</h2><p class="big">${x.dateH}</p>${schedHTML()}<p class="place"><b>${esc(v.name)}</b><br>${x.koropi} 166 72</p><div class="acts">${mapsBtns()}<button class="btn" type="button" id="mCal">${ICON.cal}${x.addCal}</button><a class="btn ghost" href="${gcal()}" target="_blank" rel="noopener">${ICON.ext}${x.gcal}</a></div></section>
+  <section><h2>${x.infoH}</h2>${infoHTML(L2(CONTENT.info))}</section>
   <section><h2>${x.tabRsvp}</h2><form id="mRsvp" autocomplete="off"><label class="f"><span>${x.yourName}</span><input id="mN" required maxlength="80" autocomplete="name"></label>
     <div class="seg"><label><input type="radio" name="matt" value="yes" checked><span>${x.yes}</span></label><label><input type="radio" name="matt" value="no"><span>${x.no}</span></label></div>
     <div class="acts" style="align-items:end"><label class="f" style="margin:0;flex:0 0 110px"><span>${x.guests}</span><select id="mC"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></label><button class="btn" type="submit" style="flex:1">${x.send}</button></div></form><div class="seatres" id="mR" aria-live="polite"></div><p class="ok" id="mOk" hidden></p></section>
@@ -1564,12 +1565,14 @@ function quizCard(){const x=tx(),got=state.qa||{};if(state.quiz===3){openCard(x.
     upd();$("#cardB").querySelectorAll("[data-q]").forEach(b=>b.addEventListener("click",()=>{const i=+b.dataset.q,j=+b.dataset.a;if(got[i]!=null)return;
       if(x.qz[i][2]===j){got[i]=j;state.qa=got;save();b.classList.add("ok");$("#qr"+i).textContent=x.qzOk;upd()}else{/* one chance only: a wrong answer ends the test for good */b.classList.add("no");$("#qr"+i).textContent=x.qzNo;state.quiz=3;save();$("#cardB").querySelectorAll("[data-q]").forEach(c=>c.disabled=true);$("#qsc").textContent=x.qzFail}}))})}
 setInterval(()=>{if(!state.quiz&&state.fin&&Date.now()-state.fin>4000&&mode==="play"&&!room&&ORDER.every(k=>state.done[questOf(k)])&&!document.body.classList.contains("cardopen"))quizCard()},1500);
-/* TEMP admin (testing only, remove before sending): marks every quest done, finale already seen */
-$("#bReset").addEventListener("click",()=>{save.off=true;try{localStorage.removeItem("wq2")}catch(e){}location.reload()});
+/* admin: marks every quest done, finale already seen */
+/* admin and reset open only with the code, once per visit */
+let adminOk=false;function adminGate(run){panel("#list",false);if(adminOk){run();return}const x=tx();openCard("· · ·",x.adminH,`<form id="adf" autocomplete="off"><label class="f"><span>${x.codeLbl}</span><input id="adc" inputmode="numeric" pattern="[0-9]*" maxlength="4" required style="font-size:28px;letter-spacing:.5em;text-align:center"></label><div class="acts"><button class="btn" type="submit">${x.enter}</button></div><p class="ok" id="adE" hidden>${x.adminBad}</p></form>`,()=>$("#adf").addEventListener("submit",e=>{e.preventDefault();const i=$("#adc");if(fnv(i.value.trim())===CONTENT.secret.admin){adminOk=true;closeCard();run()}else{$("#adE").hidden=false;i.value=""}}));cardFn=null}
+$("#bReset").addEventListener("click",()=>adminGate(()=>{save.off=true;try{localStorage.removeItem("wq2")}catch(e){}location.reload()}));
 /* zoom: far (default) -> x1 -> x2 -> far */
 /* each entry: distance, and the label of what the next tap does */
 const ZOOMS=[[11,"x1",1],[7.5,"x2",.8],[4.8,"x3",.62]];let zoomI=0;$("#bZoom").addEventListener("click",()=>{zoomI=(zoomI+1)%ZOOMS.length;camDist=ZOOMS[zoomI][0];roomZoomK=ZOOMS[zoomI][2];$("#bZoom").textContent=ZOOMS[zoomI][1]});
-$("#bAdmin").addEventListener("click",()=>{ORDER.forEach(k=>state.done[questOf(k)]=1);state.fin=Date.now()-5000;delete state.quiz;delete state.qa;delete state.hint;save();panel("#list",false);renderList();renderObj();renderLabels();toast("admin: 5/5 + 6/6 ✓",2500)});
+$("#bAdmin").addEventListener("click",()=>adminGate(()=>{ORDER.forEach(k=>state.done[questOf(k)]=1);state.fin=Date.now()-5000;delete state.quiz;delete state.qa;delete state.hint;save();renderList();renderObj();renderLabels();toast("admin: 5/5 + 6/6 ✓",2500)}));
 /* total play time: runs only while the game is on screen, and carries on from where it stopped on the next visit */
 function paintClock(){const t=state.secs||0,h=t/3600|0,m=(t%3600)/60|0,p=n=>String(n).padStart(2,"0");$("#clockT").textContent=(h?h+":"+p(m):m)+":"+p(t%60)}
 /* the total also goes to the sheet: every 2 minutes of play and whenever they leave */

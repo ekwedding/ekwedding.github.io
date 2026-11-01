@@ -142,7 +142,6 @@ body.gate #tl,body.gate #br,body.gate #tr,body.gate #obj,body.gate #labels,body.
 #more .acts>.btn{flex:1 1 150px}
 #more .btn{background:#d6ce9b;color:#27332a;box-shadow:none}
 #more .btn.ghost{background:transparent;color:#e6dfae;box-shadow:inset 0 0 0 1.5px #d6ce9b}
-#more .sched{grid-template-columns:repeat(3,1fr)}
 #more .sched div,#more .info>div,#more .seatrow{background:rgba(255,255,255,.08);color:#e6dfae}
 #more .sched dt,#more .info dt,#more .f span,#more .seatrow small,#more .ok,#more .demo{color:#d6ce9b}
 #more .sched dd,#more .info dd{color:#f0e9bb}
@@ -220,7 +219,7 @@ body.cardopen #obj{opacity:0}
 #card h3{font-family:var(--serif);font-weight:500;font-size:clamp(26px,5vw,34px);line-height:1.08;margin:6px 44px 10px 0;text-wrap:balance}
 #card p{font-size:16px;line-height:1.55;max-width:62ch}
 #card .acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
-.sched{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.sched{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:14px}
 .sched div{background:var(--paper2);border-radius:10px;padding:9px 10px}
 .sched dt{font-size:12px;font-weight:600;color:var(--ink2)}
 .sched dd{font-size:18px;font-weight:700;font-variant-numeric:tabular-nums}
@@ -329,7 +328,7 @@ body.cardopen #br,body.ride #bHome{display:none}
         <p class="dt2"><span data-t="when"></span> · 2027<br><span class="hrs" data-t="invHours"></span></p>
         <div class="kb"><small data-t="invKoumH"></small><span data-t="invK1"></span><span data-t="invK2"></span></div>
         <p class="rec" data-t="invRec"></p>
-        <button class="invb" type="button" id="flip"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 14-5l2 2M20 4v5h-5M20 12a8 8 0 0 1-14 5l-2-2M4 20v-5h5"/></svg><span data-t="invFlip"></span></button>
+        <button class="invb" type="button" id="flip"><svg viewBox="0 0 24 24"><rect x="2.5" y="7" width="19" height="11" rx="4"/><path d="M7.5 10.5v4M5.5 12.5h4"/><path d="M15.5 11.5h.01M18 13.5h.01"/></svg><span data-t="invFlip"></span></button>
       </div></div>
       <div class="face ib" inert><div class="in">
         <h2 data-t="invBackH"></h2>
@@ -366,7 +365,7 @@ body.cardopen #br,body.ride #bHome{display:none}
   <div id="obj" role="status" aria-live="polite"></div>
   <div id="labels"></div>
   <nav id="list" class="panel shut" aria-label="Στάσεις"><button type="button" id="listBack" class="back"></button><h2 id="listH">Οι στάσεις σου</h2><ol id="listOl"></ol>
-    <div class="foot"><span class="demo" style="margin:0" data-t="tapGo">Πάτα μια στάση για να πας εκεί</span><button type="button" id="bSimple" data-t="simple">Απλή έκδοση</button></div><!-- TEMP: testing only, remove before sending the invitation --><span style="display:flex;justify-content:center;gap:18px;margin:14px auto 0"><button type="button" id="bAdmin" style="font-size:11px;opacity:.35;background:none;border:0;color:inherit">admin</button><button type="button" id="bReset" style="font-size:11px;opacity:.35;background:none;border:0;color:inherit">reset</button></span></nav>
+    <div class="foot"><span class="demo" style="margin:0" data-t="tapGo">Πάτα μια στάση για να πας εκεί</span><button type="button" id="bSimple" data-t="simple">Απλή έκδοση</button></div><span style="display:flex;justify-content:center;gap:18px;margin:14px auto 0"><button type="button" id="bAdmin" style="font-size:11px;opacity:.35;background:none;border:0;color:inherit">admin</button><button type="button" id="bReset" style="font-size:11px;opacity:.35;background:none;border:0;color:inherit">reset</button></span></nav>
   <nav id="dest" class="panel shut" aria-label="Vespa"><h2 data-t="vespaH">Πού πάμε;</h2><ul id="destUl"></ul></nav>
   <section id="card" class="panel shut" role="dialog" aria-modal="false" aria-labelledby="cardH">
     <button class="x" type="button" id="cardX" aria-label="Κλείσιμο"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
