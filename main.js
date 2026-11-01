@@ -82,7 +82,7 @@ function renderUI(){
   document.querySelectorAll("[data-t]").forEach(e=>{const v=x[e.dataset.t];if(typeof v==="string")e.textContent=v});
   $("#names").innerHTML=`${esc(n[0])}<span>|</span>${esc(n[1])}`;
   $("#invWhere").textContent=x.invAt.replace("{v}",CONTENT.invite.venue);$("#clock").setAttribute("aria-label",x.clockL);
-  const pc=Math.round((prog.groom+prog.bride)/2*100);$("#pG").textContent=ready?x.pickG:x.loading+(pc?" "+pc+"%":"");$("#pB").textContent=ready?x.pickB:x.loading+(pc?" "+pc+"%":"");
+  const pc=Math.round((prog.groom+prog.bride)/2*100);[["#pG",x.pickG,n[0]],["#pB",x.pickB,n[1]]].forEach(([id,label,who])=>{const b=$(id),[nm,how]=label.split(" · ");b.innerHTML=`<i>${esc(who[0])}</i><span><b>${esc(nm)}</b><small>${esc(ready?how:x.loading+(pc?" "+pc+"%":""))}</small></span><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>`});
   document.querySelectorAll(".langs button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.l===lang)));
   $("#cardX").setAttribute("aria-label",x.close);$("#bSnd").setAttribute("aria-label",x.music);
   renderList();renderObj();renderLabels();if(moreLang&&moreLang!==lang)renderMore();
@@ -140,19 +140,32 @@ function giftHTML(){const x=tx(),g=CONTENT.gift,cp=v=>`<button class="btn ghost 
       ${g.revolut?`<div class="gft"><img src="assets/logo-revolut.svg" alt="Revolut" height="20"><code>@${esc(g.revolut)}</code><a class="btn sm" href="https://revolut.me/${encodeURIComponent(g.revolut)}" target="_blank" rel="noopener">${x.openRev}</a></div>`:""}
     </div>`}
 function bindCopy(root){const x=tx();root.querySelectorAll("[data-cp]").forEach(b=>b.addEventListener("click",()=>{navigator.clipboard&&navigator.clipboard.writeText(b.dataset.cp).then(()=>{b.textContent=x.copied;setTimeout(()=>b.textContent=x.copy,1600)}).catch(()=>{})}))}
+/* the guest's own answers, the same in the game and on the invitation page, and kept in step with the sheet */
+const plusSel=id=>`<select id="${id}">${[0,1,2,3,4].map(n=>`<option value="${n}">${n}</option>`).join("")}</select>`;
+const fillIn=(s,n)=>s.replace("{n}",n);
+function rsvpLine(a,changed){const x=tx(),what=!a.att?x.rsvpNo:a.count>1?fillIn(x.rsvpPlus,a.count-1):x.rsvpAlone;return (changed?x.rsvpChanged:x.rsvpChosen)+" "+what}
+function saveRsvp(name,att,plus,okEl){const prev=(state.ans||{}).rsvp,count=att?plus+1:0,changed=!!prev&&(prev.att!==att||prev.count!==count),a={name,att,count};state.ans=state.ans||{};state.ans.rsvp=a;save();store("rsvp",{name,attending:att,count,notes:"",lang});okEl.hidden=false;okEl.textContent=rsvpLine(a,changed)}
+function bindRsvp(form,sel,radio,okEl){const dis=()=>{sel.disabled=form.querySelector(`input[name=${radio}]:checked`).value==="no"};form.querySelectorAll(`input[name=${radio}]`).forEach(r=>r.addEventListener("change",dis));
+  const a=(state.ans||{}).rsvp;if(a){form.querySelector(`input[name=${radio}][value=${a.att?"yes":"no"}]`).checked=true;sel.value=String(a.att?Math.max(0,a.count-1):0);okEl.hidden=false;okEl.textContent=rsvpLine(a,false)}dis()}
+const wishLine=()=>{const x=tx(),n=(state.ans||{}).wishN||((state.ans||{}).wish?1:0);return n>1?fillIn(x.wishMany,n):n===1?x.wishOne:""};
+function saveWish(name,text,okEl){const a=state.ans=state.ans||{};a.wishN=(a.wishN||(a.wish?1:0))+1;a.wish={n:name,w:text};save();store("wishes",{name,text,lang});okEl.hidden=false;okEl.textContent=wishLine()}
+function showWish(okEl){const l=wishLine();if(l){okEl.hidden=false;okEl.textContent=l}}
+/* whatever the sheet remembers for this person, also from another phone */
+function applyGuest(d){const a=state.ans=state.ans||{};voteCount=d.total||voteCount;if(d.voted){a.honey=d.voted;a.honeyName=state.guest}if(d.secs>(state.secs||0)){state.secs=d.secs;paintClock()}if(d.rsvp)a.rsvp={name:state.guest,att:d.rsvp.att,count:d.rsvp.count};if(d.wishes>(a.wishN||0))a.wishN=d.wishes;save();
+  [["#mRsvp","#mC","matt","#mOk"],["#rsvp","#gs","att","#rOk"]].forEach(([f,c,r,o])=>{if($(f))bindRsvp($(f),$(c),r,$(o))});["#mWo","#wOk"].forEach(o=>{if($(o))showWish($(o))})}
+function syncGuest(){if(!SHEET||!state.guest)return;fetch(SHEET+"?name="+encodeURIComponent(state.guest)).then(r=>r.json()).then(applyGuest).catch(()=>{})}
 function passBanner(){let b=$("#pass");if(!b){b=document.createElement("div");b.id="pass";document.body.appendChild(b)}b.textContent="✓ "+tx().passed;b.classList.remove("show");void b.offsetWidth;b.classList.add("show")}
 const CARDS={
   estate(tab="cal"){const x=tx();const tabs=`<div class="seg" role="tablist" style="margin:0 0 10px"><label><input type="radio" name="et" value="cal" ${tab==="cal"?"checked":""}><span>${x.tabCal}</span></label><label><input type="radio" name="et" value="rsvp" ${tab==="rsvp"?"checked":""}><span>${x.tabRsvp}</span></label></div>`;
     const body=tab==="cal"?`<p>${x.dateP}</p>${schedHTML()}<div class="acts"><button class="btn" type="button" id="aIcs">${ICON.cal}${x.addCal}</button><a class="btn ghost" id="aG" href="${gcal()}" target="_blank" rel="noopener">${ICON.ext}${x.gcal}</a>${mapsBtns()}</div>${CONTENT.demo?`<p class="demo">${x.demoNote}</p>`:""}`
       :`<form id="rsvp" autocomplete="off"><label class="f"><span>${x.yourName}</span><input id="nm" required maxlength="80"></label>
       <div class="seg"><label><input type="radio" name="att" value="yes" checked><span>${x.yes}</span></label><label><input type="radio" name="att" value="no"><span>${x.no}</span></label></div>
-      <div class="acts" style="align-items:end"><label class="f" style="margin:0;flex:0 0 120px"><span>${x.guests}</span><select id="gs"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></label><button class="btn" type="submit" style="flex:1">${x.send}</button></div><p class="ok" id="rOk" hidden></p></form>`;
+      <div class="acts" style="align-items:end"><label class="f" style="margin:0;flex:0 0 120px"><span>${x.plusL}</span>${plusSel("gs")}</label><button class="btn" type="submit" style="flex:1">${x.send}</button></div><p class="ok" id="rOk" hidden></p></form>`;
     openCard(x.P.estate,x.dateH,tabs+body,()=>{document.querySelectorAll("input[name=et]").forEach(r=>r.addEventListener("change",()=>CARDS.estate(r.value)));
-      const A=(state.ans||{}).rsvp;if(tab!=="cal"&&A){$("#nm").value=A.name;document.querySelector(`input[name=att][value=${A.att?"yes":"no"}]`).checked=true;$("#gs").value=String(A.count);const o=$("#rOk");o.hidden=false;o.textContent=`${x.yourAns}: ${A.att?x.attY:x.attN} · ${A.count} ${x.persons}`}
+      const A=(state.ans||{}).rsvp;if(tab!=="cal"){if(A)$("#nm").value=A.name;bindRsvp($("#rsvp"),$("#gs"),"att",$("#rOk"))}
       if(tab==="cal"){$("#aIcs").addEventListener("click",()=>{downloadICS();complete("date")});$("#aG").addEventListener("click",()=>complete("date"))}
       else $("#rsvp").addEventListener("submit",e=>{e.preventDefault();const name=$("#nm").value.trim();if(!name)return;
-        const att=document.querySelector("input[name=att]:checked").value==="yes";state.ans=state.ans||{};state.ans.rsvp={name,att,count:+$("#gs").value};save();
-        store("rsvp",{name,attending:att,count:+$("#gs").value,notes:"",lang}).then(r=>{const o=$("#rOk");o.hidden=false;o.textContent=r?x.thanks:x.thanksLocal;complete("date")})})});cardFn=()=>CARDS.estate(tab)},
+        saveRsvp(name,document.querySelector("input[name=att]:checked").value==="yes",+$("#gs").value,$("#rOk"));complete("date")})});cardFn=()=>CARDS.estate(tab)},
   gallery(i=0){const x=tx(),s=CONTENT.story[i];openCard(x.P.gallery+` · ${i+1}/${CONTENT.story.length}`,s.city,`<div class="ph"><img class="photo" alt="${esc(s.city)}" src="${s.src||photoURL(i)}">${s.stamp?`<span class="stamp">${s.stamp}</span>`:""}</div><p>${x.storyT[i]}</p>${s.src?"":`<p class="demo">${x.photoDemo}</p>`}
     <div class="pnav"><button class="btn ghost" type="button" id="pPrev" ${i?"":"disabled"}>←</button><span>${i+1} / ${CONTENT.story.length}</span><button class="btn" type="button" id="pNext">${i<CONTENT.story.length-1?x.next+" →":x.close}</button></div>`,()=>{
       $("#pPrev").addEventListener("click",()=>CARDS.gallery(i-1));$("#pNext").addEventListener("click",()=>{if(i<CONTENT.story.length-1)CARDS.gallery(i+1);else{complete("story");closeCard()}});
@@ -178,9 +191,8 @@ const CARDS={
   gift(){const x=tx();openCard(x.P.agency,x.giftH,giftHTML(),()=>bindCopy($("#cardB")));cardFn=CARDS.gift},
     post(){const x=tx();openCard(x.P.post,x.wishH,`<p>${x.wishP}</p><form id="wf"><label class="f"><span>${x.yourName}</span><input id="wn" maxlength="80" required></label><label class="f"><span>${x.wishText}</span><textarea id="wt" maxlength="800" required></textarea></label>
     <div class="acts"><button class="btn" type="submit">${x.send}</button></div><p class="ok" id="wOk" hidden></p></form>`,()=>{
-      const A=(state.ans||{}).wish;if(A){$("#wn").value=A.n;$("#wt").value=A.w;const o=$("#wOk");o.hidden=false;o.textContent=x.yourAns+" ✓"}
-      $("#wf").addEventListener("submit",e=>{e.preventDefault();const n=$("#wn").value.trim(),w=$("#wt").value.trim();if(!n||!w)return;state.ans=state.ans||{};state.ans.wish={n,w};save();
-        store("wishes",{name:n,text:w,lang}).then(r=>{const o=$("#wOk");o.hidden=false;o.textContent=r?x.thanks:x.thanksLocal;complete("wish")})})});cardFn=CARDS.post},
+      const A=(state.ans||{}).wish;if(A)$("#wn").value=A.n;showWish($("#wOk"));
+      $("#wf").addEventListener("submit",e=>{e.preventDefault();const n=$("#wn").value.trim(),w=$("#wt").value.trim();if(!n||!w)return;saveWish(n,w,$("#wOk"));$("#wt").value="";complete("wish")})});cardFn=CARDS.post},
   agency(){const x=tx();openCard(x.P.agency,x.honeyH,`<p>${x.honeyP}</p><p><b>${x.honeyPick}</b></p><form id="hf"><div class="seg">${CONTENT.honey.map(k=>`<label><input type="radio" name="hm" value="${k}" required><span>${x.opt[k]}</span></label>`).join("")}</div>
     <label class="f"><span>${x.voteName}</span><input id="hName" autocomplete="name" required maxlength="60"></label><p class="demo" style="margin:6px 0 10px">${x.voteOnce}</p><div class="acts" style="align-items:center"><button class="btn" type="submit">${x.vote}</button><span><b id="vc">${voteCount}</b> ${x.voted}</span></div><p class="ok" id="hOk" ${state.done.honey?"":"hidden"}>${x.honeyDone}</p></form>`,()=>{
       const A=(state.ans||{}).honey;if(A&&!state.done.honey&&agencyOpen())setTimeout(()=>complete("honey"),300);if(A){const r=document.querySelector(`input[name=hm][value=${A}]`);if(r)r.checked=true;$("#hf").querySelectorAll("input,button").forEach(i=>i.disabled=true);if(state.ans.honeyName)$("#hName").value=state.ans.honeyName;$("#hOk").textContent=`${x.yourAns}: ${x.opt[A]} · ${x.honeyDone}`}
@@ -1223,7 +1235,7 @@ function endPose(){posing=false;[P,N].forEach(e=>{e.lock=0;play(e,"idle",.2)});d
 /* nobody starts without being on the guest list. Network trouble or an empty list never locks a guest out */
 let nameGate=false;
 function setGuest(f){state.guest=f.name+(f.note?` (${f.note})`:"");state.guestSeat=f;state.guestOk=1;save();
-  if(SHEET)fetch(SHEET+"?name="+encodeURIComponent(state.guest)).then(r=>r.json()).then(d=>{voteCount=d.total||voteCount;if(d.voted){state.ans=state.ans||{};state.ans.honey=d.voted;state.ans.honeyName=state.guest;save()}if(d.secs>(state.secs||0)){state.secs=d.secs;save();paintClock()}}).catch(()=>{})}
+  syncGuest()}
 function acceptGuest(f){setGuest(f);nameGate=false;document.body.classList.remove("gate");closeCard()}
 /* one lookup for the gate and the info page: a clear match goes straight through, close ones become buttons, no match stays here; trouble with the list never locks anyone out */
 function guestCheck(n,out,found,pass){const x=tx(),my=guestCheck.seq=(guestCheck.seq||0)+1;if(!SHEET){pass();return}out.innerHTML=`<p class="demo">${x.seatWait}</p>`;
@@ -1381,7 +1393,7 @@ function snapCam(){const f=followPose();camPos.copy(f.p);camLook.copy(f.l)}
 function introPose(t){const a=Math.min(1,t/14),e=1-Math.pow(1-a,3);return{p:new THREE.Vector3(Math.sin(t*.05)*14,26-e*14,78-e*44),l:new THREE.Vector3(0,3.5-e*1.5,-8)}}
 const ease=x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;
 function choose(kind){if(!ready||mode!=="intro")return;if(kind==="bride")startOnVespa=true;const[g,b]=window.__ents;P=kind==="groom"?g:b;N=kind==="groom"?b:g;mode="fly";flyT=0;
-  $("#intro").classList.add("gone");$("#more").innerHTML="";moreLang=null;document.body.classList.add("play");let so="1";try{so=localStorage.getItem("wsound")??"1"}catch(e){}setSound(so==="1");plazaGuests();plazaKoum();if(!state.guestOk)setTimeout(askName,1800);setTimeout(bell,1500);
+  $("#intro").classList.add("gone");$("#more").innerHTML="";moreLang=null;if(!syncGuest.done){syncGuest.done=true;syncGuest()}document.body.classList.add("play");let so="1";try{so=localStorage.getItem("wsound")??"1"}catch(e){}setSound(so==="1");plazaGuests();plazaKoum();if(!state.guestOk)setTimeout(askName,1800);setTimeout(bell,1500);
   setTimeout(seaLife,3000);
   setTimeout(()=>{toast(tx().hint,7000)},reduce?0:2600)}
 $("#seal").addEventListener("click",()=>{const de=document.documentElement;if(touch&&de.requestFullscreen&&!document.fullscreenElement)de.requestFullscreen({navigationUI:"hide"}).catch(()=>{});const env=$("#env"),inv=$("#inv");inv.style.setProperty("--s",(env.offsetWidth*.86/inv.offsetWidth).toFixed(3));env.classList.add("open");if(navigator.vibrate)navigator.vibrate(15);
@@ -1391,12 +1403,12 @@ $("#seal").addEventListener("click",()=>{const de=document.documentElement;if(to
 $("#intro").addEventListener("scroll",e=>e.target.classList.toggle("scrolled",e.target.scrollTop>40),{passive:true});
 $("#moreHint").addEventListener("click",()=>$("#more").scrollIntoView({behavior:reduce?"auto":"smooth"}));
 /* below the invitation: everything a guest needs without playing */
-function renderMore(){const x=tx(),v=CONTENT.venue,m=$("#more"),A=(state.ans||{}).rsvp,W=(state.ans||{}).wish;moreLang=lang;
+function renderMore(){const x=tx(),v=CONTENT.venue,m=$("#more"),moreLang=lang;
   m.innerHTML=`<section><h2>${x.moreWhen}</h2><p class="big">${x.dateH}</p>${schedHTML()}<p class="place"><b>${esc(v.name)}</b><br>${x.koropi} 166 72</p><div class="acts">${mapsBtns()}<button class="btn" type="button" id="mCal">${ICON.cal}${x.addCal}</button><a class="btn ghost" href="${gcal()}" target="_blank" rel="noopener">${ICON.ext}${x.gcal}</a></div></section>
   <section><h2>${x.infoH}</h2>${infoHTML(L2(CONTENT.info))}</section>
   <section><h2>${x.tabRsvp}</h2><form id="mRsvp" autocomplete="off"><label class="f"><span>${x.yourName}</span><input id="mN" required maxlength="80" autocomplete="name"></label>
     <div class="seg"><label><input type="radio" name="matt" value="yes" checked><span>${x.yes}</span></label><label><input type="radio" name="matt" value="no"><span>${x.no}</span></label></div>
-    <div class="acts" style="align-items:end"><label class="f" style="margin:0;flex:0 0 110px"><span>${x.guests}</span><select id="mC"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></label><button class="btn" type="submit" style="flex:1">${x.send}</button></div></form><div class="seatres" id="mR" aria-live="polite"></div><p class="ok" id="mOk" hidden></p></section>
+    <div class="acts" style="align-items:end"><label class="f" style="margin:0;flex:0 0 110px"><span>${x.plusL}</span>${plusSel("mC")}</label><button class="btn" type="submit" style="flex:1">${x.send}</button></div></form><div class="seatres" id="mR" aria-live="polite"></div><p class="ok" id="mOk" hidden></p></section>
   <section><h2>${x.seatH}</h2><div id="mSeat">${seatHTML()}</div></section>
   <section><h2>${x.menuH}</h2>${infoHTML(L2(CONTENT.menu))}</section>
   <section><h2>${x.giftH}</h2>${giftHTML()}</section>
@@ -1404,15 +1416,13 @@ function renderMore(){const x=tx(),v=CONTENT.venue,m=$("#more"),A=(state.ans||{}
   <section class="end"><h2>${x.moreGame}</h2><p>${x.moreGameP}</p><div class="acts"><button class="btn" type="button" id="mGame">${x.moreGameBtn}</button></div></section>`;
   $("#mCal").addEventListener("click",downloadICS);bindCopy(m);bindSeat();
   const known=()=>{if(state.guestOk&&state.guest){["mN","mWn"].forEach(id=>{const f=$("#"+id);f.value=state.guest;f.readOnly=true})}};known();
-  const showA=a=>{const o=$("#mOk");o.hidden=false;o.textContent=`${x.yourAns}: ${a.att?x.attY:x.attN} · ${a.count} ${x.persons}`};
-  if(A){document.querySelector(`input[name=matt][value=${A.att?"yes":"no"}]`).checked=true;$("#mC").value=String(A.count);showA(A)}
-  if(W){$("#mWt").value=W.w;const o=$("#mWo");o.hidden=false;o.textContent=x.yourAns+" ✓"}
-  $("#mRsvp").addEventListener("submit",e=>{e.preventDefault();const typed=$("#mN").value.trim().replace(/\s+/g," ");if(typed.length<3)return;const att=document.querySelector("input[name=matt]:checked").value==="yes",count=+$("#mC").value;
-    const send=name=>{state.ans=state.ans||{};state.ans.rsvp={name,att,count};save();store("rsvp",{name,attending:att,count,notes:"",lang});showA(state.ans.rsvp);$("#mOk").textContent=x.thanks+" · "+$("#mOk").textContent;known()};
+  bindRsvp($("#mRsvp"),$("#mC"),"matt",$("#mOk"));showWish($("#mWo"));if(!syncGuest.done){syncGuest.done=true;syncGuest()}
+  $("#mRsvp").addEventListener("submit",e=>{e.preventDefault();const typed=$("#mN").value.trim().replace(/\s+/g," ");if(typed.length<3)return;const att=document.querySelector("input[name=matt]:checked").value==="yes",plus=+$("#mC").value;
+    const send=name=>{saveRsvp(name,att,plus,$("#mOk"));known()};
     if(state.guestOk&&state.guest===typed){send(typed);return}
     /* someone on the list: their table and answers follow them into the game */
     guestCheck(typed,$("#mR"),f=>{setGuest(f);$("#mSeat").innerHTML=seatHTML();bindSeat();send(state.guest)},()=>send(typed))});
-  $("#mW").addEventListener("submit",e=>{e.preventDefault();const n=$("#mWn").value.trim(),w=$("#mWt").value.trim();if(!n||!w)return;state.ans=state.ans||{};state.ans.wish={n,w};save();store("wishes",{name:n,text:w,lang});const o=$("#mWo");o.hidden=false;o.textContent=x.thanks});
+  $("#mW").addEventListener("submit",e=>{e.preventDefault();const n=$("#mWn").value.trim(),w=$("#mWt").value.trim();if(!n||!w)return;saveWish(n,w,$("#mWo"));$("#mWt").value=""});
   $("#mGame").addEventListener("click",()=>{$("#intro").scrollTo({top:0,behavior:reduce?"auto":"smooth"});flipCard(true)})}
 function flipCard(back){$("#inv3d").classList.toggle("flipped",back);$(".face.if").inert=back;$(".face.ib").inert=!back}
 $("#flip").addEventListener("click",()=>flipCard(true));$("#unflip").addEventListener("click",()=>flipCard(false));

@@ -89,6 +89,7 @@ body.gate #tl,body.gate #br,body.gate #tr,body.gate #obj,body.gate #labels,body.
 .inv3d.flipped{transform:rotateY(180deg)}
 .face{position:absolute;inset:0;padding:.6em;border-radius:3px;backface-visibility:hidden;-webkit-backface-visibility:hidden;box-shadow:0 1.2em 2.6em rgba(8,16,26,.5);background:#b38444 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3CfeColorMatrix values='0 0 0 0 .25 0 0 0 0 .15 0 0 0 0 .05 0 0 0 .35 0'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E")}
 .face.ib{transform:rotateY(180deg)}
+.face.ib .in{overflow-y:auto}
 .inv3d:not(.flipped) .ib,.inv3d.flipped .if{pointer-events:none}
 .face .in{height:100%;background:#36463a;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:1.5em 1.4em 1.3em;overflow:hidden;font-family:Commissioner,system-ui,sans-serif;font-weight:400;line-height:1.38}
 .face h1,.face h2{font-family:"GFS Didot",var(--serif),serif;font-weight:400;color:#dcd49f;margin:0}
@@ -107,16 +108,22 @@ body.gate #tl,body.gate #br,body.gate #tr,body.gate #obj,body.gate #labels,body.
 .kb{display:grid;gap:.05em;font-size:1em}
 .kb small{font-size:.92em;color:#bfb98a;margin-bottom:.15em}
 .face .rec{font-size:.98em}
-.invb{display:inline-flex;align-items:center;justify-content:center;gap:.5em;min-height:44px;padding:.55em 1.3em;border-radius:2em;border:1px solid #d6ce9b;color:#e6dfae;font:500 1em Commissioner,system-ui,sans-serif;background:transparent;cursor:pointer}
-.invb svg{width:1.25em;height:1.25em;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.invb{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:.55em;min-height:46px;padding:.7em 1.7em;border-radius:3px;border:0;color:#27332a;font:400 1.08em "GFS Didot",var(--serif),serif;letter-spacing:.06em;background:linear-gradient(135deg,#e9e1ae,#c8bd82 55%,#e2d9a4);box-shadow:0 .25em .7em rgba(10,16,12,.35);cursor:pointer}
+.invb::after{content:"";position:absolute;inset:3px;border:1px solid rgba(39,51,42,.4);border-radius:2px;pointer-events:none}
+.invb svg{width:1.3em;height:1.3em;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .invb:active{transform:scale(.97)}
-.invb.fill{background:#d6ce9b;color:#27332a;font-weight:600;width:100%;padding:.4em .5em}
+.invb.fill{display:grid;grid-template-columns:2.3em 1fr 1em;gap:.7em;justify-content:stretch;text-align:left;width:100%;padding:.5em .8em .5em .6em;letter-spacing:0;font-family:Commissioner,system-ui,sans-serif}
+.invb.fill i{display:grid;place-items:center;width:2.3em;height:2.3em;border-radius:50%;background:#36463a;color:#e6dfae;font:400 1.15em "GFS Didot",var(--serif),serif;font-style:normal}
+.invb.fill span{display:grid;line-height:1.2}
+.invb.fill b{font:400 1.12em "GFS Didot",var(--serif),serif}
+.invb.fill small{font-size:.82em;font-weight:500;opacity:.85}
+.invb.fill svg{width:1em;height:1em;stroke-width:2.2}
 .invb[disabled]{opacity:.6;cursor:progress}
-.face ol{list-style:none;margin:0;padding:0;display:grid;gap:.42em;text-align:left;font-size:.95em;line-height:1.3;width:100%}
+.face ol{list-style:none;margin:0;padding:0;display:grid;gap:.28em;text-align:left;font-size:.9em;line-height:1.25;width:100%}
 .face li{position:relative;padding-left:1.1em}
 .face li::before{content:"";position:absolute;left:.1em;top:.5em;width:.42em;height:.42em;transform:rotate(45deg);background:#b38444}
 .face .pk{font-weight:500;color:#e6dfae;font-size:1em}
-#picks{display:grid;grid-template-columns:1fr 1fr;gap:.6em;width:100%}
+#picks{display:grid;gap:.5em;width:100%}
 .invl{color:#d6ce9b;font:400 .95em Commissioner,system-ui,sans-serif;text-decoration:underline;text-underline-offset:.2em;min-height:40px;padding:0 .8em;background:none;border:0;cursor:pointer}
 #clock{position:absolute;right:0;top:calc(100% + 6px);display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:10px;background:rgba(20,39,58,.82);color:#fff;font-size:12.5px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap;pointer-events:none}
 #clock svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
@@ -124,7 +131,7 @@ body.gate #tl,body.gate #br,body.gate #tr,body.gate #obj,body.gate #labels,body.
 .ifirst{position:relative;height:100%;display:grid;place-items:center;padding:16px}
 #intro.scroll{overflow-y:auto;-webkit-overflow-scrolling:touch}
 .env.done .back,.env.done .front,.env.done .flap,.env.done #seal,.env.done #sealHint{display:none}
-#moreHint{position:absolute;left:50%;bottom:calc(10px + env(safe-area-inset-bottom));transform:translateX(-50%);display:none;align-items:center;gap:4px;min-height:44px;padding:0 16px;border-radius:22px;background:rgba(20,32,26,.78);color:#e6dfae;font:500 15px Commissioner,system-ui,sans-serif;white-space:nowrap;cursor:pointer}
+#moreHint{position:absolute;left:50%;bottom:calc(10px + env(safe-area-inset-bottom));transform:translateX(-50%);display:none;align-items:center;gap:6px;min-height:44px;padding:0 18px;border-radius:3px;border:1px solid rgba(214,206,155,.65);background:rgba(32,43,35,.88);color:#e6dfae;font:400 16px "GFS Didot",var(--serif),serif;letter-spacing:.04em;white-space:nowrap;cursor:pointer}
 #moreHint svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;animation:nudge 1.5s ease-in-out infinite}
 @keyframes nudge{50%{transform:translateY(3px)}}
 #intro.scroll #moreHint{display:inline-flex}
@@ -139,18 +146,20 @@ body.gate #tl,body.gate #br,body.gate #tr,body.gate #obj,body.gate #labels,body.
 #more .place b{color:#e6dfae;font-weight:600}
 #more .acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
 #more section:last-child .acts{justify-content:center}
-#more .acts>.btn{flex:1 1 150px}
-#more .btn{background:#d6ce9b;color:#27332a;box-shadow:none}
-#more .btn.ghost{background:transparent;color:#e6dfae;box-shadow:inset 0 0 0 1.5px #d6ce9b}
+#more .acts>.btn{flex:1 1 100%}
+#more form .acts>.btn{flex:1}
+#more .btn{background:linear-gradient(135deg,#e9e1ae,#c8bd82 55%,#e2d9a4);color:#27332a;border-radius:3px;font-weight:600;box-shadow:0 .2em .6em rgba(10,16,12,.3)}
+#more .gft .btn{background:#27332a;color:#f0e9bb;box-shadow:none}
+#more .btn.ghost{background:transparent;color:#e6dfae;box-shadow:inset 0 0 0 1px #d6ce9b}
 #more .sched div,#more .info>div,#more .seatrow{background:rgba(255,255,255,.08);color:#e6dfae}
 #more .sched dt,#more .info dt,#more .f span,#more .seatrow small,#more .ok,#more .demo{color:#d6ce9b}
 #more .sched dd,#more .info dd{color:#f0e9bb}
 #more .seatrow b{color:#f0e9bb}
-#more .seg span{background:transparent;color:#e6dfae;box-shadow:inset 0 0 0 1.5px #d6ce9b}
+#more .seg span{border-radius:3px;background:transparent;color:#e6dfae;box-shadow:inset 0 0 0 1.5px #d6ce9b}
 #more .seg input:checked+span{background:#d6ce9b;color:#27332a}
 #introFoot{transition:opacity .2s}
 #intro.scrolled #introFoot{opacity:0;pointer-events:none}
-#more .gft .btn.ghost{color:#27332a;box-shadow:inset 0 0 0 1.5px #27332a}
+#more .gft .btn.ghost{background:transparent;color:#27332a;box-shadow:inset 0 0 0 1px #27332a}
 #more .gft{color:#27332a}
 #more .seatres .btn{width:100%;margin-top:6px}
 .qwarn{color:#c0262d!important;font-weight:800;margin-bottom:6px}
