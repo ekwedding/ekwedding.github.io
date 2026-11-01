@@ -114,7 +114,7 @@ let toastT=0;function toast(s,ms=4200){const t=$("#toast");t.textContent=s;t.cla
 let cardFn=null;
 function openCard(where,title,body,bind){const c=$("#card");$("#cardW").textContent=where;$("#cardH").textContent=title;$("#cardB").innerHTML=body;
   c.classList.remove("shut");document.body.classList.add("cardopen");if(room)roomFocus(0);if(bind)bind();c.querySelectorAll("form").forEach(f=>f.addEventListener("submit",()=>{const b=f.querySelector("button[type=submit]");if(b&&f.checkValidity()){b.disabled=true;b.style.opacity=.6;setTimeout(()=>{b.disabled=false;b.style.opacity=""},2500)}}));if(state.guest)["nm","vn","wn","hName"].forEach(id=>{const f=document.getElementById(id);if(f){f.value=state.guest;f.readOnly=true}})}
-function closeCard(){const yf=$("#cardB iframe,#cardB video.prop");if(yf){const wasYt=yf.tagName==="IFRAME";yf.remove();if(wasYt)setTimeout(soundscape,50)}$("#card").classList.add("shut");document.body.classList.remove("cardopen");if(room)roomZoomT=ROOM_FAR;cardFn=null;if(P&&P.lock>=59&&P.lock<=60.5&&selfieCam>0){selfieCam=0;[P,N].forEach(e=>e.lock=0)}}
+function closeCard(){const yf=$("#cardB iframe,#cardB video.prop");if(yf){const wasYt=yf.tagName==="IFRAME";yf.remove();if(wasYt)setTimeout(soundscape,50)}$("#card").classList.add("shut");document.body.classList.remove("cardopen");if(room)roomZoomT=ROOM_FAR;if(posing)endPose();cardFn=null;if(P&&P.lock>=59&&P.lock<=60.5&&selfieCam>0){selfieCam=0;[P,N].forEach(e=>e.lock=0)}}
 $("#cardX").addEventListener("click",closeCard);
 addEventListener("keydown",e=>{if(e.key==="Escape"){closeCard();panel("#list",false);panel("#dest",false)}});
 function complete(q){if(state.done[q])return;state.done[q]=1;save();passBanner();mood("fun",14);mood("love",8);renderList();renderObj();renderLabels();if(navigator.vibrate)navigator.vibrate(25);
@@ -703,7 +703,7 @@ function applyOutfits(k){const ents=k==="groom"?[window.__ents&&window.__ents[0]
 const KOUM={kp:{model:"josh",tint:suitTint},ka:{model:"kate",tint:gownTint}};
 const koumTags={};["kp","ka"].forEach(k=>{const t=document.createElement("div");t.className="ktag";t.hidden=true;$("#labels").appendChild(t);koumTags[k]=t});
 function koumbaros(scene,k,x,z,yaw){return loadChar(KOUM[k].model).then(g=>{const e=makeEnt(g,KOUM[k].tint);e.name=KOUM[k].model;e.koum=k;if(k==="ka")koumDress(e);e.pos.set(x,0,z);e.yaw=yaw;e.home={x,z,yaw};e.act0="idle";
-  scene.add(e.m);e.m.position.copy(e.pos);e.m.rotation.y=yaw;play(e,e.act.idle?"idle":"talk");e.scene=scene;npcs.push(e);if(outfitOf(k))dressEnt(e,outfitOf(k));return e}).catch(()=>null)}
+  scene.add(e.m);e.m.position.copy(e.pos);e.m.rotation.y=yaw;play(e,e.act.idle?"idle":"talk");e.scene=scene;npcs.push(e);if(outfitOf(k))dressEnt(e,outfitOf(k));if(posing&&scene===world)poseKoum(e);return e}).catch(()=>null)}
 const KP_AT=[[-1.15,4.05,.35],[1.15,4.05,-.35]];KP_AT.forEach(([x,z])=>round.push({x,z,r:.38}));
 /* outdoor floor marks: yellow ring at the door of a building whose quest is still open, small green once done; small green discs at everything else you can use */
 const doorMarks=[];function outdoorSpots(){for(const id in PLACES){const[a,b]=doorFront(id,1.3),q=PLACES[id].quest;
@@ -715,12 +715,14 @@ function plazaKoum(){outdoorSpots();koumbaros(world,"kp",...KP_AT[0]);koumbaros(
 function koumCard(k){const x=tx();openCard(x.koumW,x[k+"H"],`<div style="display:flex;align-items:center;gap:14px;margin-bottom:10px"><img src="assets/av_${k}.jpg" alt="" style="width:68px;height:68px;border-radius:50%;object-fit:cover;flex:none;box-shadow:0 2px 8px rgba(0,0,0,.18)"><b>${x[k+"Full"]}</b></div><p>${x[k+"P"]}</p><p style="text-align:right"><i>— ${x[k+"Sig"]}</i></p><div class="acts"><button class="btn" type="button" id="kDance">${x[k==="kp"?"kpieM":"kpieF"].dance}</button></div>`,
   ()=>$("#kDance").addEventListener("click",()=>{closeCard();const e=npcs.find(n=>n.koum===k&&n.scene===(room?room.scene:world));if(e)koumDance(e)}))}
 function nearTo(e,d,then){const t=e.pos.clone().addScaledVector(new THREE.Vector3(P.pos.x-e.pos.x,0,P.pos.z-e.pos.z).normalize(),d);walkTo(t.x,t.z,()=>{P.yaw=Math.atan2(e.pos.x-P.pos.x,e.pos.z-P.pos.z);e.yaw=P.yaw+Math.PI;then()})}
-function koumDance(e){nearTo(e,.85,()=>{const m=["dance","dance2","dance3"].find(n=>P.act[n])||"dance";P.lock=7;play(P,m,.3);e.lock=7;play(e,e.act.dance?"dance":"laugh",.3);mood("party",8);
-  for(let k=0;k<9;k++)setTimeout(()=>heart(e.scene,P.pos.clone().lerp(e.pos,.5).setY(2.05)),k*650);setTimeout(()=>{e.lock=0;e.yaw=e.home.yaw;play(e,"idle",.4)},7000)})}
-function koumMenu(e,px,py){const x=tx(),k=e.koum;openPie(px,py,[{k:"meet",fn:()=>koumCard(k)},
-  {k:"chat",fn:()=>nearTo(e,1.1,()=>{play(e,"talk",.3);P.lock=8;play(P,"talk",.3);thinkWith(e,8);toast(x[k+"Say"],5000);mood("fun",6);setTimeout(()=>{e.yaw=e.home.yaw;play(e,"idle",.4)},8000)})},
-  {k:"dance",fn:()=>koumDance(e)},
-  {k:"wave",fn:()=>{P.lock=1.6;P.yaw=Math.atan2(e.pos.x-P.pos.x,e.pos.z-P.pos.z);play(P,"wave",.2);play(e,e.act.wave?"wave":"laugh",.3);setTimeout(()=>play(e,"idle",.4),1800);mood("fun",4)}}],k==="kp"?"kpieM":"kpieF")}
+/* dancing with a koumbaros brings all four together: the couple facing the two koumbaroi */
+function koumDance(e){nearTo(e,.9,()=>{const ks=npcs.filter(n=>n.koum&&n.scene===e.scene),other=ks.find(n=>n!==e),f=new THREE.Vector3(P.pos.x-e.pos.x,0,P.pos.z-e.pos.z).normalize(),side=new THREE.Vector3(-f.z,0,f.x);
+    N.pos.copy(P.pos).addScaledVector(side,1);resolve(N.pos);if(other){other.pos.copy(e.pos).addScaledVector(side,1);resolve(other.pos)}
+    const toE=Math.atan2(-f.x,-f.z),moves=["dance","dance2","dance3"];[P,N].forEach((c,i)=>{c.yaw=toE;c.lock=8;play(c,moves.find(n=>c.act[n])&&(c.act[moves[i]]?moves[i]:moves.find(n=>c.act[n])),.3)});
+    ks.forEach((c,i)=>{c.yaw=toE+Math.PI;c.lock=8;play(c,c.act.dance?"dance":"laugh",.3)});mood("party",8);
+    for(let k=0;k<9;k++)setTimeout(()=>heart(e.scene,P.pos.clone().lerp(e.pos,.5).setY(2.05)),k*800);
+    setTimeout(()=>ks.forEach(c=>{c.lock=0;c.pos.set(c.home.x,0,c.home.z);c.yaw=c.home.yaw;play(c,"idle",.4)}),8000)})}
+function koumMenu(e,px,py){const k=e.koum;openPie(px,py,[{k:"meet",fn:()=>koumCard(k)},{k:"dance",fn:()=>koumDance(e)}],k==="kp"?"kpieM":"kpieF")}
 function updKoumTags(scene){if(scene===world)updDoorMarks();const v=new THREE.Vector3(),x=tx();for(const k in koumTags)koumTags[k].hidden=true;if(mode!=="play"&&mode!=="drive")return;
   for(const e of npcs){if(!e.koum||e.scene!==scene)continue;v.copy(e.pos).setY(2.15).project(camera);if(v.z>1||Math.abs(v.x)>1.1||Math.abs(v.y)>1.1)continue;const t=koumTags[e.koum],tg=x[e.koum+"Tag"].split(" · ");t.innerHTML=`<small>${tg[0]}</small>${tg[1]}`;t.hidden=false;
     t._x=(v.x*.5+.5)*innerWidth;t._y=(-v.y*.5+.5)*innerHeight}
@@ -767,8 +769,8 @@ function resolve(p){const r=.38,b=room?room.bounds:WORLD_B,sl=room?room.solid:so
   for(const q of sl){if(p.x<q.x0-r||p.x>q.x1+r||p.z<q.z0-r||p.z>q.z1+r)continue;const l=p.x-(q.x0-r),rt=q.x1+r-p.x,t=p.z-(q.z0-r),bt=q.z1+r-p.z,m=Math.min(l,rt,t,bt);
     if(m===l)p.x=q.x0-r;else if(m===rt)p.x=q.x1+r;else if(m===t)p.z=q.z0-r;else p.z=q.z1+r}}
 const dancing=()=>!!(room&&(room.dance||room.wantDance));
-function freeLocks(){if(dancing())return;[P,N].forEach(e=>{if(e&&e.lock>0&&mode!=="ride"){e.lock=0;e.m.position.y=0}})}
-function walkTo(x,z,then){if(dancing()){toast(tx().isaiahWait,2500);return}freeLocks();goal={pts:findPath(gridNow(),P.pos,new THREE.Vector3(x,0,z)),i:0,then,t:0}}
+function freeLocks(){if(dancing()||posing)return;[P,N].forEach(e=>{if(e&&e.lock>0&&mode!=="ride"){e.lock=0;e.m.position.y=0}})}
+function walkTo(x,z,then){if(posing)return;if(dancing()){toast(tx().isaiahWait,2500);return}freeLocks();goal={pts:findPath(gridNow(),P.pos,new THREE.Vector3(x,0,z)),i:0,then,t:0}}
 const doorFront=(id,d)=>{const p=PLACES[id],o=new THREE.Vector3(0,0,d).applyAxisAngle(UP,p.face);return[p.door[0]+o.x,p.door[1]+o.z]};
 function goPlace(id){if(room){exitRoom(()=>goPlace(id));return}const[a,b]=doorFront(id,1.6);walkTo(a,b,()=>walkTo(PLACES[id].door[0],PLACES[id].door[1]))}
 const angLerp=(a,b,k)=>{const d=((b-a+Math.PI)%(Math.PI*2)+Math.PI*2)%(Math.PI*2)-Math.PI;return a+d*k};
@@ -949,7 +951,7 @@ function buildRoom(id){if(rooms[id])return rooms[id];let r;const x=tx();
     card.position.set(5,1.7,-4.6);card.rotation.set(-.12,-.5,0);r.scene.add(card);B.add(G.box,"wood",5,.85,-4.75,.06,1.9,.06,-.5,-.12).add(G.box,"wood",4.7,.85,-4.4,.06,1.9,.06,-.5,.15).add(G.box,"wood",5.3,.85,-4.5,.06,1.9,.06,-.5,.15);
     lightCone(r,5,4.4,-2.6,5,-4.6,0xfff1d6,22);r.round.push({x:5,z:-4.6,r:.6});
     plant(B,6.8,4.5,1.2);plant(B,-6.8,4.5,1.2);
-    r.spot=[4.2,-3,1.6,5,-4.6];r.items=[{label:()=>tx().menuL,at:[-1,1.7,0],go:[-1,1.9],fn:()=>CARDS.menu()}];seatEasel(r,-5.6,2.7,.75,[-4.4,3.5]);
+    r.spot=[4.2,-3,1.6,5,-4.6];r.items=[{label:()=>tx().menuL,at:[-1,1.7,0],go:[-1,1.9],fn:()=>CARDS.menu()}];seatEasel(r,-4.4,4.2,.6,[-3.3,5]);
     [[-2.2,1.6,Math.PI,"talk"],[-1,1.6,Math.PI,"laugh"]].forEach(([gx,gz,gy,a],i)=>guest(r.scene,i,gx,gz,gy,a).then(e=>e&&r.round.push({x:gx,z:gz,r:.5})));
   }else if(id==="post"){
     r=roomBase(id,{floor:canvasTex(256,256,(g,w,h)=>{g.fillStyle="#d8d2c6";g.fillRect(0,0,w,h);for(let k=0;k<900;k++){g.fillStyle=["#9b8f7c","#efe9dd","#6e7a86","#b85a3a"][k%4];g.fillRect(rnd()*w,rnd()*h,2+rnd()*3,2+rnd()*3)}},[6,5]),wall:0xf2e7c4,trim:0x1f5fae,hemi:.75,keyI:.9});const B=r.B;
@@ -1042,7 +1044,7 @@ function buildClub(){const id="club",s=new THREE.Scene();makeSky(s,.14);s.fog=ne
   caique(s,-8,-26,.4,0x2a6fb5,0xf2c94c,-2.12);caique(s,10,-30,-.3,0xf4f0e8,0xc94b3b,-2.12);
   const floorL=[0xff4f8b,0x4fc3ff,0xffc24a].map((c,i)=>{const l=new THREE.SpotLight(c,30,16,.45,.6,1.5);l.position.set(-5+i*5,5,0);l.target.position.set(0,0,-2);s.add(l,l.target);return l});
   r.spot=[0,-1.4,1.8,0,-6.6];r.spotL=[0,.4,-1.2];r.spotFn=()=>{coupleDance();complete("dance");mood("party",25);toast(tx().danceHint,3500)};
-  r.items=[{label:()=>"DJ · "+tx().clubTracks,at:[0,3.6,-6.6],go:[0,-5.2],fn:()=>CARDS.club()},{label:()=>"Bar",at:[7.2,2.4,5],go:[5.6,4.4],fn:()=>{[P,N].forEach(e=>{e.lock=3;play(e,"laugh",.3)});CARDS.drinks()}}];seatEasel(r,-6.6,0,1,[-5.4,.7]);
+  r.items=[{label:()=>"DJ · "+tx().clubTracks,at:[0,3.6,-6.6],go:[0,-5.2],fn:()=>CARDS.club()},{label:()=>"Bar",at:[7.2,2.4,5],go:[5.6,4.4],fn:()=>{[P,N].forEach(e=>{e.lock=3;play(e,"laugh",.3)});CARDS.drinks()}}];seatEasel(r,-5.4,7.1,.75,[-4.3,6.1]);
   /* the crowd: guests from both sides dancing on the deck */
   const dances=["dance","dance2","dance3","dance4"];
   [[-4,-3.5],[-2.6,-4.8],[-1.2,-3],[2,-4.4],[3.4,-3],[4.6,-4.6],[-4.6,-.8],[4.4,-.4],[-3,1.4],[3,1.8],[-.8,-5],[1.4,-2],[5.6,2.4],[-5.6,2.6]].slice(0,mobile?8:14).forEach(([gx,gz],i)=>
@@ -1186,7 +1188,14 @@ function exitRoom(then){if(!room)return;if(dancing()){toast(tx().isaiahWait,2500
   if(id!=="den"){const[a,b]=doorFront(id,2.4);P.pos.set(a,0,b);N.pos.copy(P.pos).addScaledVector(new THREE.Vector3(Math.cos(PLACES[id].face),0,-Math.sin(PLACES[id].face)),1.1)}
   if(id==="den"){P.pos.set(SECRET.door[0],0,SECRET.door[1]+2.4);N.pos.set(SECRET.door[0]+1.1,0,SECRET.door[1]+2.6);P.yaw=N.yaw=0;camYaw=0}else{P.yaw=N.yaw=PLACES[id].face;camYaw=PLACES[id].face}
   atSecret=false;snapCam();mode="play";renderObj();renderLabels();soundscape();then&&then()})}
-function askName(){const x=tx();openCard("· · ·",x.nameH,`<p>${x.nameP}</p><form id="gnf" autocomplete="on"><label class="f"><span>${x.voteName}</span><input id="gn" autocomplete="name" required maxlength="60" style="font-size:17px"></label><div class="acts"><button class="btn" type="submit">${x.nameBtn}</button></div></form>`,
+/* while the name is being written: a group photo, the couple in the middle, the koumbaroi either side, the dog in front */
+let posing=false;const POSE_Z=9.2;
+function poseKoum(e){const i=e.koum==="kp"?-1:1;e.pos.set(i*1.65,0,POSE_Z-.1);e.yaw=-i*.14;play(e,e.act.idle?"idle":"talk",.2)}
+function startPose(){if(mode!=="play"||room||!P)return;posing=true;goal=null;const g=P.kind==="groom"?P:N,b=g===P?N:P;g.pos.set(-.55,0,POSE_Z);b.pos.set(.55,0,POSE_Z);[g,b].forEach(e=>{e.yaw=0;e.lock=999;e.m.position.copy(e.pos);play(e,"idle",.2)});
+  dog.trick="pose";dog.t=0;dog.pos.set(1.15,0,POSE_Z+.9);dog.yaw=0;npcs.filter(n=>n.koum&&n.scene===world).forEach(poseKoum);snapCam()}
+function endPose(){posing=false;[P,N].forEach(e=>{e.lock=0;play(e,"idle",.2)});dog.trick=null;npcs.filter(n=>n.koum&&n.scene===world).forEach(e=>{e.pos.set(e.home.x,0,e.home.z);e.yaw=e.home.yaw});
+  if(startOnVespa){startOnVespa=false;vespaObj.position.set(P.pos.x+1.4,0,P.pos.z);vespaObj.rotation.y=Math.PI;mountVespa()}}
+function askName(){if(mode==="fly"||mode==="busy"){setTimeout(askName,300);return}const x=tx();startPose();openCard("· · ·",x.nameH,`<p>${x.nameP}</p><form id="gnf" autocomplete="on"><label class="f"><span>${x.voteName}</span><input id="gn" autocomplete="name" required maxlength="60" style="font-size:17px"></label><div class="acts"><button class="btn" type="submit">${x.nameBtn}</button></div></form>`,
   ()=>$("#gnf").addEventListener("submit",e=>{e.preventDefault();const n=$("#gn").value.trim().replace(/\s+/g," ");if(n.split(" ").length<2&&n.length<5)return;state.guest=n;save();closeCard();
     /* already voted from another phone? lock the vote to what was saved */
     if(SHEET)fetch(SHEET+"?name="+encodeURIComponent(n)).then(r=>r.json()).then(d=>{voteCount=d.total||voteCount;if(d.voted){state.ans=state.ans||{};state.ans.honey=d.voted;state.ans.honeyName=n;save()}}).catch(()=>{})}))}
@@ -1314,6 +1323,7 @@ let labelTop=0;function updLabels(){const hide=mode==="intro"||mode==="ride"||mo
 const camPos=new THREE.Vector3(0,30,80),camLook=new THREE.Vector3(0,2,0);let introT=0,flyT=0;
 function followPose(){const portrait=innerWidth<innerHeight;if(window.__dogCam){const d=dog.pos,a=window.__dogCam;return{p:new THREE.Vector3(d.x+Math.sin(a)*1.6,.75,d.z+Math.cos(a)*1.6),l:d.clone().setY(.32)}}
   if(selfieCam>0&&P){const f=new THREE.Vector3(Math.sin(P.yaw),0,Math.cos(P.yaw)),mid=P.pos.clone().lerp(N.pos,.5);return{p:mid.clone().addScaledVector(f,3.2).setY(1.75),l:mid.clone().setY(1.35)}}
+  if(posing){const d=portrait?10.5:6;return{p:new THREE.Vector3(0,2.6,POSE_Z+d),l:new THREE.Vector3(0,portrait?-.9:.7,POSE_Z)}}
   if(room){const k=portrait?1.45:1,o=room.outdoor?1.25:1,l=new THREE.Vector3(P.pos.x*.55,.8,P.pos.z*.5-2);
     /* rooms: pulled back to show everything, closer while something happens; the guest can swing it round, but only within the room */
     const off=new THREE.Vector3(P.pos.x*.45,7.8*k*o,P.pos.z*.5+8.6*k*o).sub(l).multiplyScalar(roomZoom*roomZoomK).applyAxisAngle(UP,roomYaw);return{p:l.clone().add(off),l}}
@@ -1358,7 +1368,7 @@ function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-last
   adaptRes(dt);
   if(mode==="intro"){introT+=dt;const a=introPose(introT);camPos.copy(a.p);camLook.copy(a.l);(window.__ents||[]).forEach(e=>{e.m.position.copy(e.pos);e.m.rotation.y=e.yaw;e.mix.update(dt)})}
   else{if(mode==="ride")updateRide(dt);else if(mode==="drive")updDrive(dt);else if(P&&mode!=="busy")updateChars(dt);updVespaHome(dt);if(room){if(roomFocusT>0&&(roomFocusT-=dt)<=0)roomZoomT=ROOM_FAR;roomZoom+=(roomZoomT-roomZoom)*Math.min(1,dt*2)}const f=followPose();
-    if(mode==="fly"){flyT+=dt/(reduce?.01:2.6);const a=introPose(introT),e=ease(Math.min(1,flyT));camPos.lerpVectors(a.p,f.p,e);camLook.lerpVectors(a.l,f.l,e);[P,N].forEach(x=>x.mix.update(dt));if(flyT>=1){mode="play";renderObj();if(startOnVespa){startOnVespa=false;vespaObj.position.set(P.pos.x+1.4,0,P.pos.z);vespaObj.rotation.y=Math.PI;mountVespa()}}}
+    if(mode==="fly"){flyT+=dt/(reduce?.01:2.6);const a=introPose(introT),e=ease(Math.min(1,flyT));camPos.lerpVectors(a.p,f.p,e);camLook.lerpVectors(a.l,f.l,e);[P,N].forEach(x=>x.mix.update(dt));if(flyT>=1){mode="play";renderObj();if(startOnVespa&&state.guest){startOnVespa=false;vespaObj.position.set(P.pos.x+1.4,0,P.pos.z);vespaObj.rotation.y=Math.PI;mountVespa()}}}
     else{const k=1-Math.exp(-6*dt);camPos.lerp(f.p,k);camLook.lerp(f.l,k)}}
   camera.position.copy(camPos);camera.lookAt(camLook);
   const scene=room?room.scene:world;
