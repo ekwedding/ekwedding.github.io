@@ -4,7 +4,7 @@ export const CONTENT={
   startUTC:"20270820T163000Z",endUTC:"20270821T000000Z",            /* 19:30–03:00 Athens time */
   /* the printed-style invitation card: church and venue names appear once filled in */
   invite:{venue:"Domaine Braimnioti Mediterranean"},
-  rsvpBy:"2027-08-10",plusMax:2,
+  rsvpBy:"2027-07-20",plusMax:2,
   /* from this day the site thanks the guests; add the wedding photos to photos, and an upload link when there is one */
   thanksFrom:"2027-08-21",thanks:{photos:[],upload:""},
   /* the signed link from tools/wallet/make_pass.mjs; the button stays hidden while empty */
@@ -15,6 +15,7 @@ export const CONTENT={
   story:[{city:"Θήβα",src:"assets/photo-1.jpg",stamp:"2011"},{city:"Αθήνα",src:"assets/photo-2.jpg"},{city:"Κυψέλη",src:"assets/photo-3.jpg"},{city:"Frankfurt",src:"assets/photo-4.jpg"},{city:"Stuttgart",src:"assets/photo-5.jpg"}],
   years:[{y:2011,src:"assets/year-2011.jpg"},{y:2012,src:"assets/year-2012.jpg"},{y:2013,src:"assets/year-2013.jpg"},{y:2014,src:"assets/year-2014.jpg"},{y:2015,src:"assets/year-2015.jpg"},{y:2016,src:"assets/year-2016.jpg"},{y:2017,src:"assets/year-2017.jpg"},{y:2018,src:"assets/year-2018.jpg"},{y:2019,src:"assets/year-2019.jpg"},{y:2020,src:"assets/year-2020.jpg"},{y:2021,src:"assets/year-2021.jpg"},{y:2022,src:"assets/year-2022.jpg"},{y:2023,src:"assets/year-2023.jpg"},{y:2024,src:"assets/year-2024.jpg"},{y:2025,src:"assets/year-2025.jpg"},{y:2026,src:"assets/year-2026.jpg"}],
   album:"https://photos.icloud.com/shared/album/022Ho8qTnPNUezFUi4fYDlXkw",
+  albumGoogle:"https://photos.app.goo.gl/Pu9wv8H8sqB9rBz47",
   /* dinner menu at the estate. PLACEHOLDERS */
   menu:{el:[["Ορεκτικά","Ποικιλία με τυριά, ντάκοι, φάβα (DEMO)"],["Σαλάτα","Χωριάτικη με κρίθινο παξιμάδι (DEMO)"],["Κυρίως","Μοσχαράκι ή λαβράκι (DEMO)"],["Γλυκό","Γαμήλια τούρτα (DEMO)"]],en:[["Starters","Cheeses, dakos, fava (DEMO)"],["Salad","Greek salad with barley rusk (DEMO)"],["Main","Veal or sea bass (DEMO)"],["Dessert","Wedding cake (DEMO)"]]},
   drinks:["aperol","gin","mojito","whisky","wine","beer"],
@@ -388,3 +389,5 @@ Object.assign(T.el,{invBy:"Δηλώστε συμμετοχή έως 10 Αυγο�
 Object.assign(T.en,{invBy:"Please reply by 10 August",rsvpClosedT:"The deadline has passed. For changes, please call us.",daysLeft:"{n} days to go",dayLeft:"1 day to go",walletBtn:"Save to Google Wallet",thanksLead:"Thank you for being with us on the most beautiful day of our lives.",thanksHint:"Photos",thanksH:"The wedding photos",thanksSoon:"Our photos will be here soon.",thanksAlbumP:"See our shared album.",thanksUp:"Upload your own photos"});
 Object.assign(T.de,{invBy:"Bitte antwortet bis zum 10. August",rsvpClosedT:"Die Frist ist abgelaufen. Für Änderungen ruft uns bitte an.",daysLeft:"Noch {n} Tage",dayLeft:"Noch 1 Tag",walletBtn:"In Google Wallet speichern",thanksLead:"Danke, dass ihr am schönsten Tag unseres Lebens bei uns wart.",thanksHint:"Fotos",thanksH:"Die Hochzeitsfotos",thanksSoon:"Unsere Fotos findest du bald hier.",thanksAlbumP:"Sieh dir unser gemeinsames Album an.",thanksUp:"Lade deine eigenen Fotos hoch"});
 Object.assign(T.ro,{invBy:"Vă rugăm să răspundeți până pe 10 august",rsvpClosedT:"Termenul a expirat. Pentru modificări, sunați-ne.",daysLeft:"Mai sunt {n} zile",dayLeft:"Mai este 1 zi",walletBtn:"Salvează în Google Wallet",thanksLead:"Vă mulțumim că ați fost alături de noi în cea mai frumoasă zi a vieții noastre.",thanksHint:"Fotografii",thanksH:"Fotografiile de la nuntă",thanksSoon:"Fotografiile noastre vor fi aici în curând.",thanksAlbumP:"Vezi albumul nostru comun.",thanksUp:"Încarcă fotografiile tale"});
+/* the reply deadline: one month before the wedding */
+T.el.invBy="Δηλώστε συμμετοχή έως 20 Ιουλίου";T.en.invBy="Please reply by 20 July";T.de.invBy="Bitte antwortet bis zum 20. Juli";T.ro.invBy="Vă rugăm să răspundeți până pe 20 iulie";

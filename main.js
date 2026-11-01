@@ -131,6 +131,8 @@ const ICS_URL="ekwedding.github.io/wedding.ics",gcal=()=>"https://calendar.googl
 function downloadICS(){if(/iPhone|iPad|Macintosh/.test(navigator.userAgent))location.href="webcal://"+ICS_URL;else window.open(gcal(),"_blank","noopener")}
 /* iPhones get both map apps; everyone else Google Maps, which opens the app if it is installed */
 const isIOS=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+/* iPhones open the iCloud album, everyone else the Google Photos one */
+const albumUrl=()=>isIOS?CONTENT.album:CONTENT.albumGoogle;
 const mapsBtns=()=>{const v=CONTENT.venue,a=(u,t)=>`<a class="btn ghost" href="${u}" target="_blank" rel="noopener">${ICON.pin}${t}</a>`;return(isIOS?a(v.apple,"Apple Maps"):"")+a(v.maps,"Google Maps")};
 const schedHTML=()=>`<dl class="sched">${CONTENT.schedule.map(s=>`<div><dt>${tx().sched[s[1]]}</dt><dd>${s[0]}</dd></div>`).join("")}</dl>`;
 
@@ -185,7 +187,7 @@ const CARDS={
       $("#df").addEventListener("submit",e=>{e.preventDefault();const v=[...$("#df").querySelectorAll("input:checked")].map(i=>i.value);if(!v.length)return;state.ans=state.ans||{};state.ans.drinks=v;save();store("drinks",{picks:v.join(","),lang}).then(()=>{const o=$("#dOk");o.hidden=false;o.textContent=x.drinksSent})})});cardFn=CARDS.drinks},
   kids(){const x=tx();openCard(x.P.gallery,x.kidsH,`<img class="photo" style="aspect-ratio:auto;width:auto;max-width:100%;max-height:min(64vh,620px);margin:0 auto 12px;object-fit:contain" src="assets/collage.jpg?v=2" alt="${esc(x.kidsH)}">`);cardFn=CARDS.kids},
   years(){const x=tx(),ys=CONTENT.years||[];openCard(x.P.gallery,x.yearsH,ys.length?`<div class="yrs">${ys.map(y=>`<figure><img src="${y.src}" alt="${y.y}" loading="lazy"><figcaption>${y.y}</figcaption></figure>`).join("")}</div>`:`<p class="demo">${x.yearsSoon}</p>`);cardFn=CARDS.years},
-  album(){const x=tx();openCard(x.P.gallery,x.albumH,`<p>${x.albumP}</p><div class="acts"><a class="btn" href="${CONTENT.album}" target="_blank" rel="noopener">${ICON.ext}${x.albumBtn}</a></div>`);cardFn=CARDS.album},
+  album(){const x=tx();openCard(x.P.gallery,x.albumH,`<p>${x.albumP}</p><div class="acts"><a class="btn" href="${albumUrl()}" target="_blank" rel="noopener">${ICON.ext}${x.albumBtn}</a></div>`);cardFn=CARDS.album},
   menu(){const x=tx();openCard(x.P.estate,x.menuH,infoHTML(L2(CONTENT.menu)));cardFn=CARDS.menu},
   seat(){seatCard()},
   /* the proposal, on the den's tablet: the video muted, under a soft track */
@@ -1406,7 +1408,7 @@ $("#intro").addEventListener("scroll",e=>e.target.classList.toggle("scrolled",e.
 $("#moreHint").addEventListener("click",()=>$("#more").scrollIntoView({behavior:reduce?"auto":"smooth"}));
 /* below the invitation: everything a guest needs without playing */
 function renderThanks(){const x=tx(),c=CONTENT.thanks,m=$("#more");moreLang=lang;
-  m.innerHTML=`<section><h2>${x.thanksH}</h2>${c.photos.length?`<div class="yrs">${c.photos.map(p=>`<figure><img src="${p}" alt="" loading="lazy"></figure>`).join("")}</div>`:`<p>${x.thanksSoon}</p>`}<p style="margin-top:14px">${x.thanksAlbumP}</p><div class="acts"><a class="btn" href="${CONTENT.album}" target="_blank" rel="noopener">${ICON.ext}${x.albumBtn}</a>${c.upload?`<a class="btn ghost" href="${c.upload}" target="_blank" rel="noopener">${ICON.ext}${x.thanksUp}</a>`:""}</div></section>`}
+  m.innerHTML=`<section><h2>${x.thanksH}</h2>${c.photos.length?`<div class="yrs">${c.photos.map(p=>`<figure><img src="${p}" alt="" loading="lazy"></figure>`).join("")}</div>`:`<p>${x.thanksSoon}</p>`}<p style="margin-top:14px">${x.thanksAlbumP}</p><div class="acts"><a class="btn" href="${albumUrl()}" target="_blank" rel="noopener">${ICON.ext}${x.albumBtn}</a>${c.upload?`<a class="btn ghost" href="${c.upload}" target="_blank" rel="noopener">${ICON.ext}${x.thanksUp}</a>`:""}</div></section>`}
 function renderMore(){if(thanksMode){renderThanks();return}const x=tx(),v=CONTENT.venue,m=$("#more"),moreLang=lang;
   m.innerHTML=`<section><h2>${x.moreWhen}</h2><p class="big">${x.dateH}</p>${(d=>d>1?`<p class="left">${fillIn(x.daysLeft,d)}</p>`:d===1?`<p class="left">${x.dayLeft}</p>`:"")(Math.ceil((Date.UTC(2027,7,20)-Date.parse(today))/864e5))}${schedHTML()}<p class="place"><b>${esc(v.name)}</b><br>${x.koropi} 166 72</p><div class="acts">${mapsBtns()}<button class="btn" type="button" id="mCal">${ICON.cal}${x.addCal}</button><a class="btn ghost" href="${gcal()}" target="_blank" rel="noopener">${ICON.ext}${x.gcal}</a>${CONTENT.wallet.google&&!isIOS?`<a class="btn ghost" href="${CONTENT.wallet.google}" target="_blank" rel="noopener">${ICON.ext}${x.walletBtn}</a>`:""}</div></section>
   <section><h2>${x.infoH}</h2>${infoHTML(L2(CONTENT.info))}</section>
