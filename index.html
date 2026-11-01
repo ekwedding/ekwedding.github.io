@@ -11,7 +11,7 @@
 <meta property="og:description" content="Η πρόσκληση του γάμου μας: μια βόλτα σε μια πλατεία της Μυκόνου.">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/icon-32.png"><link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png"><link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Commissioner:wght@400;500;600;700&family=Piazzolla:opsz,wght@8..30,300;8..30,500;8..30,700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Commissioner:wght@300;400;500;600;700&family=GFS+Didot&family=Piazzolla:opsz,wght@8..30,300;8..30,500;8..30,700&display=swap" rel="stylesheet">
 <style>
 :root{
   --paper:#fbfaf7;--paper2:#f0ede6;--ink:#14273a;--ink2:#4a5a6a;--sea:#1f5fae;--sea2:#174b8b;--bloom:#b81d5b;--line:#dcd6ca;
@@ -48,25 +48,10 @@ input,textarea,select,#simple{-webkit-user-select:text;user-select:text;touch-ac
 .env .front::before{content:"";position:absolute;inset:0;background:linear-gradient(155deg,transparent 49.6%,rgba(90,70,40,.12) 50%,transparent 50.6%),linear-gradient(25deg,transparent 49.6%,rgba(90,70,40,.12) 50%,transparent 50.6%)}
 .env .flap{clip-path:polygon(0 0,100% 0,50% 46%);transform-origin:50% 0;z-index:4;transition:transform .9s cubic-bezier(.6,.05,.3,1),z-index 0s .45s;background-color:#eadfcb;box-shadow:inset 0 1px 0 rgba(255,255,255,.4)}
 .env.open .flap{transform:rotateX(178deg);z-index:1}
-.invite{position:absolute;left:3%;right:3%;top:4%;height:92%;z-index:2;border-radius:4px;background:#fffdf8;color:var(--ink);text-align:center;display:grid;align-content:center;gap:6px;padding:18px 16px;
-  box-shadow:0 2px 10px rgba(30,20,10,.15),inset 0 0 0 7px #fffdf8,inset 0 0 0 8.5px #c9a24a;transition:transform 1s cubic-bezier(.2,.8,.2,1) .55s,height 1s cubic-bezier(.2,.8,.2,1) .55s}
-.env:not(.open) .invite{overflow:hidden}
-.env.open{transform:translateY(min(9vh,70px))}
-.env.open .invite{transform:translateY(-34%);height:92%;z-index:6;transition:transform 1s cubic-bezier(.2,.8,.2,1) .55s,height 1s cubic-bezier(.2,.8,.2,1) .55s,z-index 0s 1.25s}
-.invite .eyebrow{font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:#6f531a;font-weight:600}
-.invite h1{font-family:var(--serif);font-weight:300;font-size:clamp(34px,10vw,50px);line-height:1.02;letter-spacing:-.01em}
-.invite h1 span{display:block;font-size:.5em;color:#b81d5b;margin:.15em 0}
-.invite p{font-size:15px;font-weight:500;color:var(--ink2)}
-.invite p b{color:var(--ink)}
-#picks{display:grid;gap:8px;margin-top:10px;opacity:0;transform:translateY(8px);transition:opacity .5s ease 1.4s,transform .5s ease 1.4s;pointer-events:none}
-.env.open #picks{opacity:1;transform:none;pointer-events:auto}
-#picks .btn{min-height:52px;font-size:16px;width:100%}
-#picks .btn.alt{background:#fff;color:var(--sea);box-shadow:inset 0 0 0 2px var(--sea)}
-#picks .btn[disabled]{opacity:.55;cursor:progress}
-#seal{position:absolute;left:50%;top:45%;z-index:5;width:86px;height:86px;margin:-43px;border-radius:50%;display:grid;place-items:center;color:#f3d9c2;font-family:var(--serif);font-size:24px;font-weight:500;letter-spacing:.02em;
-  background:radial-gradient(circle at 35% 30%,#c43a46,#8e1f2a 55%,#5e1219);box-shadow:0 4px 10px rgba(0,0,0,.35),inset 0 -4px 8px rgba(0,0,0,.35),inset 0 3px 6px rgba(255,255,255,.25);
+#seal{position:absolute;left:50%;top:45%;z-index:5;width:86px;height:86px;margin:-43px;border-radius:50%;display:grid;place-items:center;color:#dcd49f;font-family:"GFS Didot",var(--serif),serif;font-size:24px;font-weight:500;letter-spacing:.02em;
+  background:radial-gradient(circle at 35% 30%,#4f6650,#36463a 55%,#232e26);box-shadow:0 4px 10px rgba(0,0,0,.35),inset 0 -4px 8px rgba(0,0,0,.35),inset 0 3px 6px rgba(255,255,255,.25);
   transition:transform .5s cubic-bezier(.3,1.6,.5,1),opacity .4s ease;animation:breathe 2.4s ease-in-out infinite}
-#seal::before{content:"";position:absolute;inset:7px;border-radius:50%;border:2px dashed rgba(255,220,200,.35)}
+#seal::before{content:"";position:absolute;inset:7px;border-radius:50%;border:1.5px solid rgba(214,206,155,.55)}
 #seal:active{transform:scale(.92)}
 .env.open #seal{transform:scale(1.3) rotate(-12deg);opacity:0;pointer-events:none;animation:none}
 @keyframes breathe{50%{transform:scale(1.05)}}
@@ -78,7 +63,6 @@ input,textarea,select,#simple{-webkit-user-select:text;user-select:text;touch-ac
 .langs button[aria-pressed=true]{background:var(--paper);color:var(--ink)}
 #load{position:fixed;left:50%;top:calc(70px + env(safe-area-inset-top));transform:translateX(-50%);width:140px;height:3px;background:rgba(255,255,255,.3);border-radius:2px;overflow:hidden;transition:opacity .4s}
 #load i{display:block;height:100%;width:0;background:#fff;transition:width .3s ease}
-@media (max-height:700px){.env.open .invite{transform:translateY(-25%)}}
 
 /* ---------- HUD ---------- */
 #hud{inset:0;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .6s ease .3s}
@@ -93,6 +77,48 @@ body.play #hud{opacity:1;visibility:visible}
 .sw{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 4px}.sw button{width:40px;height:40px;border-radius:50%;box-shadow:inset 0 0 0 2px rgba(0,0,0,.15)}.sw button.on{box-shadow:0 0 0 3px #fff,0 0 0 5px var(--ink)}
 .seatres{margin-top:12px;display:grid;gap:8px}.seatrow{padding:12px 14px;border-radius:12px;background:#f6f1e7}.seatrow p{display:flex;justify-content:space-between;align-items:center;gap:10px;font-weight:600;margin:0}.seatrow small{font-weight:500;color:var(--ink2);font-size:14px}.seatrow>small{display:block;margin-top:4px}.seatres b{font-size:20px;color:var(--bloom);white-space:nowrap}.seatres .btn{width:100%;font-size:15px;min-height:46px}
 body.gate #tl,body.gate #br,body.gate #tr,body.gate #obj,body.gate #labels,body.gate #cardX{display:none!important}
+.env.open{filter:none}
+.env.out .back,.env.out .front{transform:translateY(70vh);opacity:0;transition:transform .9s cubic-bezier(.5,0,.8,.4),opacity .7s ease .2s}
+.env.out .flap{opacity:0;transition:opacity .25s}
+.invcard{--w:min(92vw,calc(78vh*.66),440px);position:absolute;left:50%;top:50%;width:var(--w);height:calc(var(--w)/.66);font-size:calc(var(--w)/24);z-index:2;visibility:hidden;perspective:1600px;transform:translate(-50%,calc(-50% + var(--y,3%))) scale(var(--s,.8));color:#d6ce9b;text-align:center;transition:transform 1s cubic-bezier(.3,.7,.2,1)}
+@supports (height:1svh){.invcard{--w:min(92vw,calc(78svh*.66),440px)}}
+.env.open .invcard{visibility:visible}
+.env.rise .invcard{--y:-22%}
+.env.out .invcard{--y:0%;--s:1;z-index:6}
+.inv3d{position:relative;width:100%;height:100%;transform-style:preserve-3d;-webkit-transform-style:preserve-3d;transition:transform .95s cubic-bezier(.45,.05,.2,1)}
+.inv3d.flipped{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;padding:.6em;border-radius:3px;backface-visibility:hidden;-webkit-backface-visibility:hidden;box-shadow:0 1.2em 2.6em rgba(8,16,26,.5);background:#b38444 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3CfeColorMatrix values='0 0 0 0 .25 0 0 0 0 .15 0 0 0 0 .05 0 0 0 .35 0'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E")}
+.face.ib{transform:rotateY(180deg)}
+.inv3d:not(.flipped) .ib,.inv3d.flipped .if{pointer-events:none}
+.face .in{height:100%;background:#36463a;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:1.5em 1.4em 1.3em;overflow:hidden;font-family:Commissioner,system-ui,sans-serif;font-weight:400;line-height:1.38}
+.face h1,.face h2{font-family:"GFS Didot",var(--serif),serif;font-weight:400;color:#dcd49f;margin:0}
+.face h1{font-size:1.5em;line-height:1.15;white-space:nowrap}
+.face h1 span{margin:0 .35em;opacity:.8}
+.face h2{font-size:1.45em;line-height:1.2}
+.face p{margin:0}
+.face .lead{font-size:1.04em}
+.dt{display:grid;grid-template-columns:auto 2.2em auto;align-items:center;font-family:"GFS Didot",var(--serif),serif;color:#dcd49f}
+.dt b{font-weight:400;font-size:3.1em;line-height:1}
+.dt b:first-child{transform:translateY(-.32em)}
+.dt b:last-child{transform:translateY(.32em)}
+.dt i{display:block;justify-self:center;width:.22em;height:6.6em;background:#d6ce9b;transform:rotate(28deg)}
+.face .dt2{font-size:1.06em;font-weight:400;letter-spacing:.02em}
+.kb{display:grid;gap:.05em;font-size:1em}
+.kb small{font-size:.92em;color:#bfb98a;margin-bottom:.15em}
+.face .rec{font-size:.98em}
+.invb{display:inline-flex;align-items:center;justify-content:center;gap:.5em;min-height:44px;padding:.55em 1.3em;border-radius:2em;border:1px solid #d6ce9b;color:#e6dfae;font:500 1em Commissioner,system-ui,sans-serif;background:transparent;cursor:pointer}
+.invb svg{width:1.25em;height:1.25em;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.invb:active{transform:scale(.97)}
+.invb.fill{background:#d6ce9b;color:#27332a;font-weight:600;width:100%;padding:.4em .5em}
+.invb[disabled]{opacity:.6;cursor:progress}
+.face ol{list-style:none;margin:0;padding:0;display:grid;gap:.42em;text-align:left;font-size:.95em;line-height:1.3;width:100%}
+.face li{position:relative;padding-left:1.1em}
+.face li::before{content:"";position:absolute;left:.1em;top:.5em;width:.42em;height:.42em;transform:rotate(45deg);background:#b38444}
+.face .pk{font-weight:500;color:#e6dfae;font-size:1em}
+#picks{display:grid;grid-template-columns:1fr 1fr;gap:.6em;width:100%}
+.invl{color:#d6ce9b;font:400 .95em Commissioner,system-ui,sans-serif;text-decoration:underline;text-underline-offset:.2em;min-height:40px;padding:0 .8em;background:none;border:0;cursor:pointer}
+#clock{position:absolute;right:0;top:calc(100% + 6px);display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:10px;background:rgba(20,39,58,.82);color:#fff;font-size:12.5px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap;pointer-events:none}
+#clock svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
 .qwarn{color:#c0262d!important;font-weight:800;margin-bottom:6px}
 .qz{list-style:none;padding:0;margin:10px 0 0;display:grid;gap:12px}.qz b{display:block;font-size:15px;margin-bottom:6px}.qa{display:flex;flex-wrap:wrap;gap:6px}.qa .chip{min-height:42px;font-size:14px;padding:0 13px;box-shadow:inset 0 0 0 1.5px #d9d2c4}.qa .chip.ok{background:#2f8f5b;color:#fff;box-shadow:none}.qa .chip.no{background:#c8453c;color:#fff;box-shadow:none}.qr{display:block;min-height:16px;font-size:13px;color:#6b6358;margin-top:3px}.qscore{font-weight:700;margin-top:10px}
 .chip svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
@@ -242,7 +268,6 @@ body.cardopen #joy,body.ride #joy{display:none}
   #obj{font-size:15px;max-width:calc(100vw - 32px);text-align:center}
 }
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}}
-.invite .koum{font-size:13px;opacity:.8;margin:6px 0 0;line-height:1.35}
 .ktag{position:absolute;left:0;top:0;pointer-events:none;background:rgba(20,39,58,.82);color:#fff;font:600 12px/1.15 Commissioner,sans-serif;padding:4px 9px;border-radius:10px;white-space:nowrap;text-align:center}.ktag small{display:block;font-size:9px;font-weight:500;opacity:.8;letter-spacing:.04em;text-transform:uppercase}
 #br{position:fixed;right:max(12px,env(safe-area-inset-right));bottom:max(16px,env(safe-area-inset-bottom));display:flex;flex-direction:column;align-items:flex-end;gap:8px;pointer-events:none}
 /* Vespa and back-to-square: twins, same box */
@@ -261,13 +286,25 @@ body.cardopen #br,body.ride #bHome{display:none}
 <div id="intro" class="ui">
   <div class="env" id="env">
     <div class="back"></div>
-    <div class="invite paper">
-      <div class="eyebrow" data-t="inviteEyebrow">Σας προσκαλούμε</div>
-      <h1 id="names"></h1>
-      <p><span data-t="when">Παρασκευή</span> <b>20 · 08 · 2027</b> · <span data-t="koropi">Κορωπί</span></p>
-      <p class="koum" data-t="koumLine">Κουμπάροι: Αθανάσιος Παπαχαράλαμπος &amp; Δήμητρα Μπουλάλα</p>
-      <div id="picks"><button class="btn" type="button" id="pG" disabled></button><button class="btn alt" type="button" id="pB" disabled></button></div>
-    </div>
+    <div class="invcard" id="inv"><div class="inv3d" id="inv3d">
+      <div class="face if"><div class="in">
+        <h1 id="names"></h1>
+        <p class="lead"><span data-t="invLead"></span><br><span id="invWhere"></span></p>
+        <div class="dt" aria-label="20.08.2027"><b>20</b><i></i><b>08</b></div>
+        <p class="dt2"><span data-t="when"></span> · 2027 · <span id="invTime"></span></p>
+        <div class="kb"><small data-t="invKoumH"></small><span data-t="invK1"></span><span data-t="invK2"></span></div>
+        <p class="rec" id="invRec"></p>
+        <button class="invb" type="button" id="flip"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 14-5l2 2M20 4v5h-5M20 12a8 8 0 0 1-14 5l-2-2M4 20v-5h5"/></svg><span data-t="invFlip"></span></button>
+      </div></div>
+      <div class="face ib" inert><div class="in">
+        <h2 data-t="invBackH"></h2>
+        <p class="lead" data-t="invBackP"></p>
+        <ol><li data-t="invR1"></li><li data-t="invR2"></li><li data-t="invR3"></li><li data-t="invR4"></li></ol>
+        <p class="pk" data-t="invPick"></p>
+        <div id="picks"><button class="invb fill" type="button" id="pG" disabled></button><button class="invb fill" type="button" id="pB" disabled></button></div>
+        <button class="invl" type="button" id="unflip" data-t="invUnflip"></button>
+      </div></div>
+    </div></div>
     <div class="front paper"></div><div class="flap paper"></div>
     <button id="seal" type="button" aria-label="Άνοιξε την πρόσκληση">Ε&amp;Κ</button>
     <div id="sealHint" data-t="sealHint">Πάτα τη σφραγίδα</div>
@@ -284,6 +321,7 @@ body.cardopen #br,body.ride #bHome{display:none}
   <div id="br"><button class="chip" type="button" id="bVespa" aria-expanded="false" aria-controls="dest">
       <svg viewBox="0 0 24 24"><circle cx="6" cy="17" r="3"/><circle cx="18" cy="17" r="3"/><path d="M6 17h7l3-7h3M13 17l-2-7H8M16 10l-1-4h-2"/></svg><span>Vespa</span></button><button class="chip" type="button" id="bHome"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7M5 10v10h5v-6h4v6h5V10"/></svg><span data-t="home">Επιστροφή στην πλατεία</span></button></div>
   <div id="tr">
+    <div id="clock" role="timer"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span id="clockT">0:00</span></div>
     <button class="chip round" type="button" id="bZoom" aria-label="Zoom">x1</button>
     <button class="chip round" type="button" id="bSnd" aria-pressed="false" aria-label="Μουσική">
       <svg viewBox="0 0 24 24" id="sndOn" hidden><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/></svg>
