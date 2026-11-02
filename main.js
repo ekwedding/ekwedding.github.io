@@ -134,6 +134,8 @@ const isIOS=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==="M
 /* iPhones open the iCloud album, everyone else the Google Photos one */
 const albumUrl=()=>isIOS?CONTENT.album:CONTENT.albumGoogle;
 const mapsBtns=()=>{const v=CONTENT.venue,a=(u,t)=>`<a class="btn ghost" href="${u}" target="_blank" rel="noopener">${ICON.pin}${t}</a>`;return(isIOS?a(v.apple,"Apple Maps"):"")+a(v.maps,"Google Maps")};
+/* the Google Wallet pass, on phones that are not iPhones */
+const walletBtn=()=>CONTENT.wallet.google&&!isIOS?`<a class="btn ghost" href="${CONTENT.wallet.google}" target="_blank" rel="noopener">${ICON.ext}${tx().walletBtn}</a>`:"";
 const schedHTML=()=>`<dl class="sched">${CONTENT.schedule.map(s=>`<div><dt>${tx().sched[s[1]]}</dt><dd>${s[0]}</dd></div>`).join("")}</dl>`;
 
 const L2=o=>o[lang]||o.en;
@@ -162,7 +164,7 @@ function syncGuest(){if(!SHEET||!state.guest)return;fetch(SHEET+"?name="+encodeU
 function passBanner(){let b=$("#pass");if(!b){b=document.createElement("div");b.id="pass";document.body.appendChild(b)}b.textContent="✓ "+tx().passed;b.classList.remove("show");void b.offsetWidth;b.classList.add("show")}
 const CARDS={
   estate(tab="cal"){const x=tx();const tabs=`<div class="seg" role="tablist" style="margin:0 0 10px"><label><input type="radio" name="et" value="cal" ${tab==="cal"?"checked":""}><span>${x.tabCal}</span></label><label><input type="radio" name="et" value="rsvp" ${tab==="rsvp"?"checked":""}><span>${x.tabRsvp}</span></label></div>`;
-    const body=tab==="cal"?`<p>${x.dateP}</p>${schedHTML()}<div class="acts"><button class="btn" type="button" id="aIcs">${ICON.cal}${x.addCal}</button><a class="btn ghost" id="aG" href="${gcal()}" target="_blank" rel="noopener">${ICON.ext}${x.gcal}</a>${mapsBtns()}</div>${CONTENT.demo?`<p class="demo">${x.demoNote}</p>`:""}`
+    const body=tab==="cal"?`<p>${x.dateP}</p>${schedHTML()}<div class="acts"><button class="btn" type="button" id="aIcs">${ICON.cal}${x.addCal}</button><a class="btn ghost" id="aG" href="${gcal()}" target="_blank" rel="noopener">${ICON.ext}${x.gcal}</a>${mapsBtns()}${walletBtn()}</div>${CONTENT.demo?`<p class="demo">${x.demoNote}</p>`:""}`
       :`<p>${x.invBy}</p><form id="rsvp" autocomplete="off"><label class="f"><span>${x.yourName}</span><input id="nm" required maxlength="80"></label>
       <div class="seg"><label><input type="radio" name="att" value="yes" checked><span>${x.yes}</span></label><label><input type="radio" name="att" value="no"><span>${x.no}</span></label></div>
       <div class="acts" style="align-items:end"><label class="f" style="margin:0;flex:0 0 120px"><span>${x.plusL}</span>${plusSel("gs")}</label><button class="btn" type="submit" style="flex:1">${x.send}</button></div><p class="ok" id="rOk" hidden></p></form>`;
@@ -1410,7 +1412,7 @@ $("#moreHint").addEventListener("click",()=>$("#more").scrollIntoView({behavior:
 function renderThanks(){const x=tx(),c=CONTENT.thanks,m=$("#more");moreLang=lang;
   m.innerHTML=`<section><h2>${x.thanksH}</h2>${c.photos.length?`<div class="yrs">${c.photos.map(p=>`<figure><img src="${p}" alt="" loading="lazy"></figure>`).join("")}</div>`:`<p>${x.thanksSoon}</p>`}<p style="margin-top:14px">${x.thanksAlbumP}</p><div class="acts"><a class="btn" href="${albumUrl()}" target="_blank" rel="noopener">${ICON.ext}${x.albumBtn}</a>${c.upload?`<a class="btn ghost" href="${c.upload}" target="_blank" rel="noopener">${ICON.ext}${x.thanksUp}</a>`:""}</div></section>`}
 function renderMore(){if(thanksMode){renderThanks();return}const x=tx(),v=CONTENT.venue,m=$("#more"),moreLang=lang;
-  m.innerHTML=`<section><h2>${x.moreWhen}</h2><p class="big">${x.dateH}</p>${(d=>d>1?`<p class="left">${fillIn(x.daysLeft,d)}</p>`:d===1?`<p class="left">${x.dayLeft}</p>`:"")(Math.ceil((Date.UTC(2027,7,20)-Date.parse(today))/864e5))}${schedHTML()}<p class="place"><b>${esc(v.name)}</b><br>${x.koropi} 166 72</p><div class="acts">${mapsBtns()}<button class="btn" type="button" id="mCal">${ICON.cal}${x.addCal}</button><a class="btn ghost" href="${gcal()}" target="_blank" rel="noopener">${ICON.ext}${x.gcal}</a>${CONTENT.wallet.google&&!isIOS?`<a class="btn ghost" href="${CONTENT.wallet.google}" target="_blank" rel="noopener">${ICON.ext}${x.walletBtn}</a>`:""}</div></section>
+  m.innerHTML=`<section><h2>${x.moreWhen}</h2><p class="big">${x.dateH}</p>${(d=>d>1?`<p class="left">${fillIn(x.daysLeft,d)}</p>`:d===1?`<p class="left">${x.dayLeft}</p>`:"")(Math.ceil((Date.UTC(2027,7,20)-Date.parse(today))/864e5))}${schedHTML()}<p class="place"><b>${esc(v.name)}</b><br>${x.koropi} 166 72</p><div class="acts">${mapsBtns()}<button class="btn" type="button" id="mCal">${ICON.cal}${x.addCal}</button><a class="btn ghost" href="${gcal()}" target="_blank" rel="noopener">${ICON.ext}${x.gcal}</a>${walletBtn()}</div></section>
   <section><h2>${x.infoH}</h2>${infoHTML(L2(CONTENT.info))}</section>
   <section><h2>${x.tabRsvp}</h2><p>${x.invBy}</p><form id="mRsvp" autocomplete="off"><label class="f"><span>${x.yourName}</span><input id="mN" required maxlength="80" autocomplete="name"></label>
     <div class="seg"><label><input type="radio" name="matt" value="yes" checked><span>${x.yes}</span></label><label><input type="radio" name="matt" value="no"><span>${x.no}</span></label></div>
