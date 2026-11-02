@@ -16,7 +16,7 @@ const GR={α:"a",β:"v",γ:"g",δ:"d",ε:"e",ζ:"z",η:"i",θ:"th",ι:"i",κ:"k"
 const norm=s=>{let t=String(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/ου/g,"u").replace(/ευ/g,"ev").replace(/αυ/g,"av").replace(/γγ/g,"ng").replace(/γκ/g,"g").replace(/μπ/g,"b").replace(/ντ/g,"d").replace(/x/g,"h");return t.replace(/[α-ως]/g,c=>GR[c]||c).replace(/ou/g,"u").replace(/mp/g,"b").replace(/nt/g,"d").replace(/ph/g,"f").replace(/ch/g,"h").replace(/gg/g,"ng").replace(/gk/g,"g").replace(/y/g,"i").replace(/w/g,"o").replace(/ai/g,"e").replace(/[eo]i/g,"i").replace(/([a-z])\1/g,"$1")};
 const REL={no:"Όχι μαζί",must:"Μαζί υποχρεωτικά",first:"1η επιλογή",second:"2η επιλογή"},CREW=30;
 let code="",D={people:[],rel:[],tables:[],issues:[]},sel=null,relKind=null;
-const post=b=>fetch(API,{method:"POST",body:JSON.stringify(Object.assign({plan:code},b))}).then(r=>r.json());
+let queue=Promise.resolve();const post=b=>{const run=()=>fetch(API,{method:"POST",body:JSON.stringify(Object.assign({plan:code},b))}).then(r=>r.json());const p=queue.then(run,run);queue=p.catch(()=>{});return p};
 const say=(m,ms)=>{const e=$("#msg");e.textContent=m;e.hidden=!m;clearTimeout(say.t);if(m&&ms)say.t=setTimeout(()=>{e.hidden=true},ms||3000)};
 const P=n=>D.people.find(p=>p.name===n),at=t=>D.people.filter(p=>String(p.table)===String(t)),capOf=t=>(D.tables.find(x=>+x.t===+t)||{}).cap||12,company=n=>{const p=P(n);return p?D.people.filter(o=>o.owner===p.owner):[]};
 /* the same rules as the sheet, computed locally so every warning shows before anything changes */
