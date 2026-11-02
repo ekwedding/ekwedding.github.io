@@ -134,8 +134,8 @@ const ICS_URL="ekwedding.github.io/wedding.ics",gcal=()=>"https://calendar.googl
 function downloadICS(){if(/iPhone|iPad|Macintosh/.test(navigator.userAgent))location.href="webcal://"+ICS_URL;else window.open(gcal(),"_blank","noopener")}
 /* iPhones get both map apps; everyone else Google Maps, which opens the app if it is installed */
 const isIOS=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
-/* iPhones open the iCloud album, everyone else the Google Photos one */
-const albumUrl=()=>isIOS?CONTENT.album:CONTENT.albumGoogle;
+/* both albums for everyone, the one that suits this phone first */
+const albumBtns=()=>{const x=tx(),a=c=>`<a class="btn${c}" href="${CONTENT.album}" target="_blank" rel="noopener">${ICON.ext}${x.albumIos}</a>`,g=c=>`<a class="btn${c}" href="${CONTENT.albumGoogle}" target="_blank" rel="noopener">${ICON.ext}${x.albumGoo}</a>`;return isIOS?a("")+g(" ghost"):g("")+a(" ghost")};
 const mapsBtns=()=>{const v=CONTENT.venue,a=(u,t)=>`<a class="btn ghost" href="${u}" target="_blank" rel="noopener">${ICON.pin}${t}</a>`;return(isIOS?a(v.apple,"Apple Maps"):"")+a(v.maps,"Google Maps")};
 /* the Google Wallet pass, on phones that are not iPhones */
 const walletBtn=()=>CONTENT.wallet.google&&!isIOS?`<a class="btn ghost" href="${CONTENT.wallet.google}" target="_blank" rel="noopener">${ICON.ext}${tx().walletBtn}</a>`:"";
@@ -150,13 +150,39 @@ function giftHTML(){const x=tx(),g=CONTENT.gift,cp=v=>`<button class="btn ghost 
     </div>`}
 function bindCopy(root){const x=tx();root.querySelectorAll("[data-cp]").forEach(b=>b.addEventListener("click",()=>{navigator.clipboard&&navigator.clipboard.writeText(b.dataset.cp).then(()=>{b.textContent=x.copied;setTimeout(()=>b.textContent=x.copy,1600)}).catch(()=>{})}))}
 /* the guest's own answers, the same in the game and on the invitation page, and kept in step with the sheet */
-const plusSel=id=>`<select id="${id}">${Array.from({length:CONTENT.plusMax+1},(_,n)=>n).map(n=>`<option value="${n}">${n}</option>`).join("")}</select>`;
 const fillIn=(s,n)=>s.replace("{n}",n);
-function rsvpLine(a,changed){const x=tx(),what=!a.att?x.rsvpNo:a.count>1?fillIn(x.rsvpPlus,a.count-1):x.rsvpAlone;return (changed?x.rsvpChanged:x.rsvpChosen)+" "+what}
-function saveRsvp(name,att,plus,okEl){const prev=(state.ans||{}).rsvp,count=att?plus+1:0,changed=!!prev&&(prev.att!==att||prev.count!==count),a={name,att,count};state.ans=state.ans||{};state.ans.rsvp=a;save();store("rsvp",{name,attending:att,count,notes:"",lang});okEl.hidden=false;okEl.textContent=rsvpLine(a,changed)}
-function bindRsvp(form,sel,radio,okEl){const dis=()=>{sel.disabled=form.querySelector(`input[name=${radio}]:checked`).value==="no"};form.querySelectorAll(`input[name=${radio}]`).forEach(r=>r.addEventListener("change",dis));
-  const a=(state.ans||{}).rsvp;if(a){form.querySelector(`input[name=${radio}][value=${a.att?"yes":"no"}]`).checked=true;sel.value=String(a.att?Math.max(0,a.count-1):0);okEl.hidden=false;okEl.textContent=rsvpLine(a,false)}dis();
-  if(rsvpClosed){form.querySelectorAll("input,select,button").forEach(c=>{c.disabled=true});form.querySelector("button[type=submit]").hidden=true;okEl.hidden=false;okEl.textContent=(a?rsvpLine(a,false)+" ":"")+tx().rsvpClosedT}}
+const andList=l=>l.length>1?l.slice(0,-1).join(", ")+tx().ptAnd+l[l.length-1]:l.join("");
+function rsvpLine(a,changed){const x=tx(),w=a.with||[],what=!a.att?x.rsvpNo:w.length?fillIn(x.rsvpWithT,andList(w)):x.rsvpAlone;return (changed?x.rsvpChanged:x.rsvpChosen)+" "+what}
+function saveRsvp(name,att,withL,okEl){const prev=(state.ans||{}).rsvp,w=att?withL.slice():[],count=att?1+w.length:0,changed=!!prev&&(prev.att!==att||prev.count!==count||(prev.with||[]).join()!==w.join()),a={name,att,count,with:w};state.ans=state.ans||{};state.ans.rsvp=a;save();store("rsvp",{name,attending:att,count,with:w,notes:"",lang});okEl.hidden=false;okEl.textContent=rsvpLine(a,changed)}
+/* the part of the answer about who comes along: first what we already know of this person, then who we would suggest, then a free name and surname. Someone found on the list is held for this guest by the sheet */
+const partyGet=q=>fetch(SHEET+"?"+q).then(r=>r.json());
+function bindRsvp(form,id,radio,okEl,nameEl){if(form._p){form._p.load(true);return form._p}
+  const x=()=>tx(),box=$("#"+id),note=$("#"+id+"B"),radios=[...form.querySelectorAll(`input[name=${radio}]`)],att=()=>radios.find(r=>r.checked).value==="yes";
+  const P={open:false,with:[],no:{},sug:[],limit:CONTENT.plusMax,info:null,asked:"",editing:false,valid(){const e=$("#"+id+"E");if(att()&&P.open&&!P.with.length){if(e){e.hidden=false;e.textContent=x().ptNeed;e.scrollIntoView({block:"nearest"})}return false}return true},withs:()=>att()&&P.open?P.with.slice():[],sent(n,a,w){P.info=Object.assign(P.info||{},{name:n,rsvp:{att:a,with:w},by:[]});P.editing=false;P.quiet=true;banner();P.quiet=false},load};
+  const showForm=on=>{form.querySelectorAll(":scope>.seg,:scope>.acts").forEach(e=>{e.hidden=!on;e.style.display=on?"":"none"});draw()};
+  function banner(){const X=x(),d=P.info,r=d&&d.rsvp;note.innerHTML="";if(!d||P.editing||rsvpClosed&&!r){showForm(!rsvpClosed);return}
+    if(d.by&&d.by.length&&(!r||r.auto)){note.innerHTML=`<p>${esc(fillIn(X.ptBy,andList(d.by)))}</p><div class="acts"><button class="btn" type="button" id="${id}Y">${X.ptByYes}</button><button class="btn ghost" type="button" id="${id}N">${X.ptByNo}</button></div>`;
+      $("#"+id+"Y").onclick=()=>{P.with=d.by.slice();P.open=true;radios.find(r=>r.value==="yes").checked=true;form.requestSubmit()};$("#"+id+"N").onclick=()=>{P.with=[];P.open=false;d.by.forEach(n=>P.no[norm0(n)]=1);P.editing=true;banner()};showForm(false);return}
+    if(!r){showForm(!rsvpClosed);return}
+    note.innerHTML=`${P.quiet?"":`<p>${esc(!r.att?X.ptHaveNo:r.with.length?fillIn(X.ptHave,andList(r.with)):X.ptHaveAlone)}</p>`}${rsvpClosed?"":`<div class="acts"><button class="btn ghost" type="button" id="${id}C">${X.ptChange}</button></div>`}`;if(!rsvpClosed)$("#"+id+"C").onclick=()=>{P.editing=true;radios.find(q=>q.value===(r.att?"yes":"no")).checked=true;P.with=r.with.slice();P.open=r.with.length>0;banner()};showForm(false)}
+  const norm0=n=>String(n).trim().toLowerCase();
+  function draw(){const X=x();if(!att()||rsvpClosed||!form.querySelector(":scope>.acts")||form.querySelector(":scope>.acts").hidden){box.innerHTML="";return}
+    const sug=P.sug.filter(n=>!P.no[norm0(n)]&&!P.with.some(w=>norm0(w)===norm0(n))),full=P.with.length>=P.limit;
+    box.innerHTML=`<div class="seg" style="margin:0"><label><input type="radio" name="${id}P" value="a" ${P.open?"":"checked"}><span>${X.ptAlone}</span></label><label><input type="radio" name="${id}P" value="w" ${P.open?"checked":""}><span>${X.ptWith}</span></label></div>`+(P.open?`<div class="ptl">${P.with.map((n,i)=>`<button class="btn ghost sm" type="button" data-x="${i}" aria-label="${esc(X.ptDel+" "+n)}">${esc(n)} ✕</button>`).join("")}</div>${full?`<p>${X.ptMax}</p>`:sug.length?`<p><b>${esc(fillIn(X.ptSuggest,sug[0]))}</b></p><div class="acts"><button class="btn" type="button" id="${id}SY">${X.ptYes}</button><button class="btn ghost" type="button" id="${id}SN">${X.ptOther}</button></div>`:`<label class="f" style="margin-bottom:6px"><span>${X.ptNameL}</span><input id="${id}I" maxlength="80" autocomplete="off"></label><div class="acts"><button class="btn ghost" type="button" id="${id}A">${X.ptAdd}</button></div><div id="${id}R" class="seatres" aria-live="polite"></div>`}<p class="ok" id="${id}E" hidden></p>`:"");
+    box.querySelectorAll(`input[name=${id}P]`).forEach(r=>r.addEventListener("change",()=>{P.open=r.value==="w"&&r.checked;draw();if(P.open)P.load()}));
+    box.querySelectorAll("[data-x]").forEach(b=>b.onclick=()=>{const n=P.with[+b.dataset.x];P.with.splice(+b.dataset.x,1);P.no[norm0(n)]=1;draw()});
+    if(P.open&&sug.length&&!full){$("#"+id+"SY").onclick=()=>{P.with.push(sug[0]);draw()};$("#"+id+"SN").onclick=()=>{P.no[norm0(sug[0])]=1;draw()}}
+    const add=$("#"+id+"A");if(add){const inp=$("#"+id+"I"),res=$("#"+id+"R"),take=n=>{if(!P.with.some(w=>norm0(w)===norm0(n)))P.with.push(n);draw()};inp.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();add.click()}});
+      add.onclick=()=>{const t=inp.value.trim().replace(/\s+/g," ");if(t.split(" ").length<2||t.length<5){res.innerHTML=`<p>${X.ptNeed2}</p>`;return}if(!SHEET){take(t);return}res.innerHTML=`<p class="demo">${X.seatWait}</p>`;
+        partyGet("pick="+encodeURIComponent(t)+"&me="+encodeURIComponent(nameEl().trim())).then(d=>{const f=d.found||[];if(!f.length){take(t);return}if(!d.close&&f.length===1&&!f[0].taken){take(f[0].name);return}
+          res.innerHTML=`<p>${X.ptPick}</p>`+f.map((c,i)=>`<button class="btn ghost" type="button" data-p="${i}" ${c.taken?"disabled":""}>${esc(c.name)}${c.taken?` · ${X.ptTaken}`:""}</button>`).join("")+`<button class="btn ghost" type="button" id="${id}O">${esc(fillIn(X.ptNew,t))}</button>`;
+          res.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>take(f[+b.dataset.p].name));$("#"+id+"O").onclick=()=>take(t)}).catch(()=>take(t))}}
+    const e=$("#"+id+"E");if(e)e.hidden=true}
+  function load(force){const n=(nameEl()||"").trim().replace(/\s+/g," ");if(!SHEET||n.length<3||n.split(" ").length<2||(!force&&n===P.asked))return Promise.resolve();P.asked=n;return partyGet("party="+encodeURIComponent(n)).then(d=>{if((nameEl()||"").trim().replace(/\s+/g," ")!==n)return;P.info=d;P.sug=d.suggest||[];if(d.limit)P.limit=Math.max(d.limit,(d.rsvp&&d.rsvp.with.length)||0);if(!P.editing)banner();else draw()}).catch(()=>{})}
+  P.load=load;form._p=P;radios.forEach(r=>r.addEventListener("change",draw));
+  const A=(state.ans||{}).rsvp;if(A){P.info={name:A.name,rsvp:{att:A.att,with:A.with||[]},by:[]}}banner();draw();
+  if(rsvpClosed){form.querySelectorAll("input,select,button").forEach(c=>{c.disabled=true});const sb=form.querySelector("button[type=submit]");if(sb)sb.hidden=true;okEl.hidden=false;okEl.textContent=(A?rsvpLine(A,false)+" ":"")+tx().rsvpClosedT}
+  load(true);return P}
 /* who is sending: the name from the start of the game, or the arcade one */
 const guestName=()=>{if(state.guest)return state.guest;try{return localStorage.getItem("wname")||""}catch(e){return""}};
 function askGuest(where,then){const x=tx();openCard(where,x.nameH,`<form id="nf"><label class="f"><span>${x.yourName}</span><input id="un" maxlength="80" required autocomplete="name"></label><div class="acts"><button class="btn" type="submit">${x.go||"OK"}</button></div></form>`,()=>$("#nf").addEventListener("submit",e=>{e.preventDefault();const v=$("#un").value.trim();if(!v)return;try{localStorage.setItem("wname",v)}catch(er){}then()}))}
@@ -176,21 +202,21 @@ const wishLine=()=>{const x=tx(),n=(state.ans||{}).wishN||((state.ans||{}).wish?
 function saveWish(name,text,okEl){const a=state.ans=state.ans||{};a.wishN=(a.wishN||(a.wish?1:0))+1;a.wish={n:name,w:text};save();store("wishes",{name,text,lang});okEl.hidden=false;okEl.textContent=wishLine()}
 function showWish(okEl){const l=wishLine();if(l){okEl.hidden=false;okEl.textContent=l}}
 /* whatever the sheet remembers for this person, also from another phone */
-function applyGuest(d){const a=state.ans=state.ans||{};voteCount=d.total||voteCount;if(d.voted){a.honey=d.voted;a.honeyName=state.guest}if(d.secs>(state.secs||0)){state.secs=d.secs;paintClock()}if(d.rsvp)a.rsvp={name:state.guest,att:d.rsvp.att,count:d.rsvp.count};if(d.wishes>(a.wishN||0))a.wishN=d.wishes;save();
-  [["#mRsvp","#mC","matt","#mOk"],["#rsvp","#gs","att","#rOk"]].forEach(([f,c,r,o])=>{if($(f))bindRsvp($(f),$(c),r,$(o))});["#mWo","#wOk"].forEach(o=>{if($(o))showWish($(o))})}
+function applyGuest(d){const a=state.ans=state.ans||{};voteCount=d.total||voteCount;if(d.voted){a.honey=d.voted;a.honeyName=state.guest}if(d.secs>(state.secs||0)){state.secs=d.secs;paintClock()}if(d.rsvp)a.rsvp={name:state.guest,att:d.rsvp.att,count:d.rsvp.att?1+(d.rsvp.with||[]).length:0,with:d.rsvp.with||[]};if(d.wishes>(a.wishN||0))a.wishN=d.wishes;save();
+  ["#mRsvp","#rsvp"].forEach(f=>{if($(f)&&$(f)._p)$(f)._p.load(true)});["#mWo","#wOk"].forEach(o=>{if($(o))showWish($(o))})}
 function syncGuest(){if(!SHEET||!state.guest)return;fetch(SHEET+"?name="+encodeURIComponent(state.guest)).then(r=>r.json()).then(applyGuest).catch(()=>{})}
 function passBanner(){let b=$("#pass");if(!b){b=document.createElement("div");b.id="pass";document.body.appendChild(b)}b.textContent="✓ "+tx().passed;b.classList.remove("show");void b.offsetWidth;b.classList.add("show")}
 const CARDS={
   estate(tab="cal"){const x=tx();const tabs=`<div class="seg" role="tablist" style="margin:0 0 10px"><label><input type="radio" name="et" value="cal" ${tab==="cal"?"checked":""}><span>${x.tabCal}</span></label><label><input type="radio" name="et" value="rsvp" ${tab==="rsvp"?"checked":""}><span>${x.tabRsvp}</span></label></div>`;
     const body=tab==="cal"?`<p>${x.dateP}</p>${schedHTML()}<div class="acts"><button class="btn" type="button" id="aIcs">${ICON.cal}${x.addCal}</button><a class="btn ghost" id="aG" href="${gcal()}" target="_blank" rel="noopener">${ICON.ext}${x.gcal}</a>${mapsBtns()}${walletBtn()}</div>${CONTENT.demo?`<p class="demo">${x.demoNote}</p>`:""}`
-      :`<p>${x.invBy}</p><form id="rsvp" autocomplete="off"><label class="f"><span>${x.yourName}</span><input id="nm" required maxlength="80"></label>
+      :`<p>${x.invBy}</p><form id="rsvp" autocomplete="off"><label class="f"><span>${x.yourName}</span><input id="nm" required maxlength="80"></label><div class="seatres" id="ptgB" aria-live="polite"></div>
       <div class="seg"><label><input type="radio" name="att" value="yes" checked><span>${x.yes}</span></label><label><input type="radio" name="att" value="no"><span>${x.no}</span></label></div>
-      <div class="acts" style="align-items:end"><label class="f" style="margin:0;flex:0 0 120px"><span>${x.plusL}</span>${plusSel("gs")}</label><button class="btn" type="submit" style="flex:1">${x.send}</button></div><p class="ok" id="rOk" hidden></p></form>`;
+      <div class="seatres" id="ptg" style="margin-bottom:10px"></div><div class="acts"><button class="btn" type="submit" style="flex:1">${x.send}</button></div><p class="ok" id="rOk" hidden></p></form>`;
     openCard(x.P.estate,x.dateH,tabs+body,()=>{document.querySelectorAll("input[name=et]").forEach(r=>r.addEventListener("change",()=>CARDS.estate(r.value)));
-      const A=(state.ans||{}).rsvp;if(tab!=="cal"){if(A)$("#nm").value=A.name;bindRsvp($("#rsvp"),$("#gs"),"att",$("#rOk"))}
+      const A=(state.ans||{}).rsvp;let pt=null;if(tab!=="cal"){const nm=$("#nm");nm.value=A?A.name:guestName()||"";pt=bindRsvp($("#rsvp"),"ptg","att",$("#rOk"),()=>nm.value);nm.addEventListener("change",()=>pt.load())}
       if(tab==="cal"){$("#aIcs").addEventListener("click",()=>{downloadICS();complete("date")});$("#aG").addEventListener("click",()=>complete("date"))}
       else $("#rsvp").addEventListener("submit",e=>{e.preventDefault();const name=$("#nm").value.trim();if(!name)return;
-        saveRsvp(name,document.querySelector("input[name=att]:checked").value==="yes",+$("#gs").value,$("#rOk"));complete("date")})});cardFn=()=>CARDS.estate(tab)},
+        if(!pt.valid())return;const att=document.querySelector("input[name=att]:checked").value==="yes",w=pt.withs(),who=pt.info&&pt.info.listed?pt.info.name:name;saveRsvp(who,att,w,$("#rOk"));pt.sent(who,att,w);complete("date")})});cardFn=()=>CARDS.estate(tab)},
   gallery(i=0){const x=tx(),s=CONTENT.story[i];openCard(x.P.gallery+` · ${i+1}/${CONTENT.story.length}`,s.city,`<div class="ph"><img class="photo" alt="${esc(s.city)}" src="${s.src||photoURL(i)}">${s.stamp?`<span class="stamp">${s.stamp}</span>`:""}</div><p>${x.storyT[i]}</p>${s.src?"":`<p class="demo">${x.photoDemo}</p>`}
     <div class="pnav"><button class="btn ghost" type="button" id="pPrev" ${i?"":"disabled"}>←</button><span>${i+1} / ${CONTENT.story.length}</span><button class="btn" type="button" id="pNext">${i<CONTENT.story.length-1?x.next+" →":x.close}</button></div>`,()=>{
       $("#pPrev").addEventListener("click",()=>CARDS.gallery(i-1));$("#pNext").addEventListener("click",()=>{if(i<CONTENT.story.length-1)CARDS.gallery(i+1);else{complete("story");closeCard()}});
@@ -208,12 +234,11 @@ const CARDS={
   kids(){const x=tx();openCard(x.P.gallery,x.kidsH,`<img class="photo" style="aspect-ratio:auto;width:auto;max-width:100%;max-height:min(64vh,620px);margin:0 auto 12px;object-fit:contain" src="assets/collage.jpg?v=2" alt="${esc(x.kidsH)}">`);cardFn=CARDS.kids},
   years(){const x=tx(),ys=CONTENT.years||[];openCard(x.P.gallery,x.yearsH,ys.length?`<div class="yrs">${ys.map(y=>`<figure><img src="${y.src}" alt="${y.y}" loading="lazy"><figcaption>${y.y}</figcaption></figure>`).join("")}</div>`:`<p class="demo">${x.yearsSoon}</p>`);cardFn=CARDS.years},
   /* the easel: the fingerprint tree everyone adds to, and a way to send your own photos */
-  easel(){const x=tx();if(!guestName())return askGuest(x.P.gallery,()=>CARDS.easel());openCard(x.P.gallery,x.treeH,`<p>${x.treeP}</p><canvas id="tree" width="900" height="1080" role="img" aria-label="${esc(x.treeH)}" style="display:block;margin:0 auto;max-width:100%;height:auto;max-height:50vh;border-radius:12px;cursor:pointer;touch-action:manipulation"></canvas><p class="ok" id="trOk" aria-live="polite"></p>
-    <h3 style="margin:18px 0 4px">${x.upH}</h3><p>${x.upP}</p><div class="acts"><label class="btn" style="cursor:pointer"><input type="file" id="upF" accept="image/*" multiple hidden>${x.upBtn}</label></div><p class="ok" id="upOk" aria-live="polite" hidden></p>`,()=>{
+  easel(){const x=tx();if(!guestName())return askGuest(x.P.gallery,()=>CARDS.easel());openCard(x.P.gallery,x.treeH,`<p>${x.treeP}</p><canvas id="tree" width="900" height="1080" role="img" aria-label="${esc(x.treeH)}" style="display:block;margin:0 auto;max-width:100%;height:auto;max-height:50vh;border-radius:12px;cursor:pointer;touch-action:manipulation"></canvas><p class="ok" id="trOk" aria-live="polite"></p>`,()=>{
       const c=$("#tree"),g=c.getContext("2d"),line=()=>{const e=$("#trOk");if(!e)return;const n=PRINTS.length;e.textContent=state.print?x.treeMove:n?fillIn(x.treeN,n):x.treeFirst},show=()=>{if(!$("#tree"))return;paintTree(g,900,1080);line()};show();loadPrints().then(show);
       c.addEventListener("click",e=>{const b=c.getBoundingClientRect(),px=Math.min(1,Math.max(0,(e.clientX-b.left)/b.width)),py=Math.min(1,Math.max(0,(e.clientY-b.top)/b.height));if(py>.8){$("#trOk").textContent=x.treeHigh;return}
         const o=state.print;if(o)PRINTS=PRINTS.filter(p=>Math.abs(p[0]-o.x)>.002||Math.abs(p[1]-o.y)>.002);const name=guestName(),hue=[...name].reduce((a,ch)=>a+ch.charCodeAt(0),0)%PRINT_C.length,X=+px.toFixed(3),Y=+py.toFixed(3);state.print={x:X,y:Y,h:hue};save();store("prints",{name,x:X,y:Y,hue});if(navigator.vibrate)navigator.vibrate(30);paintTree(g,900,1080);paintEasel();$("#trOk").textContent=o?x.treeMove:x.treeDone});
-      $("#upF").addEventListener("change",async e=>{const fs=[...e.target.files].slice(0,20),ok=$("#upOk"),inp=e.target;if(!fs.length)return;inp.disabled=true;ok.hidden=false;let n=0,full=false;for(let i=0;i<fs.length;i++){ok.textContent=fillIn(x.upBusy,(i+1)+"/"+fs.length);try{await upload("photo",await shrink(fs[i]));n++}catch(er){if(er&&er.full){full=true;break}}}inp.disabled=false;inp.value="";ok.textContent=full?x.upFull:n===fs.length?fillIn(x.upDone,n):fillIn(x.upSome,n+"/"+fs.length)})});cardFn=CARDS.easel},
+    });cardFn=CARDS.easel},
   /* a voice message for the couple, next to the counter of the post office; up to one minute, listen before sending */
   voice(){const x=tx();if(cardStop){cardStop();cardStop=null}if(!guestName())return askGuest(x.P.post,()=>CARDS.voice());openCard(x.P.post,x.voiceH,`<p>${x.voiceP}</p><div class="acts" id="vM"><button class="btn" type="button" id="vR">${x.voiceRec}</button></div><p id="vT" class="demo" aria-live="off" hidden></p><audio id="vA" controls hidden style="width:100%;margin-top:10px"></audio><div class="acts" id="vS" hidden><button class="btn" type="button" id="vSend">${x.send}</button><button class="btn ghost" type="button" id="vAgain">${x.voiceAgain}</button></div><p class="ok" id="vOk" aria-live="polite" hidden></p><p class="demo" id="vErr" aria-live="polite" hidden></p>`,()=>{
       let rec=null,stream=null,tick=0,blob=null,url="";const b=$("#vR"),T0=$("#vT"),err=m=>{const e=$("#vErr");e.textContent=m;e.hidden=false},free=()=>{clearInterval(tick);if(stream)stream.getTracks().forEach(t=>t.stop());stream=null},clock=n=>`${n/60|0}:${String(n%60).padStart(2,"0")} / 1:00`;
@@ -224,7 +249,10 @@ const CARDS={
           rec.start(1000);let n=0;T0.hidden=false;T0.textContent=clock(0);b.textContent=x.voiceStop;tick=setInterval(()=>{n++;T0.textContent=clock(n);if(n>=60&&rec.state==="recording")rec.stop()},1000)}catch(e){free();err(x.voiceNo)}asking=false});
       $("#vAgain").addEventListener("click",()=>{$("#vA").hidden=true;$("#vS").hidden=true;$("#vM").hidden=false;$("#vOk").hidden=true;b.textContent=x.voiceRec;blob=null});
       $("#vSend").addEventListener("click",async ev=>{const s1=ev.target;s1.disabled=true;$("#vErr").hidden=true;s1.textContent=x.voiceBusy;try{await upload("voice",blob);$("#vOk").textContent=x.voiceOk;$("#vOk").hidden=false;$("#vS").hidden=true;$("#vA").hidden=true;$("#vM").hidden=false;b.textContent=x.voiceRec}catch(er){err(er&&er.full?x.voiceFull:x.voiceErr)}s1.disabled=false;s1.textContent=x.send})});cardFn=CARDS.voice},
-  album(){const x=tx();openCard(x.P.gallery,x.albumH,`<p>${x.albumP}</p><div class="acts"><a class="btn" href="${albumUrl()}" target="_blank" rel="noopener">${ICON.ext}${x.albumBtn}</a></div>`);cardFn=CARDS.album},
+  album(){const x=tx(),who=guestName();openCard(x.P.gallery,x.albumH,`<p>${x.albumP}</p><div class="acts">${albumBtns()}</div>${who?`<h3 style="margin:18px 0 4px">${x.upH}</h3><p>${x.upP}</p><div class="acts"><label class="btn ghost" style="cursor:pointer"><input type="file" id="upF" accept="image/*" multiple hidden>${x.upBtn}</label></div><p class="ok" id="upOk" aria-live="polite" hidden></p>`:""}`,()=>{if(!who)return;
+      $("#upF").addEventListener("change",async e=>{const fs=[...e.target.files].slice(0,20),ok=$("#upOk"),inp=e.target;if(!fs.length)return;inp.disabled=true;ok.hidden=false;let n=0,full=false;for(let i=0;i<fs.length;i++){ok.textContent=fillIn(x.upBusy,(i+1)+"/"+fs.length);try{await upload("photo",await shrink(fs[i]));n++}catch(er){if(er&&er.full){full=true;break}}}inp.disabled=false;inp.value="";ok.textContent=full?x.upFull:n===fs.length?fillIn(x.upDone,n):fillIn(x.upSome,n+"/"+fs.length)})});cardFn=CARDS.album},
+  /* the two bachelor frames in the VIP room; the details live in CONTENT.bach */
+  bach(w){const x=tx(),rows=L2(CONTENT.bach[w]);openCard("VIP",w==="bride"?x.bachB:x.bachG,rows.length?infoHTML(rows):`<p>${x.bachSoon}</p>`);cardFn=()=>CARDS.bach(w)},
   menu(){const x=tx();openCard(x.P.estate,x.menuH,infoHTML(L2(CONTENT.menu)));cardFn=CARDS.menu},
   seat(){seatCard()},
   /* the proposal, on the den's tablet: the video muted, under a soft track */
@@ -293,7 +321,7 @@ function soundscape(){const want=soundscapeWant();
 /* every place keeps its own mute: the plaza choice is remembered; rooms start on; the chant always plays when asked for */
 const zoneOn={};const zone=()=>chanting?"chant":room?room.id:"plaza";
 function syncSnd(){const k=zone();applySound(k in zoneOn?zoneOn[k]:true)}
-function setSound(on){const k=zone();zoneOn[k]=on;if(k==="plaza")try{localStorage.setItem("wsound",on?"1":"0")}catch(e){}applySound(on)}
+function setSound(on){const k=zone();zoneOn[k]=on;if(k==="plaza")try{sessionStorage.setItem("wsound",on?"1":"0")}catch(e){}applySound(on)}
 function applySound(on){soundOn=on;$("#bSnd").setAttribute("aria-pressed",String(on));$("#sndOn").toggleAttribute("hidden",!on);$("#sndOff").toggleAttribute("hidden",on);
   if(on){if(!actx){try{actx=new AudioContext();const n=actx.createBufferSource(),b=actx.createBuffer(1,actx.sampleRate*4,actx.sampleRate),d=b.getChannelData(0);let l=0;for(let i=0;i<d.length;i++){l=l*.985+(Math.random()*2-1)*.015;d[i]=l*3}
       n.buffer=b;n.loop=true;const f=actx.createBiquadFilter();f.type="lowpass";f.frequency.value=600;const g=actx.createGain();g.gain.value=.08;n.connect(f).connect(g).connect(actx.destination);n.start()}catch(e){}}else actx.resume()}
@@ -302,14 +330,16 @@ let primed=false;addEventListener("pointerdown",()=>{if(actx&&soundOn&&actx.stat
   ALL.forEach(a=>{if(!a.paused)return;a.muted=true;a.play().then(()=>{if(a!==soundscapeWant())a.pause();a.muted=false}).catch(()=>{a.muted=false})})},true);
 function singHymn(){chant.src=HYMN;chanting=true;zoneOn.chant=true;syncSnd()}
 function stopHymn(){chanting=false;chant.pause();chant.src=SILENCE}
-function soundscapeWant(){return soundOn&&mode!=="intro"?(chanting?chant:(room&&room.id==="den")?denSong:(room&&room.id==="club")?clubSong:room?null:music):null}
+function soundscapeWant(){return soundOn&&mode!=="intro"&&!document.hidden?(chanting?chant:(room&&room.id==="den")?denSong:(room&&room.id==="club")?clubSong:room?null:music):null}
 chant.addEventListener("ended",()=>{if(!chanting)return;stopHymn();syncSnd()});
 /* nothing plays unless this place asks for it, whoever started it (iOS can resume a paused element by itself) */
 ALL.forEach(a=>a.addEventListener("playing",()=>{if(!a.muted&&a!==soundscapeWant())a.pause()}));
 /* leaving the app pauses all sound; coming back plays only what belongs where they are */
 function soundAway(){ALL.forEach(a=>a.pause());if(actx)actx.suspend()}
 function soundBack(){if(soundOn&&actx)actx.resume();soundscape()}
-document.addEventListener("visibilitychange",()=>{document.hidden?soundAway():soundBack()});addEventListener("pagehide",soundAway);addEventListener("pageshow",soundBack);
+document.addEventListener("visibilitychange",()=>{document.hidden?soundAway():soundBack()});addEventListener("pageshow",soundBack);
+/* closing the browser ends the music for good and the next visit starts it from the top; some phones keep timers alive in the background, so hidden always means silent */
+addEventListener("pagehide",()=>{soundAway();ALL.forEach(a=>{try{a.currentTime=0}catch(e){}})});setInterval(()=>{if(document.hidden&&ALL.some(a=>!a.paused))soundAway()},1000);try{localStorage.removeItem("wsound")}catch(e){}
 $("#bSnd").addEventListener("click",()=>setSound(!soundOn));
 function bell(){if(zoneOn[zone()]===false)return;if(!actx){try{actx=new AudioContext()}catch(e){return}}actx.resume&&actx.resume();[0,.9,1.8].forEach((t,i)=>{const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=[392,330,262][i];g.gain.setValueAtTime(.0001,actx.currentTime+t);g.gain.exponentialRampToValueAtTime(.045,actx.currentTime+t+.02);g.gain.exponentialRampToValueAtTime(.0001,actx.currentTime+t+2.4);o.connect(g).connect(actx.destination);o.start(actx.currentTime+t);o.stop(actx.currentTime+t+2.5)})}
 
@@ -1004,9 +1034,9 @@ function buildRoom(id){if(rooms[id])return rooms[id];let r;const x=tx();
         const tx2=y0&&y0.src?new THREE.TextureLoader().load(y0.src,tt=>{const ar=tt.image.width/tt.image.height;if(ar>1){tt.repeat.set(1/ar,1);tt.offset.set((1-1/ar)/2,0)}else{tt.repeat.set(1,ar);tt.offset.set(0,(1-ar)/2)}}):null;if(tx2)tx2.colorSpace=THREE.SRGBColorSpace;
         const f=new THREE.Mesh(new THREE.PlaneGeometry(.48,.48),mat(tx2?{map:tx2}:{map:canvasTex(96,96,(g,w,h)=>{g.fillStyle=["#e9d8c0","#cfe0e8","#e8cfd6","#d8e6cf"][k%4];g.fillRect(0,0,w,h);g.fillStyle="#6b6358";g.font="600 22px Commissioner, sans-serif";g.textAlign="center";g.fillText(2011+k,w/2,56)})}));
         f.material.polygonOffset=true;f.material.polygonOffsetFactor=-4;f.material.polygonOffsetUnits=-4;f.position.set(-7.86,yy,zz);f.rotation.y=Math.PI/2;r.scene.add(f);B.add(G.box,"black",-7.95,yy,zz,.04,.54,.54)}}
-    /* next to the album: the easel with the guests' fingerprint tree */
-    easelTex=canvasTex(360,432,(g,w,h)=>paintTree(g,w,h));{const e=new THREE.Mesh(new THREE.PlaneGeometry(1.25,1.5),mat({map:easelTex,roughness:.7}));e.position.set(5.6,1.72,3.4);e.rotation.set(-.12,-.5,0);r.scene.add(e);B.add(G.box,"wood",5.6,.85,3.25,.06,1.9,.06,-.5,-.12).add(G.box,"wood",5.3,.85,3.6,.06,1.9,.06,-.5,.15).add(G.box,"wood",5.9,.85,3.5,.06,1.9,.06,-.5,.15);lightCone(r,5.6,4.4,5.2,5.6,3.4,0xfff1d6,22);r.round.push({x:5.6,z:3.4,r:.6});loadPrints()}
-    r.spot=[0,-3.6,1.6,0,-6.4];r.items=[{label:()=>"📷 "+tx().albumL,at:[5.4,2.7,1.5],go:[4.3,2.8],fn:()=>CARDS.album()},{label:()=>"🌳 "+tx().treeL,at:[5.6,2.9,3.4],go:[4.4,4.3],fn:()=>CARDS.easel()},{label:()=>tx().kidsL,at:[-7.6,3.9,-2.6],go:[-5.8,-2.6],fn:()=>CARDS.kids()},{label:()=>"2011 – 2026",at:[-7.6,3.9,2.1],go:[-5.6,2.6],fn:()=>CARDS.years()}];
+    /* across the room from the album: the easel with the guests' fingerprint tree */
+    easelTex=canvasTex(360,432,(g,w,h)=>paintTree(g,w,h));{const e=new THREE.Mesh(new THREE.PlaneGeometry(1.25,1.5),mat({map:easelTex,roughness:.7}));e.position.set(-5.7,1.72,4.3);e.rotation.set(-.12,.5,0);r.scene.add(e);B.add(G.box,"wood",-5.7,.85,4.15,.06,1.9,.06,.5,-.12).add(G.box,"wood",-6,.85,4.5,.06,1.9,.06,.5,.15).add(G.box,"wood",-5.4,.85,4.4,.06,1.9,.06,.5,.15);lightCone(r,-5.7,4.4,6,-5.7,4.3,0xfff1d6,22);r.round.push({x:-5.7,z:4.3,r:.6});loadPrints()}
+    r.spot=[0,-3.6,1.6,0,-6.4];r.items=[{label:()=>"📷 "+tx().albumL,at:[5.4,2.7,1.5],go:[4.3,2.8],fn:()=>CARDS.album()},{label:()=>"🌳 "+tx().treeL,at:[-5.7,2.9,4.3],go:[-4.5,5],fn:()=>CARDS.easel()},{label:()=>tx().kidsL,at:[-7.6,3.9,-2.6],go:[-5.8,-2.6],fn:()=>CARDS.kids()},{label:()=>"2011 – 2026",at:[-7.6,3.9,2.1],go:[-5.6,2.6],fn:()=>CARDS.years()}];
     [[-4.2,-4.6,Math.PI,"idle"],[3.8,-4.8,Math.PI,"talk"]].forEach(([gx,gz,gy,a],i)=>guest(r.scene,i+2,gx,gz,gy,a).then(e=>e&&r.round.push({x:gx,z:gz,r:.5})));
   }else if(id==="estate"){
     r=roomBase(id,{floor:canvasTex(256,256,(g,w,h)=>{for(let y=0;y<4;y++)for(let x=0;x<4;x++){g.fillStyle=`hsl(18,${45+rnd()*10}%,${40+rnd()*8}%)`;g.fillRect(x*64+2,y*64+2,60,60)}g.fillStyle="#e5d6bf";g.globalCompositeOperation="destination-over";g.fillRect(0,0,w,h)},[8,6.5]),
@@ -1124,7 +1154,7 @@ function buildClub(){const id="club",s=new THREE.Scene();makeSky(s,.14);s.fog=ne
   {const yaw=Math.atan2(-.86,.5);for(const k of [-1,1]){const px=-5.83+k*.6,pz=6.07+k*1.03;B.add(G.box,"wood2",px,1.35,pz,.12,2.7,.12);r.round.push({x:px,z:pz,r:.25})}B.add(G.box,"wood2",-5.83,2.72,6.07,.14,.14,2.75,.53);for(let k=-6;k<=6;k++){const t=k/6;B.add(G.sph,k%2?"cushion":"linen",-5.83+t*.68,2.84+Math.abs(k%3)*.04,6.07+t*1.17,.17,.17,.17)}
     const sg=new THREE.Mesh(new THREE.PlaneGeometry(1.5,.38),mat({map:signTex("PHOTO BOOTH","#14273a","#f2e7c4")}));sg.position.set(-5.83,3.2,6.07);sg.rotation.y=yaw;s.add(sg);r.booth={at:[-6.5,6],yaw}}
   r.spot=[0,-1.4,1.8,0,-6.6];r.spotL=[0,.4,-1.2];r.spotFn=()=>{coupleDance();complete("dance");mood("party",25);toast(tx().danceHint,3500)};
-  r.items=[{label:()=>"DJ · "+tx().clubTracks,at:[0,3.6,-6.6],go:[0,-5.2],fn:()=>CARDS.club()},{label:()=>"Bar",at:[7.2,2.4,5],go:[5.6,4.4],fn:()=>{[P,N].forEach(e=>{e.lock=3;play(e,"laugh",.3)});CARDS.drinks()}},{label:()=>"📸 Photo booth",at:[-6.6,.5,6.5],go:[-6.9,6.7],fn:()=>selfie({booth:true,at:r.booth.at,yaw:r.booth.yaw,fov:70})}];seatEasel(r,-4.6,4.8,.75,[-3.5,3.8]);
+  r.items=[{label:()=>"DJ · "+tx().clubTracks,at:[0,3.6,-6.6],go:[0,-5.2],fn:()=>CARDS.club()},{label:()=>"Bar",at:[7.2,2.4,5],go:[5.6,4.4],fn:()=>{[P,N].forEach(e=>{e.lock=3;play(e,"laugh",.3)});CARDS.drinks()}},{label:()=>"📸 Photo booth",at:[-6.6,.5,6.5],go:[-6.9,6.7],fn:()=>selfie({booth:true,at:r.booth.at,yaw:r.booth.yaw,fov:70})}];seatEasel(r,5.6,-2.6,-.6,[4.6,-1.6]);
   /* the crowd: guests from both sides dancing on the deck */
   const dances=["dance","dance2","dance3","dance4"];
   [[-4,-3.5],[-2.6,-4.8],[-1.2,-3],[2,-4.4],[3.4,-3],[4.6,-4.6],[-4.6,-.8],[4.4,-.4],[-3,1.4],[3,1.8],[-.8,-5],[1.4,-2],[5.6,2.4],[-5.6,2.6]].slice(0,mobile?8:14).forEach(([gx,gz],i)=>
@@ -1174,7 +1204,8 @@ function buildDen(){const r=roomBase("den",{floor:plankTex("#8a5f42","#7d553a"),
   sofa(-.5,.9,5.2,Math.PI);sofa(-3.6,-1.5,3.6,Math.PI/2);r.solid.push({x0:-3.2,z0:.3,x1:2.2,z1:1.5},{x0:-4.2,z0:-3.4,x1:-3,z1:.4});
   B.add(new RoundedBoxGeometry(2.2,.4,1,3,.12),"darkwood",-.6,.25,-1.6).add(G.box,"terra",-1,.47,-1.6,.6,.05,.6).add(G.cyl,"red",-.2,.55,-1.5,.07,.14,.07).add(G.cyl,"blue2",0,.55,-1.75,.07,.14,.07).add(G.cyl,"red",.2,.55,-1.4,.07,.14,.07);r.solid.push({x0:-1.8,z0:-2.2,x1:.6,z1:-1});
   for(const [bx,bz,c] of [[2.6,-2.6,"red"],[3.6,-1.4,"blue2"]]){B.add(G.sph,c,bx,.35,bz,1.1,.7,1.1);r.round.push({x:bx,z:bz,r:.6})}
-  ["#e84a5f","#2a9df4","#ffcc33"].forEach((c,i)=>{const po=new THREE.Mesh(new THREE.PlaneGeometry(1.4,2),mat({map:canvasTex(256,360,(g,w,h)=>{const gr=g.createLinearGradient(0,0,0,h);gr.addColorStop(0,c);gr.addColorStop(1,"#14121c");g.fillStyle=gr;g.fillRect(0,0,w,h);g.fillStyle="#fff";g.font="800 44px Commissioner, sans-serif";g.fillText(["LEVEL","PLAYER","GAME"][i],20,70);g.font="800 90px Commissioner, sans-serif";g.fillText(["99","2","ON"][i],20,200)}),emissive:0x111111}));po.position.set(-7.93,2.6,-3.6+i*2.4);po.rotation.y=Math.PI/2;r.scene.add(po)});
+  /* left wall: one frame for each bachelor party */
+  [["bride",x0=>x0.bachB,-3],["groom",x0=>x0.bachG,.6]].forEach(([w,tl,z])=>{const po=new THREE.Mesh(new THREE.PlaneGeometry(1.5,2),mat({map:canvasTex(300,400,(g,W,H)=>{const t=tl(tx());g.fillStyle="#fbf6ea";g.fillRect(0,0,W,H);g.strokeStyle="#b08a3e";g.lineWidth=5;g.strokeRect(16,16,W-32,H-32);g.fillStyle="#14273a";g.textAlign="center";g.font="400 34px Piazzolla, Georgia, serif";const ws=t.split(" ");ws.forEach((l,i)=>g.fillText(l,W/2,170-(ws.length-1)*20+i*42));g.font="600 54px Commissioner, sans-serif";g.fillText(w==="bride"?"💍":"🥂",W/2,300)}),roughness:.6,polygonOffset:true,polygonOffsetFactor:-4,polygonOffsetUnits:-4}));po.position.set(-7.93,2.6,z);po.rotation.y=Math.PI/2;r.scene.add(po);B.add(G.box,"darkwood",-7.97,2.6,z,.05,2.14,1.64);lightCone(r,-6,4.4,z,-7.9,z,0xfff4e0,22)});
   plant(B,6.8,4.6,1.2);plant(B,-6.8,4.6,1.2);
   /* the bookshelf beside the TV: its label reopens the VIP information any time */
   B.add(G.box,"darkwood",-6.5,1.5,-6,.1,3,.7).add(G.box,"darkwood",-4.5,1.5,-6,.1,3,.7).add(G.box,"darkwood",-5.5,1.5,-6.31,2,3,.08).add(G.box,"darkwood",-5.5,2.98,-6,2.05,.08,.7);
@@ -1191,7 +1222,7 @@ function buildDen(){const r=roomBase("den",{floor:plankTex("#8a5f42","#7d553a"),
   B.add(G.cyl,"darkwood",6.7,1.05,-5.4,.42,.06,.42).add(G.cyl,"black",6.7,.52,-5.4,.05,1.04,.05).add(G.cyl,"black",6.7,.03,-5.4,.3,.05,.3).add(G.cyl,"glass",6.62,1.12,-5.3,.13,.05,.13).add(G.cyl,"glass",6.8,1.18,-5.55,.05,.18,.05).add(G.cyl,"glass",6.55,1.18,-5.6,.05,.18,.05);r.round.push({x:6.7,z:-5.4,r:.45});
   /* a tablet on the coffee table */
   B.add(new RoundedBoxGeometry(.5,.03,.36,2,.012),"black",-1.25,.47,-1.8);const tab=new THREE.Mesh(new THREE.PlaneGeometry(.44,.3),new THREE.MeshBasicMaterial({color:0x9ad0ff}));tab.rotation.x=-Math.PI/2;tab.position.set(-1.25,.49,-1.8);r.scene.add(tab);
-  r.items=[{label:()=>"📖 "+tx().vipShelf,at:[-5.5,3.5,-6],go:[-5.5,-4.7],fn:()=>CARDS.den()},{label:()=>"🎵 "+tx().clubTracks,at:[5.2,1.3,4.9],go:[4.6,3.6],fn:()=>CARDS.club(true)},{label:()=>"🎮 "+tx().tvL,at:[0,4.75,-6.3],go:[0,-3.6],fn:()=>CARDS.yt(CONTENT.tvVideo,"Fortnite")},{label:()=>"▶ "+tx().tabletL,at:[-1.25,1.1,-1.8],go:[-1.25,-2.9],fn:()=>CONTENT.proposal?CARDS.proposal():CARDS.yt(CONTENT.tabletVideo,tx().tabletH)}];
+  r.items=[{label:()=>"💍 "+tx().bachB,at:[-7.6,1.3,-3],go:[-6.1,-3],fn:()=>CARDS.bach("bride")},{label:()=>"🥂 "+tx().bachG,at:[-7.6,1.3,.6],go:[-6.1,.6],fn:()=>CARDS.bach("groom")},{label:()=>"📖 "+tx().vipShelf,at:[-5.5,3.5,-6],go:[-5.5,-4.7],fn:()=>CARDS.den()},{label:()=>"🎵 "+tx().clubTracks,at:[5.2,1.3,4.9],go:[4.6,3.6],fn:()=>CARDS.club(true)},{label:()=>"🎮 "+tx().tvL,at:[0,4.75,-6.3],go:[0,-3.6],fn:()=>CARDS.yt(CONTENT.tvVideo,"Fortnite")},{label:()=>"▶ "+tx().tabletL,at:[-1.25,1.1,-1.8],go:[-1.25,-2.9],fn:()=>CONTENT.proposal?CARDS.proposal():CARDS.yt(CONTENT.tabletVideo,tx().tabletH)}];
   let tvT=0;r.anim=dt=>{tt+=dt;if((tvT-=dt)<0){tvT=.25;drawTV()}glow.intensity=8+Math.sin(tt*5)*2;smoke.forEach(p=>{p.t+=dt;const a=(p.t%4)/4;p.m.position.set(6+Math.sin(p.t)*.4,1.7+a*2.4,-4.6+Math.cos(p.t*.7)*.4);p.m.material.opacity=.35*(1-a);p.m.scale.setScalar(.6+a*1.6)})};
   return r}
 
@@ -1290,7 +1321,7 @@ function acceptGuest(f){setGuest(f);nameGate=false;document.body.classList.remov
 function guestCheck(n,out,found,pass){const x=tx(),my=guestCheck.seq=(guestCheck.seq||0)+1;if(!SHEET){pass();return}out.innerHTML=`<p class="demo">${x.seatWait}</p>`;
   guestLookup(n).then(d=>{if(my!==guestCheck.seq)return;if(d.listed===false){out.innerHTML="";pass();return}
     if(!d.close&&d.found.length===1&&n.split(" ").length>1){out.innerHTML="";found(d.found[0]);return}
-    if(!d.found.length){const wa=CONTENT.secret&&CONTENT.secret.whatsapp;out.innerHTML=`<p>${x.gateNone}</p>${wa?`<a class="btn ghost" href="https://wa.me/${wa}" target="_blank" rel="noopener">${x.gateAsk}</a>`:""}`;out.scrollIntoView({block:"nearest"});return}
+    if(!d.found.length){const wa=CONTENT.secret&&CONTENT.secret.whatsapp,miss=guestCheck.miss=(guestCheck.miss||0)+1;out.innerHTML=`<p>${x.gateNone}</p>${miss>1&&n.split(" ").length>1?`<button class="btn" type="button" id="gGo">${x.gateGo}</button>`:""}${wa?`<a class="btn ghost" href="https://wa.me/${wa}" target="_blank" rel="noopener">${x.gateAsk}</a>`:""}`;const go=$("#gGo");if(go)go.addEventListener("click",()=>{out.innerHTML="";pass()});out.scrollIntoView({block:"nearest"});return}
     out.innerHTML=`<p>${x.gatePick}</p>`+d.found.map((f,i)=>`<button class="btn ghost" type="button" data-sp="${i}">${esc(f.name)}${f.note?` (${esc(f.note)})`:""}</button>`).join("");out.scrollIntoView({block:"nearest"});
     out.querySelectorAll("[data-sp]").forEach(b=>b.addEventListener("click",()=>{out.innerHTML="";found(d.found[+b.dataset.sp])}))}).catch(()=>{if(my===guestCheck.seq){out.innerHTML="";pass()}})}
 function askName(){if(mode==="fly"||mode==="busy"){setTimeout(askName,300);return}const x=tx();startPose();nameGate=true;document.body.classList.add("gate");
@@ -1442,7 +1473,7 @@ function snapCam(){const f=followPose();camPos.copy(f.p);camLook.copy(f.l)}
 function introPose(t){const a=Math.min(1,t/14),e=1-Math.pow(1-a,3);return{p:new THREE.Vector3(Math.sin(t*.05)*14,26-e*14,78-e*44),l:new THREE.Vector3(0,3.5-e*1.5,-8)}}
 const ease=x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;
 function choose(kind){if(!ready||mode!=="intro")return;if(kind==="bride")startOnVespa=true;const[g,b]=window.__ents;P=kind==="groom"?g:b;N=kind==="groom"?b:g;mode="fly";flyT=0;
-  $("#intro").classList.add("gone");$("#more").innerHTML="";moreLang=null;if(!syncGuest.done){syncGuest.done=true;syncGuest()}document.body.classList.add("play");let so="1";try{so=localStorage.getItem("wsound")??"1"}catch(e){}setSound(so==="1");plazaGuests();plazaKoum();if(!state.guestOk)setTimeout(askName,1800);setTimeout(bell,1500);
+  $("#intro").classList.add("gone");$("#more").innerHTML="";moreLang=null;if(!syncGuest.done){syncGuest.done=true;syncGuest()}document.body.classList.add("play");let so="1";try{so=sessionStorage.getItem("wsound")??"1"}catch(e){}setSound(so==="1");plazaGuests();plazaKoum();if(!state.guestOk)setTimeout(askName,1800);setTimeout(bell,1500);
   setTimeout(seaLife,3000);
   setTimeout(()=>{toast(tx().hint,7000)},reduce?0:2600)}
 $("#seal").addEventListener("click",()=>{const de=document.documentElement;if(touch&&de.requestFullscreen&&!document.fullscreenElement)de.requestFullscreen({navigationUI:"hide"}).catch(()=>{});const env=$("#env"),inv=$("#inv");inv.style.setProperty("--s",(env.offsetWidth*.86/inv.offsetWidth).toFixed(3));env.classList.add("open");if(navigator.vibrate)navigator.vibrate(15);
@@ -1453,13 +1484,13 @@ $("#intro").addEventListener("scroll",e=>e.target.classList.toggle("scrolled",e.
 $("#moreHint").addEventListener("click",()=>$("#more").scrollIntoView({behavior:reduce?"auto":"smooth"}));
 /* below the invitation: everything a guest needs without playing */
 function renderThanks(){const x=tx(),c=CONTENT.thanks,m=$("#more");moreLang=lang;
-  m.innerHTML=`<section><h2>${x.thanksH}</h2>${c.photos.length?`<div class="yrs">${c.photos.map(p=>`<figure><img src="${p}" alt="" loading="lazy"></figure>`).join("")}</div>`:`<p>${x.thanksSoon}</p>`}<p style="margin-top:14px">${x.thanksAlbumP}</p><div class="acts"><a class="btn" href="${albumUrl()}" target="_blank" rel="noopener">${ICON.ext}${x.albumBtn}</a>${c.upload?`<a class="btn ghost" href="${c.upload}" target="_blank" rel="noopener">${ICON.ext}${x.thanksUp}</a>`:""}</div></section>`}
+  m.innerHTML=`<section><h2>${x.thanksH}</h2>${c.photos.length?`<div class="yrs">${c.photos.map(p=>`<figure><img src="${p}" alt="" loading="lazy"></figure>`).join("")}</div>`:`<p>${x.thanksSoon}</p>`}<p style="margin-top:14px">${x.thanksAlbumP}</p><div class="acts">${albumBtns()}${c.upload?`<a class="btn ghost" href="${c.upload}" target="_blank" rel="noopener">${ICON.ext}${x.thanksUp}</a>`:""}</div></section>`}
 function renderMore(){if(thanksMode){renderThanks();return}const x=tx(),v=CONTENT.venue,m=$("#more"),moreLang=lang;
   m.innerHTML=`<section><h2>${x.moreWhen}</h2><p class="big">${x.dateH}</p>${(d=>d>1?`<p class="left">${fillIn(x.daysLeft,d)}</p>`:d===1?`<p class="left">${x.dayLeft}</p>`:"")(Math.ceil((Date.UTC(2027,7,20)-Date.parse(today))/864e5))}${schedHTML()}<p class="place"><b>${esc(v.name)}</b><br>${x.koropi} 166 72</p><div class="acts">${mapsBtns()}<button class="btn" type="button" id="mCal">${ICON.cal}${x.addCal}</button><a class="btn ghost" href="${gcal()}" target="_blank" rel="noopener">${ICON.ext}${x.gcal}</a>${walletBtn()}</div></section>
   <section><h2>${x.infoH}</h2>${infoHTML(L2(CONTENT.info))}</section>
-  <section><h2>${x.tabRsvp}</h2><p>${x.invBy}</p><form id="mRsvp" autocomplete="off"><label class="f"><span>${x.yourName}</span><input id="mN" required maxlength="80" autocomplete="name"></label>
+  <section><h2>${x.tabRsvp}</h2><p>${x.invBy}</p><form id="mRsvp" autocomplete="off"><label class="f"><span>${x.yourName}</span><input id="mN" required maxlength="80" autocomplete="name"></label><div class="seatres" id="ptmB" aria-live="polite"></div>
     <div class="seg"><label><input type="radio" name="matt" value="yes" checked><span>${x.yes}</span></label><label><input type="radio" name="matt" value="no"><span>${x.no}</span></label></div>
-    <div class="acts" style="align-items:end"><label class="f" style="margin:0;flex:0 0 110px"><span>${x.plusL}</span>${plusSel("mC")}</label><button class="btn" type="submit" style="flex:1">${x.send}</button></div></form><div class="seatres" id="mR" aria-live="polite"></div><p class="ok" id="mOk" hidden></p></section>
+    <div class="seatres" id="ptm" style="margin-bottom:10px"></div><div class="acts"><button class="btn" type="submit" style="flex:1">${x.send}</button></div></form><div class="seatres" id="mR" aria-live="polite"></div><p class="ok" id="mOk" hidden></p></section>
   <section><h2>${x.seatH}</h2><div id="mSeat">${seatHTML()}</div></section>
   <section><h2>${x.menuH}</h2>${infoHTML(L2(CONTENT.menu))}</section>
   <section><h2>${x.giftH}</h2>${giftHTML()}</section>
@@ -1467,9 +1498,9 @@ function renderMore(){if(thanksMode){renderThanks();return}const x=tx(),v=CONTEN
   <section class="end"><h2>${x.moreGame}</h2><p>${x.moreGameP}</p><div class="acts"><button class="btn" type="button" id="mGame">${x.moreGameBtn}</button></div></section>`;
   $("#mCal").addEventListener("click",downloadICS);bindCopy(m);bindSeat();
   const known=()=>{if(state.guestOk&&state.guest){["mN","mWn"].forEach(id=>{const f=$("#"+id);f.value=state.guest;f.readOnly=true})}};known();
-  bindRsvp($("#mRsvp"),$("#mC"),"matt",$("#mOk"));showWish($("#mWo"));if(!syncGuest.done){syncGuest.done=true;syncGuest()}
-  $("#mRsvp").addEventListener("submit",e=>{e.preventDefault();const typed=$("#mN").value.trim().replace(/\s+/g," ");if(typed.length<3)return;const att=document.querySelector("input[name=matt]:checked").value==="yes",plus=+$("#mC").value;
-    const send=name=>{saveRsvp(name,att,plus,$("#mOk"));known()};
+  const pm=bindRsvp($("#mRsvp"),"ptm","matt",$("#mOk"),()=>$("#mN").value);$("#mN").addEventListener("change",()=>pm.load());showWish($("#mWo"));if(!syncGuest.done){syncGuest.done=true;syncGuest()}
+  $("#mRsvp").addEventListener("submit",e=>{e.preventDefault();const typed=$("#mN").value.trim().replace(/\s+/g," ");if(typed.length<3||!pm.valid())return;const att=document.querySelector("input[name=matt]:checked").value==="yes",w=pm.withs();
+    const send=name=>{saveRsvp(name,att,w,$("#mOk"));pm.sent(name,att,w);known()};
     if(state.guestOk&&state.guest===typed){send(typed);return}
     /* someone on the list: their table and answers follow them into the game */
     guestCheck(typed,$("#mR"),f=>{setGuest(f);$("#mSeat").innerHTML=seatHTML();bindSeat();send(state.guest)},()=>send(typed))});
@@ -1629,7 +1660,7 @@ setInterval(()=>{if(!state.quiz&&state.fin&&Date.now()-state.fin>4000&&mode==="p
 /* admin: marks every quest done, finale already seen */
 /* admin and reset open only with the code, once per visit */
 let adminOk=false;function adminGate(run){panel("#list",false);if(adminOk){run();return}const x=tx();openCard("· · ·",x.adminH,`<form id="adf" autocomplete="off"><label class="f"><span>${x.codeLbl}</span><input id="adc" inputmode="numeric" pattern="[0-9]*" maxlength="4" required style="font-size:28px;letter-spacing:.5em;text-align:center"></label><div class="acts"><button class="btn" type="submit">${x.enter}</button></div><p class="ok" id="adE" hidden>${x.adminBad}</p></form>`,()=>$("#adf").addEventListener("submit",e=>{e.preventDefault();const i=$("#adc");if(fnv(i.value.trim())===CONTENT.secret.admin){adminOk=true;closeCard();run()}else{$("#adE").hidden=false;i.value=""}}));cardFn=null}
-$("#bReset").addEventListener("click",()=>adminGate(()=>{save.off=true;try{localStorage.removeItem("wq2")}catch(e){}location.reload()}));
+$("#bReset").addEventListener("click",()=>adminGate(()=>{save.off=true;try{Object.keys(localStorage).forEach(k=>{if(k==="wq2"||k==="wname"||k==="wscores"||k==="wcount"||k.startsWith("w_"))localStorage.removeItem(k)})}catch(e){}location.reload()}));
 /* zoom: far (default) -> x1 -> x2 -> far */
 /* each entry: distance, and the label of what the next tap does */
 const ZOOMS=[[11,"x1",1],[7.5,"x2",.8],[4.8,"x3",.62]];let zoomI=0;$("#bZoom").addEventListener("click",()=>{zoomI=(zoomI+1)%ZOOMS.length;camDist=ZOOMS[zoomI][0];roomZoomK=ZOOMS[zoomI][2];$("#bZoom").textContent=ZOOMS[zoomI][1]});
