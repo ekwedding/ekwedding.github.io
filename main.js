@@ -137,8 +137,10 @@ const isIOS=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==="M
 /* both albums for everyone, the one that suits this phone first */
 const albumBtns=()=>{const x=tx(),a=c=>`<a class="btn${c}" href="${CONTENT.album}" target="_blank" rel="noopener">${ICON.ext}${x.albumIos}</a>`,g=c=>`<a class="btn${c}" href="${CONTENT.albumGoogle}" target="_blank" rel="noopener">${ICON.ext}${x.albumGoo}</a>`;return isIOS?a("")+g(" ghost"):g("")+a(" ghost")};
 const mapsBtns=()=>{const v=CONTENT.venue,a=(u,t)=>`<a class="btn ghost" href="${u}" target="_blank" rel="noopener">${ICON.pin}${t}</a>`;return(isIOS?a(v.apple,"Apple Maps"):"")+a(v.maps,"Google Maps")};
-/* the Google Wallet pass, on phones that are not iPhones */
-const walletBtn=()=>CONTENT.wallet.google&&!isIOS?`<a class="btn ghost" href="${CONTENT.wallet.google}" target="_blank" rel="noopener">${ICON.ext}${tx().walletBtn}</a>`:"";
+/* this guest's own Google Wallet pass, on phones that are not iPhones: the script makes it on the first tap and keeps its table up to date */
+const walletBtn=(f=state.guestSeat)=>f&&SHEET&&!isIOS?`<button class="btn ghost" type="button" data-wal="${esc(f.name)}" data-note="${esc(f.note||"")}">${ICON.ext}${tx().walletBtn}</button>`:"";
+document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-wal]");if(!b)return;const x=tx(),w=window.open("","_blank"),html=b.innerHTML;b.disabled=true;b.textContent=x.seatWait;
+  fetch(SHEET+"?wallet="+encodeURIComponent(b.dataset.wal)+"&note="+encodeURIComponent(b.dataset.note)).then(r=>r.json()).then(d=>{if(!d.link)throw 0;if(w)w.location=d.link;else location.href=d.link}).catch(()=>{if(w)w.close();toast(x.walletErr,5000)}).finally(()=>{b.disabled=false;b.innerHTML=html})});
 const schedHTML=()=>`<dl class="sched">${CONTENT.schedule.map(s=>`<div><dt>${tx().sched[s[1]]}</dt><dd>${s[0]}</dd></div>`).join("")}</dl>`;
 
 const L2=o=>o[lang]||o.en;
@@ -951,7 +953,7 @@ function seatEasel(r,x,z,ry,go){const t=tx(),c=new THREE.Mesh(new THREE.PlaneGeo
   r.round.push({x,z,r:.6});r.items=(r.items||[]).concat({label:()=>tx().seatL,at:[x,2.8,z],go,fn:()=>CARDS.seat()})}
 const seatHTML=()=>{const x=tx(),g=state.guestSeat;return `${g?`<div id="stAsk"><p>${x.seatAsk}</p><p style="font-size:19px;font-weight:700;margin:6px 0 2px">${esc(g.name)}${g.note?` <small>(${esc(g.note)})</small>`:""}</p><div class="acts"><button class="btn" type="button" id="stYes">${x.seatYes}</button><button class="btn ghost" type="button" id="stNo">${x.seatNo}</button></div></div>`:""}<form id="stf" autocomplete="off" ${g?"hidden":""}><p>${x.seatP}</p><label class="f"><span>${x.voteName}</span><input id="stq" required maxlength="60" style="font-size:17px"></label><div class="acts" style="margin-top:12px"><button class="btn" type="submit">${x.seatBtn}</button></div></form><div class="seatres" id="stR" aria-live="polite"></div>`};
 /* one result: name (note, when two people share a name), table, and whoever comes with them */
-const seatRow=f=>{const x=tx();return f.table?`<div class="seatrow"><p><span>${esc(f.name)}${f.note?` <small>(${esc(f.note)})</small>`:""}</span><b>${x.seatT} ${esc(f.table)}</b></p>${f.with&&f.with.length?`<small>${x.seatWith}: ${f.with.map(esc).join(", ")}</small>`:""}</div>`:`<div class="seatrow"><p><span>${esc(f.name)}${f.note?` <small>(${esc(f.note)})</small>`:""}</span></p><small>${x.seatSoon}</small></div>`};
+const seatRow=f=>{const x=tx();return f.table?`<div class="seatrow"><p><span>${esc(f.name)}${f.note?` <small>(${esc(f.note)})</small>`:""}</span><b>${x.seatT} ${esc(f.table)}</b></p>${f.with&&f.with.length?`<small>${x.seatWith}: ${f.with.map(esc).join(", ")}</small>`:""}${walletBtn(f)}</div>`:`<div class="seatrow"><p><span>${esc(f.name)}${f.note?` <small>(${esc(f.note)})</small>`:""}</span></p><small>${x.seatSoon}</small>${walletBtn(f)}</div>`};
 const guestLookup=q=>fetch(SHEET+"?seat="+encodeURIComponent(q)).then(r=>r.json());
 function bindSeat(){const x=tx(),out=$("#stR");let seq=0;
   const run=()=>{const q=$("#stq").value.trim();if(q.length<3)return;const my=++seq;out.innerHTML=`<p class="demo">${x.seatWait}</p>`;
