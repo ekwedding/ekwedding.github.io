@@ -41,23 +41,27 @@ input,textarea,select,#simple{-webkit-user-select:text;user-select:text;touch-ac
 /* ---------- intro: an invitation in an envelope, closed with a wax seal ---------- */
 #intro{inset:0;overflow:hidden;background:radial-gradient(80% 70% at 50% 55%,rgba(11,22,34,.15),rgba(11,22,34,.55));transition:opacity .7s ease,visibility 0s .7s}
 #intro.gone{opacity:0;visibility:hidden;pointer-events:none}
-.env{position:relative;width:min(440px,90vw);aspect-ratio:.78;width:min(420px,92vw,calc(70vh*.78));perspective:1400px;transition:transform .9s cubic-bezier(.2,.8,.2,1) .5s;filter:drop-shadow(0 24px 40px rgba(8,16,26,.45))}
-.env .back,.env .front,.env .flap{position:absolute;inset:0;border-radius:6px}
+.env{position:relative;width:min(440px,90vw);aspect-ratio:.78;width:min(420px,92vw,calc(70vh*.78));perspective:1400px}
+.env .back{position:absolute;inset:0;border-radius:6px;box-shadow:0 24px 40px rgba(8,16,26,.45);transition:opacity .35s ease .45s}
+.env.open .back{opacity:0}
+/* two leaves that meet under the seal and swing out to the sides */
+.env .leaf{position:absolute;top:0;bottom:0;width:50%;z-index:3;will-change:transform,opacity;transition:transform .95s cubic-bezier(.42,.02,.2,1),opacity .35s ease .6s}
+.env .leaf.l{left:0;transform-origin:0 50%;border-radius:6px 0 0 6px;box-shadow:inset -14px 0 18px -14px rgba(60,40,15,.45)}
+.env .leaf.r{right:0;transform-origin:100% 50%;border-radius:0 6px 6px 0;box-shadow:inset 14px 0 18px -14px rgba(60,40,15,.45)}
+.env.open .leaf.l{transform:rotateY(-108deg);opacity:0}
+.env.open .leaf.r{transform:rotateY(108deg);opacity:0}
 .paper{background:#efe6d6 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .38 0 0 0 0 .28 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E")}
 .env .back{background-color:#e6dbc8}
-.env .front{clip-path:polygon(0 0,50% 40%,100% 0,100% 100%,0 100%);z-index:3;box-shadow:inset 0 -1px 0 rgba(0,0,0,.05)}
-.env .front::before{content:"";position:absolute;inset:0;background:linear-gradient(155deg,transparent 49.6%,rgba(90,70,40,.12) 50%,transparent 50.6%),linear-gradient(25deg,transparent 49.6%,rgba(90,70,40,.12) 50%,transparent 50.6%)}
-.env .flap{clip-path:polygon(0 0,100% 0,50% 46%);transform-origin:50% 0;z-index:4;transition:transform .9s cubic-bezier(.6,.05,.3,1),z-index 0s .45s;background-color:#eadfcb;box-shadow:inset 0 1px 0 rgba(255,255,255,.4)}
-.env.open .flap{transform:rotateX(178deg);z-index:1}
-#seal{position:absolute;left:50%;top:45%;z-index:5;width:86px;height:86px;margin:-43px;border-radius:50%;display:grid;place-items:center;color:#dcd49f;font-family:"GFS Didot",var(--serif),serif;font-size:24px;font-weight:500;letter-spacing:.02em;
+.env .leaf.paper{background-color:#bc9357}
+#seal{position:absolute;left:50%;top:50%;z-index:5;width:86px;height:86px;margin:-43px;border-radius:50%;display:grid;place-items:center;color:#dcd49f;font-family:"GFS Didot",var(--serif),serif;font-size:24px;font-weight:500;letter-spacing:.02em;
   background:radial-gradient(circle at 35% 30%,#4f6650,#36463a 55%,#232e26);box-shadow:0 4px 10px rgba(0,0,0,.35),inset 0 -4px 8px rgba(0,0,0,.35),inset 0 3px 6px rgba(255,255,255,.25);
   transition:transform .5s cubic-bezier(.3,1.6,.5,1),opacity .4s ease;animation:breathe 2.4s ease-in-out infinite}
 #seal::before{content:"";position:absolute;inset:7px;border-radius:50%;border:1.5px solid rgba(214,206,155,.55)}
 #seal:active{transform:scale(.92)}
-.env.open #seal{transform:scale(1.3) rotate(-12deg);opacity:0;pointer-events:none;animation:none}
+.env.tap #seal{transform:scale(1.25) rotate(-12deg);opacity:0;pointer-events:none;animation:none}
 @keyframes breathe{50%{transform:scale(1.05)}}
 #sealHint{position:absolute;left:50%;transform:translateX(-50%);bottom:-50px;width:max-content;max-width:90vw;padding:7px 14px;border-radius:10px;background:rgba(11,22,34,.82);text-align:center;color:#fff;font-weight:600;font-size:15px;text-shadow:0 1px 10px rgba(0,0,0,.5);transition:opacity .3s}
-.env.open #sealHint{opacity:0}
+.env.tap #sealHint{opacity:0}
 #introFoot{position:fixed;left:0;right:0;top:calc(14px + env(safe-area-inset-top));display:flex;justify-content:center}
 .langs{display:flex;gap:2px;background:rgba(11,22,34,.82);border-radius:10px;padding:3px}
 .langs button{font-weight:600;font-size:13px;color:#fff;padding:8px 11px;border-radius:8px;min-width:44px;min-height:40px;letter-spacing:.04em}
@@ -79,16 +83,10 @@ body.play #hud{opacity:1;visibility:visible}
 .ptl{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.ptl:empty{display:none}.seatres:empty{display:none}.seatres{margin-top:12px;display:grid;gap:8px}.seatrow{padding:12px 14px;border-radius:12px;background:#f6f1e7}.seatrow p{display:flex;justify-content:space-between;align-items:center;gap:10px;font-weight:600;margin:0}.seatrow small{font-weight:500;color:var(--ink2);font-size:14px}.seatrow>small{display:block;margin-top:4px}.seatres b{font-size:20px;color:var(--bloom);white-space:nowrap}.seatres .btn{width:100%;font-size:15px;min-height:46px}
 body.gate #tl,body.gate #br,body.gate #tr,body.gate #obj,body.gate #labels,body.gate #cardX{display:none!important}
 .env .back{background-color:#a57b42}
-.env .front.paper{background-color:#bc9357}
-.env .flap.paper{background-color:#b68c50}
-.env.open{filter:none}
-.env.out .back,.env.out .front{transform:translateY(70vh);opacity:0;transition:transform .9s cubic-bezier(.5,0,.8,.4),opacity .7s ease .2s}
-.env.out .flap{opacity:0;transition:opacity .25s}
-.invcard{--w:min(92vw,calc(78vh*.66),440px);position:absolute;left:50%;top:50%;width:var(--w);height:calc(var(--w)/.66);font-size:calc(var(--w)/24);z-index:2;visibility:hidden;perspective:1600px;transform:translate(-50%,calc(-50% + var(--y,3%))) scale(var(--s,.8));color:#d6ce9b;text-align:center;transition:transform 1s cubic-bezier(.3,.7,.2,1)}
+.invcard{--y:0%;--w:min(92vw,calc(78vh*.66),440px);position:absolute;left:50%;top:50%;width:var(--w);height:calc(var(--w)/.66);font-size:calc(var(--w)/24);z-index:2;visibility:hidden;perspective:1600px;transform:translate(-50%,calc(-50% + var(--y,0%))) scale(var(--s,.8));color:#d6ce9b;text-align:center;transition:transform .95s cubic-bezier(.42,.02,.2,1)}
 @supports (height:1svh){.invcard{--w:min(92vw,calc(78svh*.66),440px)}}
-.env.open .invcard{visibility:visible}
-.env.rise .invcard{--y:-22%}
-.env.out .invcard{--y:0%;--s:1;z-index:6}
+.env.open .invcard{visibility:visible;--s:1!important;z-index:2}
+.env.open:not(.done) .invcard{will-change:transform}
 .inv3d{position:relative;width:100%;height:100%;transform-style:preserve-3d;-webkit-transform-style:preserve-3d;transition:transform .95s cubic-bezier(.45,.05,.2,1)}
 .inv3d.flipped{transform:rotateY(180deg)}
 .face{position:absolute;inset:0;padding:.6em;border-radius:3px;backface-visibility:hidden;-webkit-backface-visibility:hidden;box-shadow:0 1.2em 2.6em rgba(8,16,26,.5);background:#b38444 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3CfeColorMatrix values='0 0 0 0 .25 0 0 0 0 .15 0 0 0 0 .05 0 0 0 .35 0'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E")}
@@ -97,7 +95,7 @@ body.gate #tl,body.gate #br,body.gate #tr,body.gate #obj,body.gate #labels,body.
 .inv3d:not(.flipped) .ib,.inv3d.flipped .if{pointer-events:none}
 .face .in{height:100%;background:#36463a;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:1.5em 1.4em 1.3em;overflow:hidden;font-family:Commissioner,system-ui,sans-serif;font-weight:400;line-height:1.38}
 .face h1,.face h2{font-family:"GFS Didot",var(--serif),serif;font-weight:400;color:#dcd49f;margin:0}
-.face h1{font-size:1.5em;line-height:1.15;white-space:nowrap}
+.face h1{font-size:1.42em;line-height:1.15;white-space:nowrap}
 .face h1 span{margin:0 .35em;opacity:.8}
 .face h2{font-size:1.45em;line-height:1.2}
 .face p{margin:0}
@@ -130,13 +128,15 @@ body.gate #tl,body.gate #br,body.gate #tr,body.gate #obj,body.gate #labels,body.
 .face li::before{content:"";position:absolute;left:.1em;top:.5em;width:.42em;height:.42em;transform:rotate(45deg);background:#b38444}
 .face .pk{font-weight:500;color:#e6dfae;font-size:1em}
 #picks{display:grid;gap:.5em;width:100%}
+#card .boothA{flex-direction:column;align-items:stretch}#card .boothA .btn{flex:none;width:100%;justify-content:center;text-align:center}
+.walno{display:block;margin-top:8px;opacity:.75}
 .invl{color:#d6ce9b;font:400 .95em Commissioner,system-ui,sans-serif;text-decoration:underline;text-underline-offset:.2em;min-height:40px;padding:0 .8em;background:none;border:0;cursor:pointer}
 #clock{position:absolute;right:0;top:calc(100% + 6px);display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:10px;background:rgba(20,39,58,.82);color:#fff;font-size:12.5px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap;pointer-events:none}
 #clock svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
 #obj:empty{display:none}
 .ifirst{position:relative;height:100%;display:grid;place-items:center;padding:16px}
 #intro.scroll{overflow-y:auto;-webkit-overflow-scrolling:touch}
-.env.done .back,.env.done .front,.env.done .flap,.env.done #seal,.env.done #sealHint{display:none}
+.env.done .back,.env.done .leaf,.env.done #seal,.env.done #sealHint{display:none}
 #moreHint{position:absolute;left:50%;bottom:calc(10px + env(safe-area-inset-bottom));transform:translateX(-50%);display:none;align-items:center;gap:6px;min-height:44px;padding:0 18px;border-radius:3px;border:1px solid rgba(214,206,155,.65);background:rgba(32,43,35,.88);color:#e6dfae;font:400 16px "GFS Didot",var(--serif),serif;letter-spacing:.04em;white-space:nowrap;cursor:pointer}
 #moreHint svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;animation:nudge 1.5s ease-in-out infinite}
 @keyframes nudge{50%{transform:translateY(3px)}}
@@ -315,11 +315,11 @@ body.cardopen #joy,body.ride #joy{display:none}
   .qz b{font-size:16px}.qa .chip{min-height:46px;font-size:15px}
   .lbl{font-size:14px;padding:7px 12px;min-height:38px}
   #pie button{min-width:96px;min-height:48px;font-size:15px}
-  .ktag{font-size:13px;padding:5px 10px}.ktag small{font-size:10px}
+  .ktag{font-size:14px;padding:8px 13px}.ktag small{font-size:10px}
   #obj{font-size:15px;max-width:calc(100vw - 32px);text-align:center}
 }
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}}
-.ktag{position:absolute;left:0;top:0;pointer-events:none;background:rgba(20,39,58,.82);color:#fff;font:600 12px/1.15 Commissioner,sans-serif;padding:4px 9px;border-radius:10px;white-space:nowrap;text-align:center}.ktag small{display:block;font-size:9px;font-weight:500;opacity:.8;letter-spacing:.04em;text-transform:uppercase}
+.ktag{position:absolute;left:0;top:0;pointer-events:auto;cursor:pointer;border:0;background:rgba(20,39,58,.88);color:#fff;font:600 12px/1.15 Commissioner,sans-serif;padding:6px 10px;border-radius:10px;white-space:nowrap;text-align:center;touch-action:manipulation}.ktag small{display:block;font-size:9px;font-weight:500;opacity:.8;letter-spacing:.04em;text-transform:uppercase}
 #br{position:fixed;right:max(12px,env(safe-area-inset-right));bottom:max(16px,env(safe-area-inset-bottom));display:flex;flex-direction:column;align-items:flex-end;gap:8px;pointer-events:none}
 /* Vespa and back-to-square: twins, same box */
 #br .chip{width:148px;min-height:52px;padding:0 12px;justify-content:center;border-radius:26px}
@@ -356,7 +356,7 @@ body.cardopen #br,body.ride #bHome{display:none}
         <button class="invl" type="button" id="unflip" data-t="invUnflip"></button>
       </div></div>
     </div></div>
-    <div class="front paper"></div><div class="flap paper"></div>
+    <div class="leaf l paper"></div><div class="leaf r paper"></div>
     <button id="seal" type="button" aria-label="Άνοιξε την πρόσκληση">Ε&amp;Κ</button>
     <div id="sealHint" data-t="sealHint">Πάτα τη σφραγίδα</div>
   </div><button id="moreHint" type="button"><span data-t="moreHint"></span><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button></div>
@@ -393,11 +393,11 @@ body.cardopen #br,body.ride #bHome{display:none}
 </div>
 <div id="fade"></div>
 <div id="simple" hidden><div class="wrap" id="simpleB"></div></div>
-<noscript><div style="padding:24px;font:18px system-ui">Ευάγγελος & Κωνσταντίνα · 20 Αυγούστου 2027 · Κορωπί. Ενεργοποίησε τη JavaScript για την πρόσκληση.</div></noscript>
+<noscript><div style="padding:24px;font:18px system-ui">Ευάγγελος & Κωνσταντίνα Αλίκη · 20 Αυγούστου 2027 · Κορωπί. Ενεργοποίησε τη JavaScript για την πρόσκληση.</div></noscript>
 <audio id="music" src="assets/music/tosa_kalokairia.m4a" loop preload="none"></audio>
 <script type="module" src="main.js"></script>
 <script>/* old phones: no import maps, no modules -> show a plain message with the essentials */
 if(!(HTMLScriptElement.supports&&HTMLScriptElement.supports("importmap"))){document.getElementById("intro").hidden=true;var s=document.getElementById("simple");s.hidden=false;
-document.getElementById("simpleB").innerHTML='<h1>Ευάγγελος &amp; Κωνσταντίνα</h1><p><b>Παρασκευή 20 Αυγούστου 2027</b> · 19:00 · Κορωπί</p><p>19:00 Υποδοχή · 19:30 Τελετή · 21:00 Δείπνο · 23:30 Πάρτι</p><p>Για το παιχνίδι άνοιξε το link σε πιο νέο κινητό ή υπολογιστή.</p>'}</script>
+document.getElementById("simpleB").innerHTML='<h1>Ευάγγελος &amp; Κωνσταντίνα Αλίκη</h1><p><b>Παρασκευή 20 Αυγούστου 2027</b> · 19:00 · Κορωπί</p><p>19:00 Υποδοχή · 19:30 Τελετή · 21:00 Δείπνο · 23:30 Πάρτι</p><p>Για το παιχνίδι άνοιξε το link σε πιο νέο κινητό ή υπολογιστή.</p>'}</script>
 </body>
 </html>

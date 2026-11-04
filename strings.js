@@ -1,6 +1,6 @@
 /* ================= CONTENT: everything the couple edits lives here (DEMO = placeholder) ================= */
 export const CONTENT={
-  names:{el:["Ευάγγελος","Κωνσταντίνα"],en:["Evangelos","Konstantina"],de:["Evangelos","Konstantina"],ro:["Evangelos","Konstantina"]},
+  names:{el:["Ευάγγελος","Κωνσταντίνα Αλίκη"],en:["Evangelos","Konstantina Aliki"],de:["Evangelos","Konstantina Aliki"],ro:["Evangelos","Konstantina Aliki"]},
   startUTC:"20270820T163000Z",endUTC:"20270821T000000Z",            /* 19:30–03:00 Athens time */
   /* the printed-style invitation card: church and venue names appear once filled in */
   invite:{venue:"Domaine Braimnioti Mediterranean"},
@@ -8,14 +8,20 @@ export const CONTENT={
   /* from this day the site thanks the guests; add the wedding photos to photos, and an upload link when there is one */
   thanksFrom:"2027-08-21",thanks:{photos:[],upload:""},
   venue:{name:"Domaine Braimnioti Mediterranean",addr:"Κορωπί 166 72",maps:"https://maps.app.goo.gl/63D9LbdJddfpLr5d6",apple:"https://maps.apple.com/?q=Domaine%20Braimnioti%20Mediterranean&ll=37.84056,23.82831"},
-  schedule:[["19:30","ceremony"],["21:00","dinner"]],
+  schedule:[["19:30","ceremony"],["21:00","dinner"],["22:00","party"]],
   /* photos for "how we got here": put files in assets/photos and set src, null = drawn placeholder */
   story:[{city:"Θήβα",src:"assets/photo-1.jpg",stamp:"2011"},{city:"Αθήνα",src:"assets/photo-2.jpg"},{city:"Κυψέλη",src:"assets/photo-3.jpg"},{city:"Frankfurt",src:"assets/photo-4.jpg"},{city:"Stuttgart",src:"assets/photo-5.jpg"}],
   years:[{y:2011,src:"assets/year-2011.jpg"},{y:2012,src:"assets/year-2012.jpg"},{y:2013,src:"assets/year-2013.jpg"},{y:2014,src:"assets/year-2014.jpg"},{y:2015,src:"assets/year-2015.jpg"},{y:2016,src:"assets/year-2016.jpg"},{y:2017,src:"assets/year-2017.jpg"},{y:2018,src:"assets/year-2018.jpg"},{y:2019,src:"assets/year-2019.jpg"},{y:2020,src:"assets/year-2020.jpg"},{y:2021,src:"assets/year-2021.jpg"},{y:2022,src:"assets/year-2022.jpg"},{y:2023,src:"assets/year-2023.jpg"},{y:2024,src:"assets/year-2024.jpg"},{y:2025,src:"assets/year-2025.jpg"},{y:2026,src:"assets/year-2026.jpg"}],
   album:"https://photos.icloud.com/shared/album/022Ho8qTnPNUezFUi4fYDlXkw",
   albumGoogle:"https://photos.app.goo.gl/Pu9wv8H8sqB9rBz47",
   /* the frames in the VIP room: rows of [title, text] per language; while empty they say the details are coming */
-  bach:{bride:{el:[],en:[],de:[],ro:[]},groom:{el:[],en:[],de:[],ro:[]}},
+  bachLink:{bride:"https://www.booking.com/hotel/es/villa-henry-palma.en-gb.html?checkin=2027-07-30&checkout=2027-08-02"},
+  bach:{bride:{
+    el:[["Πού","Μαγιόρκα · VILLA Henry, Carrer de la Mar Roja 2, Playa de Palma"],["Πότε","Παρασκευή 30 Ιουλίου έως Δευτέρα 2 Αυγούστου 2027"],["Η βίλα","Ολόκληρη δική μας: 4 υπνοδωμάτια, 3 μπάνια, θερμαινόμενη πισίνα"],["Κοντά","Παραλία 6 λεπτά με τα πόδια · αεροδρόμιο 4 χλμ"]],
+    en:[["Where","Mallorca · VILLA Henry, Carrer de la Mar Roja 2, Playa de Palma"],["When","Friday 30 July to Monday 2 August 2027"],["The villa","All ours: 4 bedrooms, 3 bathrooms, heated pool"],["Nearby","Beach a 6-minute walk · airport 4 km"]],
+    de:[["Wo","Mallorca · VILLA Henry, Carrer de la Mar Roja 2, Playa de Palma"],["Wann","Freitag, 30. Juli bis Montag, 2. August 2027"],["Die Villa","Ganz für uns: 4 Schlafzimmer, 3 Bäder, beheizter Pool"],["In der Nähe","Strand 6 Minuten zu Fuß · Flughafen 4 km"]],
+    ro:[["Unde","Mallorca · VILLA Henry, Carrer de la Mar Roja 2, Playa de Palma"],["Când","Vineri, 30 iulie până luni, 2 august 2027"],["Vila","Toată a noastră: 4 dormitoare, 3 băi, piscină încălzită"],["În apropiere","Plaja la 6 minute pe jos · aeroportul la 4 km"]]},
+    groom:{el:[],en:[],de:[],ro:[]}},
   /* dinner menu at the estate. PLACEHOLDERS */
   menu:{el:[["Ορεκτικά","Ποικιλία με τυριά, ντάκοι, φάβα (DEMO)"],["Σαλάτα","Χωριάτικη με κρίθινο παξιμάδι (DEMO)"],["Κυρίως","Μοσχαράκι ή λαβράκι (DEMO)"],["Γλυκό","Γαμήλια τούρτα (DEMO)"]],en:[["Starters","Cheeses, dakos, fava (DEMO)"],["Salad","Greek salad with barley rusk (DEMO)"],["Main","Veal or sea bass (DEMO)"],["Dessert","Wedding cake (DEMO)"]]},
   drinks:["aperol","gin","mojito","whisky","wine","beer"],
@@ -58,7 +64,7 @@ el:{when:"Παρασκευή",koropi:"Κορωπί",playG:"Παίξε ως",play
  danceH:"Η πίστα είναι δική σας",danceP:"Οι φίλοι μας ήδη χορεύουν.",danceBtn:"Χόρεψε!",
  wishH:"Στείλε μας ευχές",wishP:"Γράψε μας ό,τι θέλεις. Θα τις διαβάσουμε μετά τον γάμο.",wishText:"Η ευχή σου",
  honeyH:"Πού να πάμε ταξίδι του μέλιτος;",honeyP:"Η ψήφος σου μένει κρυφή μέχρι τον γάμο. Φαίνεται μόνο πόσοι ψήφισαν.",voted:"ψήφισαν",vote:"Ψήφισε",honeyDone:"Η ψήφος σου μετρήθηκε. Τα αποτελέσματα στο πάρτι!",
- opt:{namerica:"Βόρεια Αμερική",samerica:"Νότια Αμερική",oceania:"Ωκεανία",antarctica:"Ανταρκτική"},demoNote:"Δοκιμαστικά στοιχεία, θα αλλάξουν.",photoDemo:"Η φωτογραφία θα μπει σύντομα.",calTitle:"Γάμος Ευάγγελου & Κωνσταντίνας",back:"Πίσω στο παιχνίδι",music:"Μουσική"},
+ opt:{namerica:"Βόρεια Αμερική",samerica:"Νότια Αμερική",oceania:"Ωκεανία",antarctica:"Ανταρκτική"},demoNote:"Δοκιμαστικά στοιχεία, θα αλλάξουν.",photoDemo:"Η φωτογραφία θα μπει σύντομα.",calTitle:"Γάμος Ευάγγελου & Κωνσταντίνας Αλίκης",back:"Πίσω στο παιχνίδι",music:"Μουσική"},
 en:{when:"Friday",koropi:"Koropi",playG:"Play as",playB:"Play as",loading:"Loading…",stops:"Stops",stopsH:"Your stops",tapGo:"Tap a stop to go there",simple:"Simple version",vespaH:"Where to?",
  go:"Go",done:"Done",locked:"Closed",close:"Close",exit:"Exit",hint:"Tap the ground or a label to walk. Drag to turn the camera.",
  next:"Next",nextStop:"Next stop",allDone:"You did them all. The travel agency is open!",lockedMsg:"The travel agency opens once you finish every other stop.",
@@ -73,7 +79,7 @@ en:{when:"Friday",koropi:"Koropi",playG:"Play as",playB:"Play as",loading:"Loadi
  danceH:"The dance floor is yours",danceP:"Our friends are already dancing.",danceBtn:"Dance!",
  wishH:"Send us your wishes",wishP:"Write whatever you like. We'll read them after the wedding.",wishText:"Your wish",
  honeyH:"Where should we go on honeymoon?",honeyP:"Your vote stays secret until the wedding. Only the number of voters is shown.",voted:"voted",vote:"Vote",honeyDone:"Your vote counts. Results at the party!",
- opt:{namerica:"North America",samerica:"South America",oceania:"Oceania",antarctica:"Antarctica"},demoNote:"Demo details, will change.",photoDemo:"The photo is coming soon.",calTitle:"Wedding of Evangelos & Konstantina",back:"Back to the game",music:"Music"},
+ opt:{namerica:"North America",samerica:"South America",oceania:"Oceania",antarctica:"Antarctica"},demoNote:"Demo details, will change.",photoDemo:"The photo is coming soon.",calTitle:"Wedding of Evangelos & Konstantina Aliki",back:"Back to the game",music:"Music"},
 de:{when:"Freitag",koropi:"Koropi",playG:"Spiele als",playB:"Spiele als",loading:"Lädt…",stops:"Stationen",stopsH:"Deine Stationen",tapGo:"Tippe auf eine Station, um hinzugehen",simple:"Einfache Version",vespaH:"Wohin?",
  go:"Los",done:"Erledigt",locked:"Geschlossen",close:"Schließen",exit:"Ausgang",hint:"Tippe auf den Boden oder ein Schild, um zu gehen. Ziehen dreht die Kamera.",
  next:"Weiter",nextStop:"Nächste Station",allDone:"Alles erledigt. Das Reisebüro hat geöffnet!",lockedMsg:"Das Reisebüro öffnet, wenn alle anderen Stationen erledigt sind.",
@@ -88,7 +94,7 @@ de:{when:"Freitag",koropi:"Koropi",playG:"Spiele als",playB:"Spiele als",loading
  danceH:"Die Tanzfläche gehört euch",danceP:"Unsere Freunde tanzen schon.",danceBtn:"Tanzen!",
  wishH:"Schick uns deine Wünsche",wishP:"Schreib, was du möchtest. Wir lesen alles nach der Hochzeit.",wishText:"Dein Wunsch",
  honeyH:"Wohin sollen wir in die Flitterwochen?",honeyP:"Deine Stimme bleibt bis zur Hochzeit geheim. Nur die Zahl der Stimmen ist sichtbar.",voted:"haben abgestimmt",vote:"Abstimmen",honeyDone:"Deine Stimme zählt. Ergebnis auf der Party!",
- opt:{namerica:"Nordamerika",samerica:"Südamerika",oceania:"Ozeanien",antarctica:"Antarktis"},demoNote:"Testdaten, ändern sich noch.",photoDemo:"Das Foto kommt bald.",calTitle:"Hochzeit von Evangelos & Konstantina",back:"Zurück zum Spiel",music:"Musik"},
+ opt:{namerica:"Nordamerika",samerica:"Südamerika",oceania:"Ozeanien",antarctica:"Antarktis"},demoNote:"Testdaten, ändern sich noch.",photoDemo:"Das Foto kommt bald.",calTitle:"Hochzeit von Evangelos & Konstantina Aliki",back:"Zurück zum Spiel",music:"Musik"},
 ro:{when:"Vineri",koropi:"Koropi",playG:"Joacă ca",playB:"Joacă ca",loading:"Se încarcă…",stops:"Opriri",stopsH:"Opririle tale",tapGo:"Atinge o oprire ca să mergi acolo",simple:"Versiunea simplă",vespaH:"Unde mergem?",
  go:"Mergi",done:"Gata",locked:"Închis",close:"Închide",exit:"Ieșire",hint:"Atinge solul sau o etichetă ca să mergi. Trage ca să rotești camera.",
  next:"Următor",nextStop:"Următoarea oprire",allDone:"Le-ai făcut pe toate. Agenția de turism s-a deschis!",lockedMsg:"Agenția se deschide după ce termini toate celelalte opriri.",
@@ -103,7 +109,7 @@ ro:{when:"Vineri",koropi:"Koropi",playG:"Joacă ca",playB:"Joacă ca",loading:"S
  danceH:"Ringul e al vostru",danceP:"Prietenii noștri dansează deja.",danceBtn:"Dansează!",
  wishH:"Trimite-ne urări",wishP:"Scrie ce vrei. Le citim după nuntă.",wishText:"Urarea ta",
  honeyH:"Unde să mergem în luna de miere?",honeyP:"Votul tău rămâne secret până la nuntă. Se vede doar câți au votat.",voted:"au votat",vote:"Votează",honeyDone:"Votul tău contează. Rezultatele la petrecere!",
- opt:{namerica:"America de Nord",samerica:"America de Sud",oceania:"Oceania",antarctica:"Antarctica"},demoNote:"Date de test, se vor schimba.",photoDemo:"Fotografia vine în curând.",calTitle:"Nunta lui Evangelos & Konstantina",back:"Înapoi la joc",music:"Muzică"}
+ opt:{namerica:"America de Nord",samerica:"America de Sud",oceania:"Oceania",antarctica:"Antarctica"},demoNote:"Date de test, se vor schimba.",photoDemo:"Fotografia vine în curând.",calTitle:"Nunta lui Evangelos & Konstantina Aliki",back:"Înapoi la joc",music:"Muzică"}
 };
 
 
@@ -174,10 +180,10 @@ ro:{dogName:"Cățelușul nostru",dpie:{pet:"Mângâie-l",dead:"Fă-te mort",bar
   camOn:"Intră și tu în poză",camShot:"Fă poza",camNo:"Camera nu s-a deschis. Poza îi arată doar pe miri.",danceHint:"Dansați! Pentru muzică mergi la DJ.",
   driveHint:"Condu cu joystick-ul sau atinge drumul."}};
 for(const l in MORE3)Object.assign(T[l],MORE3[l]);
-Object.assign(T.el,{backPlaza:"Πίσω στην πλατεία",tasksOf:"αποστολές",lock6:"Ξεκλειδώνει με 5/5",pickG:"Ευάγγελος · με τα πόδια",pickB:"Κωνσταντίνα · με τη Vespa",shout:"ΕΙΣΑΙ ΝΟΟΟΟΒ!"});
-Object.assign(T.en,{backPlaza:"Back to the plaza",tasksOf:"tasks",lock6:"Unlocks at 5/5",pickG:"Evangelos · on foot",pickB:"Konstantina · on the Vespa",shout:"YOU'RE A NOOOOB!"});
-Object.assign(T.de,{backPlaza:"Zurück zum Platz",tasksOf:"Aufgaben",lock6:"Öffnet bei 5/5",pickG:"Evangelos · zu Fuß",pickB:"Konstantina · mit der Vespa",shout:"DU NOOOOB!"});
-Object.assign(T.ro,{backPlaza:"Înapoi în piață",tasksOf:"misiuni",lock6:"Se deblochează la 5/5",pickG:"Evangelos · pe jos",pickB:"Konstantina · cu Vespa",shout:"EȘTI NOOOOB!"});
+Object.assign(T.el,{backPlaza:"Πίσω στην πλατεία",tasksOf:"αποστολές",lock6:"Ξεκλειδώνει με 5/5",pickG:"Ευάγγελος · με τα πόδια",pickB:"Κωνσταντίνα Αλίκη · με τη Vespa",shout:"ΕΙΣΑΙ ΝΟΟΟΟΒ!"});
+Object.assign(T.en,{backPlaza:"Back to the plaza",tasksOf:"tasks",lock6:"Unlocks at 5/5",pickG:"Evangelos · on foot",pickB:"Konstantina Aliki · on the Vespa",shout:"YOU'RE A NOOOOB!"});
+Object.assign(T.de,{backPlaza:"Zurück zum Platz",tasksOf:"Aufgaben",lock6:"Öffnet bei 5/5",pickG:"Evangelos · zu Fuß",pickB:"Konstantina Aliki · mit der Vespa",shout:"DU NOOOOB!"});
+Object.assign(T.ro,{backPlaza:"Înapoi în piață",tasksOf:"misiuni",lock6:"Se deblochează la 5/5",pickG:"Evangelos · pe jos",pickB:"Konstantina Aliki · cu Vespa",shout:"EȘTI NOOOOB!"});
 for(const l in T){T[l].pie.shout=T[l].shout}
 /* the end-of-game quiz: 5 questions only close friends would know (PLACEHOLDERS: the couple will replace them).
    Each entry: [question, [answers…], index of the right answer]. The hint appears once all five are right. */
@@ -297,10 +303,10 @@ Object.assign(T.ro,{clubName:"Beach club",giftH:"Vreți să ne faceți un cadou?
   tabCal:"Calendar",kpFull:"Athanasios (Thanos) Papacharalampos",kaFull:"Dimitra Boulala"});
 T.ro.guide.arcade=T.ro.arcadeP;T.ro.opt.oceania="Oceania";T.ro.opt.antarctica="Antarctica";
 /* end of the quiz: the hidden room, or the arcade next to the club */
-T.el.qzWin+=" Διαφορετικά, δίπλα στο club θα βρεις τα παιχνίδια Arcade. Καλή διασκέδαση!";T.el.qzFail+=" Δίπλα στο club σε περιμένουν τα παιχνίδια Arcade. Καλή διασκέδαση!";
-T.en.qzWin+=" Otherwise, the Arcade games are right next to the club. Have fun!";T.en.qzFail+=" The Arcade games are waiting for you next to the club. Have fun!";
-T.de.qzWin+=" Ansonsten findest du die Arcade-Spiele gleich neben dem Club. Viel Spaß!";T.de.qzFail+=" Neben dem Club warten die Arcade-Spiele auf dich. Viel Spaß!";
-T.ro.qzWin+=" Altfel, jocurile Arcade sunt chiar lângă club. Distracție plăcută!";T.ro.qzFail+=" Lângă club te așteaptă jocurile Arcade. Distracție plăcută!";
+T.el.qzWin+=" Διαφορετικά, δίπλα στο club θα βρεις τα παιχνίδια Arcade και μπορείς να πας και στη Γκαρνταρόμπα να μας αλλάξεις ρούχα. Καλή διασκέδαση!";T.el.qzFail+=" Δίπλα στο club σε περιμένουν τα παιχνίδια Arcade. Καλή διασκέδαση!";
+T.en.qzWin+=" Otherwise, the Arcade games are right next to the club, and you can also go to the Wardrobe and change our clothes. Have fun!";T.en.qzFail+=" The Arcade games are waiting for you next to the club. Have fun!";
+T.de.qzWin+=" Ansonsten findest du die Arcade-Spiele gleich neben dem Club, und in der Garderobe kannst du uns andere Kleidung anziehen. Viel Spaß!";T.de.qzFail+=" Neben dem Club warten die Arcade-Spiele auf dich. Viel Spaß!";
+T.ro.qzWin+=" Altfel, jocurile Arcade sunt chiar lângă club și poți merge și la Garderobă să ne schimbi hainele. Distracție plăcută!";T.ro.qzFail+=" Lângă club te așteaptă jocurile Arcade. Distracție plăcută!";
 /* koumbaroi, final wording; English uses best man / maid of honour */
 Object.assign(T.el,{kpP:"Τον Θάνο τον ξέρω από το γυμνάσιο. Μεγαλώσαμε μαζί, από τα θρανία και τα πρώτα ξενύχτια μέχρι τις μεγαλύτερες αποφάσεις της ζωής μας. Σε κάθε χαρά ήταν ο πρώτος που τη γιόρτασε μαζί μου, και σε κάθε δυσκολία ήταν δίπλα μου πριν καν του το ζητήσω. Ήταν εκεί από την πρώτη μέρα που γνώρισα τη Ναντίνα και είδε την ιστορία μας να γεννιέται. Θάνο, σ' ευχαριστώ που είσαι ο αδερφός που διάλεξα. Κανείς άλλος δεν θα μπορούσε να είναι ο κουμπάρος μας.",
   kaP:"Τη Δήμητρα τη γνώρισα στα φοιτητικά μου χρόνια, πριν από 15 χρόνια. Μαζί κάναμε τα πρώτα μας βήματα στην Αθήνα, γελάσαμε μέχρι το πρωί και μιλήσαμε για όλα όσα μας απασχολούσαν. Ήταν από τις πρώτες μου παρέες και η πιο αγαπημένη μου παρέα, και από τότε στέκεται δίπλα μου σε κάθε κεφάλαιο της ζωής μου. Δήμητρά μου, σ' ευχαριστώ για κάθε αγκαλιά, για κάθε συμβουλή και για κάθε φορά που με έκανες να νιώσω ότι δεν είμαι ποτέ μόνη. Καμία άλλη δεν θα μπορούσε να είναι η κουμπάρα μας.",
@@ -365,20 +371,20 @@ Object.assign(T.en,{invLead:"With great joy we invite you to our wedding",invIn:
 Object.assign(T.de,{invLead:"Mit großer Freude laden wir euch zu unserer Hochzeit ein",invIn:"in Koropi",invChurch:"in der Kirche {c}, Koropi",invKoumH:"Unsere Trauzeugen",invK1:"Athanasios Papacharalampos",invK2:"Dimitra Boulala",invRec:"Anschließend feiern wir in Koropi",invRecAt:"Anschließend feiern wir in {v}, Koropi",invFlip:"Karte umdrehen",invUnflip:"Zurück zur Einladung",invBackH:"Wir haben noch etwas für euch",invBackP:"Wir haben eine kleine Insel für unsere Hochzeit gebaut. Dort findest du deinen Tisch, das Menü und unsere Fotos.",invR1:"Gib zuerst deinen vollen Namen ein.",invR2:"Zieh den Kreis unten links zum Gehen oder tippe auf den Boden.",invR3:"Tippe auf ein Schild, um dorthin zu gehen, oder nimm die Vespa.",invR4:"Dein Fortschritt bleibt gespeichert. Mach weiter, wann du willst.",invPick:"Wenn du spielen möchtest, wähle mit wem:",clockL:"Spielzeit"});
 Object.assign(T.ro,{invLead:"Cu mare bucurie vă invităm la nunta noastră",invIn:"în Koropi",invChurch:"la Biserica {c}, Koropi",invKoumH:"Nașii noștri",invK1:"Athanasios Papacharalampos",invK2:"Dimitra Boulala",invRec:"Va urma o recepție în Koropi",invRecAt:"Va urma o recepție la {v}, Koropi",invFlip:"Întoarce invitația",invUnflip:"Înapoi la invitație",invBackH:"Mai avem ceva pentru voi",invBackP:"Am construit o mică insulă pentru nunta noastră. Acolo îți găsești masa, meniul și fotografiile noastre.",invR1:"Mai întâi, scrie-ți numele complet.",invR2:"Trage cercul din stânga jos ca să mergi sau atinge solul.",invR3:"Atinge un semn ca să mergi acolo sau ia Vespa.",invR4:"Progresul tău rămâne salvat. Continui când vrei.",invPick:"Dacă vrei să joci, alege cu cine:",clockL:"Timp de joc"});
 /* the real place and hours on the card; the pawprints reminder; the den's bookshelf; time on the TV */
-Object.assign(T.el,{invAt:"στο {v}, Κορωπί",invHours:"19:30 άφιξη · 20:00 γάμος · 21:00 δείπνο",invRec:"Η εκκλησία και η δεξίωση είναι στο ίδιο κτήμα",invR4:"Η πρόοδός σου κρατιέται και κρατάμε και πόση ώρα έπαιξες, με το όνομά σου.",objPaws:"Ακολούθησε τις πατουσίτσες",vipShelf:"Βιβλιοθήκη",boardTime:"Ώρες στο νησί",sched:{arrive:"Προσέλευση",ceremony:"Γάμος",dinner:"Δείπνο",party:"Πάρτι"}});
-Object.assign(T.en,{invAt:"at {v}, Koropi",invHours:"19:30 arrival · 20:00 wedding · 21:00 dinner",invRec:"The church and the reception are on the same estate",invR4:"Your progress is saved, and we keep how long you played, with your name.",objPaws:"Follow the pawprints",vipShelf:"Bookshelf",boardTime:"Time on the island",sched:{arrive:"Arrival",ceremony:"Wedding",dinner:"Dinner",party:"Party"}});
-Object.assign(T.de,{invAt:"im {v}, Koropi",invHours:"19:30 Ankunft · 20:00 Trauung · 21:00 Essen",invRec:"Kirche und Feier sind auf demselben Anwesen",invR4:"Dein Fortschritt bleibt gespeichert, und wir merken uns mit deinem Namen, wie lange du gespielt hast.",objPaws:"Folge den Pfotenspuren",vipShelf:"Bücherregal",boardTime:"Zeit auf der Insel",sched:{arrive:"Ankunft",ceremony:"Trauung",dinner:"Essen",party:"Party"}});
-Object.assign(T.ro,{invAt:"la {v}, Koropi",invHours:"19:30 sosire · 20:00 nuntă · 21:00 cină",invRec:"Biserica și recepția sunt pe aceeași proprietate",invR4:"Progresul tău rămâne salvat și păstrăm, cu numele tău, cât timp ai jucat.",objPaws:"Urmează urmele de lăbuțe",vipShelf:"Bibliotecă",boardTime:"Timp pe insulă",sched:{arrive:"Sosire",ceremony:"Nuntă",dinner:"Cină",party:"Petrecere"}});
+Object.assign(T.el,{invAt:"στο {v}, Κορωπί",invHours:"19:30 άφιξη · 20:00 γάμος · 21:00 δείπνο · 22:00 πάρτι",invRec:"Η εκκλησία και η δεξίωση είναι στο ίδιο κτήμα",invR4:"Η πρόοδός σου κρατιέται και κρατάμε και πόση ώρα έπαιξες, με το όνομά σου.",objPaws:"Ακολούθησε τις πατουσίτσες",vipShelf:"Βιβλιοθήκη",boardTime:"Ώρες στο νησί",sched:{arrive:"Προσέλευση",ceremony:"Γάμος",dinner:"Δείπνο",party:"Πάρτι"}});
+Object.assign(T.en,{invAt:"at {v}, Koropi",invHours:"19:30 arrival · 20:00 wedding · 21:00 dinner · 22:00 party",invRec:"The church and the reception are on the same estate",invR4:"Your progress is saved, and we keep how long you played, with your name.",objPaws:"Follow the pawprints",vipShelf:"Bookshelf",boardTime:"Time on the island",sched:{arrive:"Arrival",ceremony:"Wedding",dinner:"Dinner",party:"Party"}});
+Object.assign(T.de,{invAt:"im {v}, Koropi",invHours:"19:30 Ankunft · 20:00 Trauung · 21:00 Essen · 22:00 Party",invRec:"Kirche und Feier sind auf demselben Anwesen",invR4:"Dein Fortschritt bleibt gespeichert, und wir merken uns mit deinem Namen, wie lange du gespielt hast.",objPaws:"Folge den Pfotenspuren",vipShelf:"Bücherregal",boardTime:"Zeit auf der Insel",sched:{arrive:"Ankunft",ceremony:"Trauung",dinner:"Essen",party:"Party"}});
+Object.assign(T.ro,{invAt:"la {v}, Koropi",invHours:"19:30 sosire · 20:00 nuntă · 21:00 cină · 22:00 petrecere",invRec:"Biserica și recepția sunt pe aceeași proprietate",invR4:"Progresul tău rămâne salvat și păstrăm, cu numele tău, cât timp ai jucat.",objPaws:"Urmează urmele de lăbuțe",vipShelf:"Bibliotecă",boardTime:"Timp pe insulă",sched:{arrive:"Sosire",ceremony:"Nuntă",dinner:"Cină",party:"Petrecere"}});
 /* the information page below the invitation */
 Object.assign(T.el,{moreHint:"Πληροφορίες",moreWhen:"Πότε και πού",moreGame:"Θέλεις να παίξεις;",moreGameP:"Φτιάξαμε ένα μικρό νησί για τον γάμο μας. Δεν είναι υποχρεωτικό, αλλά θα γελάσεις.",moreGameBtn:"Πήγαινε στο παιχνίδι"});
 Object.assign(T.en,{moreHint:"Information",moreWhen:"When and where",moreGame:"Want to play?",moreGameP:"We built a little island for our wedding. You don't have to, but you'll have a laugh.",moreGameBtn:"Go to the game"});
 Object.assign(T.de,{moreHint:"Informationen",moreWhen:"Wann und wo",moreGame:"Möchtest du spielen?",moreGameP:"Wir haben eine kleine Insel für unsere Hochzeit gebaut. Es ist kein Muss, aber du wirst lachen.",moreGameBtn:"Zum Spiel"});
 Object.assign(T.ro,{moreHint:"Informații",moreWhen:"Când și unde",moreGame:"Vrei să joci?",moreGameP:"Am construit o mică insulă pentru nunta noastră. Nu e obligatoriu, dar o să te distrezi.",moreGameBtn:"Mergi la joc"});
 /* final hours and wording */
-Object.assign(T.el,{invHours:"19:30 γάμος · 21:00 δείπνο",invFlip:"Wedding Game",holderName:"Ευάγγελος Κοφίνης",adminH:"Κωδικός διαχείρισης",adminBad:"Λάθος κωδικός."});
-Object.assign(T.en,{invHours:"19:30 wedding · 21:00 dinner",invFlip:"Wedding Game",holderName:"Evangelos Kofinis",adminH:"Admin code",adminBad:"Wrong code."});
-Object.assign(T.de,{invHours:"19:30 Trauung · 21:00 Essen",invFlip:"Wedding Game",holderName:"Evangelos Kofinis",adminH:"Admin-Code",adminBad:"Falscher Code."});
-Object.assign(T.ro,{invHours:"19:30 nuntă · 21:00 cină",invFlip:"Wedding Game",holderName:"Evangelos Kofinis",adminH:"Cod de administrare",adminBad:"Cod greșit."});
+Object.assign(T.el,{invHours:"19:30 γάμος · 21:00 δείπνο · 22:00 πάρτι",invFlip:"Wedding Game",holderName:"Ευάγγελος Κοφίνης",adminH:"Κωδικός διαχείρισης",adminBad:"Λάθος κωδικός."});
+Object.assign(T.en,{invHours:"19:30 wedding · 21:00 dinner · 22:00 party",invFlip:"Wedding Game",holderName:"Evangelos Kofinis",adminH:"Admin code",adminBad:"Wrong code."});
+Object.assign(T.de,{invHours:"19:30 Trauung · 21:00 Essen · 22:00 Party",invFlip:"Wedding Game",holderName:"Evangelos Kofinis",adminH:"Admin-Code",adminBad:"Falscher Code."});
+Object.assign(T.ro,{invHours:"19:30 nuntă · 21:00 cină · 22:00 petrecere",invFlip:"Wedding Game",holderName:"Evangelos Kofinis",adminH:"Cod de administrare",adminBad:"Cod greșit."});
 /* live answers */
 Object.assign(T.el,{plusL:"Μαζί μου +1",rsvpChosen:"Έχεις επιλέξει ότι",rsvpChanged:"Άλλαξες την επιλογή σου:",rsvpAlone:"θα έρθεις, χωρίς +1.",rsvpPlus:"θα έρθεις και μαζί σου θα έχεις {n} +1.",rsvpNo:"δεν θα έρθεις.",wishOne:"Έχουμε λάβει την ευχή σου. Ευχαριστούμε!",wishMany:"Έχουμε λάβει {n} ευχές σου. Ευχαριστούμε!"});
 Object.assign(T.en,{plusL:"Bringing (+1)",rsvpChosen:"You have chosen:",rsvpChanged:"You changed your answer:",rsvpAlone:"you're coming, with no +1.",rsvpPlus:"you're coming, and bringing {n} +1.",rsvpNo:"you're not coming.",wishOne:"We have received your wish. Thank you!",wishMany:"We have received {n} wishes from you. Thank you!"});
@@ -406,3 +412,10 @@ Object.assign(T.el,{savePh:"Αποθήκευση στις φωτογραφίες
 Object.assign(T.en,{savePh:"Save to photos",saveIos:"In the window that opens, tap “Save Image” and it goes to your Photos.",saveHold:"Press and hold the photo, then choose “Save to Photos”.",saveDroid:"Saved. You'll find it in your Gallery, in the Downloads album."});
 Object.assign(T.de,{savePh:"In Fotos sichern",saveIos:"Tippe im Fenster, das sich öffnet, auf „Bild sichern“, dann landet es in deinen Fotos.",saveHold:"Halte das Foto gedrückt und wähle „In Fotos sichern“.",saveDroid:"Gespeichert. Du findest es in deiner Galerie im Album Downloads."});
 Object.assign(T.ro,{savePh:"Salvează în poze",saveIos:"În fereastra care se deschide, atinge „Salvează imaginea” și ajunge în Poze.",saveHold:"Ține apăsat pe poză și alege „Salvează în Poze”.",saveDroid:"Salvată. O găsești în Galerie, în albumul Descărcări."});
+/* the photo booth buttons and the note under the seat result */
+Object.assign(T.el,{saveMob:"Αποθήκευση στο κινητό σου",camAgain:"Τράβα ξανά",walletNoApple:"Δυστυχώς δεν είναι διαθέσιμο για Apple Wallet."});
+Object.assign(T.en,{saveMob:"Save to your phone",camAgain:"Take another",walletNoApple:"Unfortunately this is not available for Apple Wallet."});
+Object.assign(T.de,{saveMob:"Auf deinem Handy speichern",camAgain:"Noch eins",walletNoApple:"Für Apple Wallet ist das leider nicht verfügbar."});
+Object.assign(T.ro,{saveMob:"Salvează pe telefonul tău",camAgain:"Mai fă una",walletNoApple:"Din păcate, nu este disponibil pentru Apple Wallet."});
+/* the button under the bride's bachelor details */
+T.el.bachOpen="Δες τη βίλα στο Booking";T.en.bachOpen="See the villa on Booking";T.de.bachOpen="Villa auf Booking ansehen";T.ro.bachOpen="Vezi vila pe Booking";
