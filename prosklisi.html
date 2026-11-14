@@ -403,7 +403,7 @@ document.querySelectorAll("[data-i]").forEach(e=>{const v=V[e.dataset.i];if(v!=n
 document.querySelectorAll("[data-ih]").forEach(e=>{e.innerHTML=V[e.dataset.ih]});
 document.getElementById("nm").placeholder=I.namePh;
 document.title=N[0]+" & "+N[1]+" · 20.08.2027";
-document.querySelectorAll("#top [data-l],#open [data-l]").forEach(b=>{b.setAttribute("aria-pressed",String(b.dataset.l===lang));b.addEventListener("click",()=>{try{localStorage.setItem("wlang",b.dataset.l)}catch(e){}const u=new URL(location.href);u.searchParams.set("lang",b.dataset.l);u.hash="";location.replace(u.href)})});
+document.querySelectorAll("#top [data-l],#open [data-l]").forEach(b=>{b.setAttribute("aria-pressed",String(b.dataset.l===lang));b.addEventListener("click",()=>{try{localStorage.setItem("wlang",b.dataset.l);if(b.closest("#open"))sessionStorage.removeItem("wopened")}catch(e){}const u=new URL(location.href);u.searchParams.set("lang",b.dataset.l);u.hash="";location.replace(u.href)})});
 /* coming back after choosing a language: skip the doors */
 const again=new URLSearchParams(location.search).has("lang")&&sessionStorage.getItem("wopened")==="1";
 
