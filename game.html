@@ -367,19 +367,40 @@ body.play .invcard,#intro.gone .invcard{display:none!important}
 body[data-direct] .face.ib .in{display:flex;flex-direction:column;align-items:center}
 body[data-direct] .face.ib .in>*{width:100%}
 body[data-direct] .gcrest{order:1;width:104px!important}body[data-direct] .face h2{order:2}body[data-direct] .face .lead{order:3;margin-bottom:24px}
-body[data-direct] .gmarq{order:4}body[data-direct] .face ol{order:5}body[data-direct] .face .pk{order:6}body[data-direct] #picks{order:7}
+body[data-direct] .gmarq{order:4}body[data-direct] .gmarq.rev{order:5}body[data-direct] .gtour{order:6}body[data-direct] .face ol{order:7}body[data-direct] .face .pk{order:8}body[data-direct] #picks{order:9}
+body[data-direct] .face.ib .in>*{flex-shrink:0}
 body[data-direct] #introFoot,body[data-direct] #load{z-index:8!important}
 body[data-direct] .face.ib .in>.gcrest{width:104px;flex:none}
 .gsure{margin-top:12px;padding:16px;border:1px solid rgba(20,39,58,.18);border-radius:16px;text-align:center}.gsure p{margin:0 0 4px;font-weight:600}.gsure b{display:block;font:italic 300 26px/1.2 "Piazzolla",serif}.gsure small{display:block;opacity:.75}.gsure .acts{justify-content:center;margin-top:12px}
 .need2{color:#b3261e;font-size:15px;margin:8px 0 0}
 /* a little life on the game's first page: a ribbon of names, things arriving one by one, the rules appearing as you scroll */
 .gmarq{display:none}
-body[data-direct] .gmarq{display:block;width:calc(100% + 44px)!important;max-width:none!important;margin:4px -22px 30px!important;padding:14px 0;overflow:hidden;border-top:1px solid rgba(245,236,224,.22);border-bottom:1px solid rgba(245,236,224,.22);-webkit-mask:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);mask:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
+body[data-direct] .gmarq{display:block;width:calc(100% + 44px)!important;max-width:none!important;margin:4px -22px 0!important;padding:14px 0;overflow:hidden;border-top:1px solid rgba(245,236,224,.22);border-bottom:1px solid rgba(245,236,224,.22);-webkit-mask:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);mask:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
 body[data-direct] .gmarq div{display:flex;width:max-content;animation:gmq 26s linear infinite}
 body[data-direct] .gmarq span{font:400 34px/1.2 "Pinyon Script",cursive;color:#f5ece0;white-space:nowrap;padding:0 18px}
 body[data-direct] .gmarq span i{font:400 .8em "GFS Didot",serif;font-style:normal;color:#d9b46a}
 body[data-direct] .gmarq b{align-self:center;font:600 12px Ysabeau,sans-serif;letter-spacing:.24em;color:#d9b46a;white-space:nowrap;padding:0 18px}
 @keyframes gmq{to{transform:translateX(-50%)}}
+body[data-direct] .gmarq.rev{margin:0 -22px 34px!important;padding:10px 0;border-top:0}
+body[data-direct] .gmarq.rev div{animation-direction:reverse;animation-duration:34s}
+body[data-direct] .gmarq.rev b{font-size:12.5px;text-transform:uppercase;color:rgba(245,236,224,.85)}body[data-direct] .gmarq.rev b::after{content:"✦";margin-left:36px;color:#d9b46a}
+/* the island's six stops, as cards you swipe (they also move on their own) */
+.gtour{display:none}
+body[data-direct] .gtour{display:block;width:calc(100% + 44px)!important;max-width:none!important;margin:0 -22px 34px!important}
+body[data-direct] .gk{margin:0 0 14px;font:600 12px Ysabeau,sans-serif;letter-spacing:.22em;text-transform:uppercase;color:rgba(245,236,224,.9)}
+body[data-direct] .gcar{display:flex;align-items:flex-start;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 22px 10px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+body[data-direct] .gcar::-webkit-scrollbar{display:none}
+body[data-direct] .gcard{flex:none;width:72%;max-width:300px;scroll-snap-align:center;text-align:left;padding:20px 18px 18px;border-radius:20px;border:1px solid rgba(245,236,224,.35);background:linear-gradient(160deg,rgba(245,236,224,.10),rgba(245,236,224,.02));transition:transform .5s cubic-bezier(.16,1,.3,1),border-color .5s}
+body[data-direct] .gcard.on{border-color:#d9b46a;transform:translateY(-3px)}
+body[data-direct] .gcard .no{font:italic 300 15px Piazzolla,serif;color:#d9b46a}
+body[data-direct] .gcard svg{display:block;width:44px;height:44px;margin:10px 0 12px;fill:none;stroke:#f5ece0;stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round}
+body[data-direct] .gcard b{display:block;font:italic 300 24px/1.15 Piazzolla,serif;color:#f5ece0}
+body[data-direct] .gcard small{display:block;margin-top:2px;font:600 11px Ysabeau,sans-serif;letter-spacing:.18em;text-transform:uppercase;color:rgba(245,236,224,.75)}
+body[data-direct] .gcard p{margin:10px 0 0;font-size:15.5px;line-height:1.4;color:rgba(245,236,224,.88)}
+body[data-direct] .gcard.final{border-style:dashed}
+body[data-direct] .gdots{display:flex;justify-content:center;gap:7px;margin-top:6px}
+body[data-direct] .gdots i{width:6px;height:6px;border-radius:50%;background:rgba(245,236,224,.3);transition:width .4s,background .4s}
+body[data-direct] .gdots i.on{width:20px;border-radius:3px;background:#d9b46a}
 @keyframes gin{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
 @keyframes gcr{from{opacity:0;transform:scale(.9);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
 body[data-direct] .gcrest{animation:gcr 1.6s cubic-bezier(.16,1,.3,1) both}
@@ -391,7 +412,7 @@ body[data-direct] .face li.on{opacity:1;transform:none}
 body[data-direct] .face li::before{transition:transform .9s cubic-bezier(.16,1,.3,1)}body[data-direct] .face li:not(.on)::before{transform:scale(.6)}
 body[data-direct] .face .pk,body[data-direct] #picks>*{opacity:0;transform:translateY(18px);transition:opacity .8s,transform .8s cubic-bezier(.16,1,.3,1)}
 body[data-direct] .face .pk.on,body[data-direct] #picks>.on{opacity:1;transform:none}
-@media (prefers-reduced-motion:reduce){body[data-direct] .gmarq div,body[data-direct] .face *{animation:none!important;transition:none!important}body[data-direct] .face li,body[data-direct] .face .pk,body[data-direct] #picks>*{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){body[data-direct] .gcard,body[data-direct] .gmarq div,body[data-direct] .face *{animation:none!important;transition:none!important}body[data-direct] .face li,body[data-direct] .face .pk,body[data-direct] #picks>*{opacity:1;transform:none}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 </head>
@@ -437,6 +458,8 @@ body[data-direct] .face .pk.on,body[data-direct] #picks>.on{opacity:1;transform:
         <h2 data-t="invBackH"></h2>
         <p class="lead" data-t="invBackP"></p>
         <div class="gmarq" aria-hidden="true"><div><span>Evangelos <i>&amp;</i> Konstantina Aliki</span><b>20 · 08 · 2027</b><span>Evangelos <i>&amp;</i> Konstantina Aliki</span><b>20 · 08 · 2027</b><span>Evangelos <i>&amp;</i> Konstantina Aliki</span><b>20 · 08 · 2027</b><span>Evangelos <i>&amp;</i> Konstantina Aliki</span><b>20 · 08 · 2027</b></div></div>
+        <div class="gmarq rev" aria-hidden="true"><div id="gmq2"></div></div>
+        <div class="gtour"><p class="gk" id="gtourK"></p><div class="gcar" id="gcar"></div><div class="gdots" id="gdots"></div></div>
         <ol><li data-t="invR1"></li><li data-t="invR2"></li><li data-t="invR3"></li><li data-t="invR4"></li></ol>
         <p class="pk" data-t="invPick"></p>
         <div id="picks"><button class="invb fill" type="button" id="pG" disabled></button><button class="invb fill" type="button" id="pB" disabled></button></div>
@@ -482,7 +505,7 @@ body[data-direct] .face .pk.on,body[data-direct] #picks>.on{opacity:1;transform:
 <div id="simple" hidden><div class="wrap" id="simpleB"></div></div>
 <noscript><div style="padding:24px;font:18px system-ui">Ευάγγελος & Κωνσταντίνα Αλίκη · 20 Αυγούστου 2027 · Κορωπί. Ενεργοποίησε τη JavaScript για την πρόσκληση.</div></noscript>
 <audio id="music" src="assets/music/tosa_kalokairia.m4a" loop preload="none"></audio>
-<script type="module" src="main.js?v=20261114d"></script>
+<script type="module" src="main.js?v=20261115b"></script>
 <script>/* old phones: no import maps, no modules -> show a plain message with the essentials */
 if(!(HTMLScriptElement.supports&&HTMLScriptElement.supports("importmap"))){document.getElementById("intro").hidden=true;var s=document.getElementById("simple");s.hidden=false;
 document.getElementById("simpleB").innerHTML='<h1>Ευάγγελος &amp; Κωνσταντίνα Αλίκη</h1><p><b>Παρασκευή 20 Αυγούστου 2027</b> · 19:00 · Κορωπί</p><p>19:00 Υποδοχή · 19:30 Τελετή · 21:00 Δείπνο · 23:30 Πάρτι</p><p>Για το παιχνίδι άνοιξε το link σε πιο νέο κινητό ή υπολογιστή.</p>'}</script>
