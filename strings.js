@@ -1,7 +1,7 @@
 /* ================= CONTENT: everything the couple edits lives here (DEMO = placeholder) ================= */
 export const CONTENT={
   names:{el:["Ευάγγελος","Κωνσταντίνα Αλίκη"],en:["Evangelos","Konstantina Aliki"],de:["Evangelos","Konstantina Aliki"],ro:["Evangelos","Konstantina Aliki"]},
-  startUTC:"20270820T163000Z",endUTC:"20270821T000000Z",            /* 19:30–03:00 Athens time */
+  startUTC:"20270820T163000Z",endUTC:"20270821T020000Z",            /* 19:30–05:00 Athens time */
   /* the printed-style invitation card: church and venue names appear once filled in */
   invite:{venue:"Domaine Braimnioti Mediterranean"},
   rsvpBy:"2027-07-20",plusMax:2,
@@ -419,3 +419,17 @@ Object.assign(T.de,{saveMob:"Auf deinem Handy speichern",camAgain:"Noch eins",wa
 Object.assign(T.ro,{saveMob:"Salvează pe telefonul tău",camAgain:"Mai fă una",walletNoApple:"Din păcate, nu este disponibil pentru Apple Wallet."});
 /* the button under the bride's bachelor details */
 T.el.bachOpen="Δες τη βίλα στο Booking";T.en.bachOpen="See the villa on Booking";T.de.bachOpen="Villa auf Booking ansehen";T.ro.bachOpen="Vezi vila pe Booking";
+/* the starry opening */
+Object.assign(T.el,{skyBlow:"Φύσηξε στα αστέρια",skyTouch:"ή άγγιξέ τα",skyMic:"Φύσηξε στο μικρόφωνο",skyInv:"Σας προσκαλούμε",skySub:"στον γάμο μας",skyOpen:"Άνοιξε την πρόσκληση",skySkip:"Παράλειψη"});
+Object.assign(T.en,{skyBlow:"Blow on the stars",skyTouch:"or touch them",skyMic:"Blow into the microphone",skyInv:"You are invited",skySub:"to celebrate our wedding",skyOpen:"Open the invitation",skySkip:"Skip"});
+Object.assign(T.de,{skyBlow:"Puste die Sterne weg",skyTouch:"oder berühre sie",skyMic:"Ins Mikrofon pusten",skyInv:"Ihr seid eingeladen",skySub:"zu unserer Hochzeit",skyOpen:"Einladung öffnen",skySkip:"Überspringen"});
+Object.assign(T.ro,{skyBlow:"Suflă peste stele",skyTouch:"sau atinge-le",skyMic:"Suflă în microfon",skyInv:"Sunteți invitați",skySub:"la nunta noastră",skyOpen:"Deschide invitația",skySkip:"Sari peste"});
+/* the lantern opening */
+Object.assign(T.el,{lnLight:"Άναψε το φαναράκι σου",lnTouch:"άγγιξέ το",lnMine:"το δικό σου φαναράκι",lnInv:"Σας προσκαλούμε στον γάμο μας"});
+Object.assign(T.en,{lnLight:"Light your lantern",lnTouch:"touch it",lnMine:"your own lantern",lnInv:"You are invited to our wedding"});
+Object.assign(T.de,{lnLight:"Zünde deine Laterne an",lnTouch:"berühre sie",lnMine:"deine eigene Laterne",lnInv:"Ihr seid zu unserer Hochzeit eingeladen"});
+Object.assign(T.ro,{lnLight:"Aprinde-ți lampionul",lnTouch:"atinge-l",lnMine:"lampionul tău",lnInv:"Sunteți invitați la nunta noastră"});
+Object.assign(T.el,{gSure:"Είσαι σίγουρα αυτός ή αυτή;",gYes:"Ναι, εγώ είμαι",gNo:"Όχι",gNeed2:"Παρακαλώ, θα χρειαστώ όνομα και επίθετο."});
+Object.assign(T.en,{gSure:"Is this really you?",gYes:"Yes, that’s me",gNo:"No",gNeed2:"Please write your first name and surname."});
+Object.assign(T.de,{gSure:"Bist du das wirklich?",gYes:"Ja, das bin ich",gNo:"Nein",gNeed2:"Bitte schreib Vor- und Nachnamen."});
+Object.assign(T.ro,{gSure:"Chiar tu ești?",gYes:"Da, eu sunt",gNo:"Nu",gNeed2:"Te rog, am nevoie de prenume și nume."});

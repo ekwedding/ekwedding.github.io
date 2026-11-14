@@ -12,7 +12,7 @@ import {OutputPass} from "three/addons/postprocessing/OutputPass.js";
 import {UnrealBloomPass} from "three/addons/postprocessing/UnrealBloomPass.js";
 import {RGBELoader} from "three/addons/loaders/RGBELoader.js";
 import {MeshoptDecoder} from "three/addons/libs/meshopt_decoder.module.js";
-import {CONTENT,T} from "./strings.js";
+import {CONTENT,T} from "./strings.js?v=20261114c";
 
 const $=s=>document.querySelector(s);
 const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -1329,7 +1329,12 @@ function setGuest(f){state.guest=f.name+(f.note?` (${f.note})`:"");state.guestSe
   syncGuest()}
 function acceptGuest(f){setGuest(f);nameGate=false;document.body.classList.remove("gate");closeCard()}
 /* one lookup for the gate and the info page: a clear match goes straight through, close ones become buttons, no match stays here; trouble with the list never locks anyone out */
-function guestCheck(n,out,found,pass){const x=tx(),my=guestCheck.seq=(guestCheck.seq||0)+1;if(!SHEET){pass();return}out.innerHTML=`<p class="demo">${x.seatWait}</p>`;
+function guestCheck(n,out,found0,pass){const x=tx(),my=guestCheck.seq=(guestCheck.seq||0)+1;
+  if(n.split(" ").length<2){out.innerHTML=`<p class="need2">${x.gNeed2}</p>`;return}
+  /* one more step before the name is taken: "is this really you?" */
+  const found=f=>{out.innerHTML=`<div class="gsure"><p>${x.gSure}</p><b>${esc(f.name)}</b>${f.note?`<small>${esc(f.note)}</small>`:""}<div class="acts"><button class="btn" type="button" id="gsY">${x.gYes}</button><button class="btn ghost" type="button" id="gsN">${x.gNo}</button></div></div>`;
+    out.scrollIntoView({block:"nearest"});$("#gsY").addEventListener("click",()=>{out.innerHTML="";found0(f)});$("#gsN").addEventListener("click",()=>{out.innerHTML="";const i=$("#gn");if(i){i.value="";i.focus()}})};
+  if(!SHEET){pass();return}out.innerHTML=`<p class="demo">${x.seatWait}</p>`;
   guestLookup(n).then(d=>{if(my!==guestCheck.seq)return;if(d.listed===false){out.innerHTML="";pass();return}
     if(!d.close&&d.found.length===1&&n.split(" ").length>1){out.innerHTML="";found(d.found[0]);return}
     if(!d.found.length){const wa=CONTENT.secret&&CONTENT.secret.whatsapp,miss=guestCheck.miss=(guestCheck.miss||0)+1;out.innerHTML=`<p>${x.gateNone}</p>${miss>1&&n.split(" ").length>1?`<button class="btn" type="button" id="gGo">${x.gateGo}</button>`:""}${wa?`<a class="btn ghost" href="https://wa.me/${wa}" target="_blank" rel="noopener">${x.gateAsk}</a>`:""}`;const go=$("#gGo");if(go)go.addEventListener("click",()=>{out.innerHTML="";pass()});out.scrollIntoView({block:"nearest"});return}

@@ -1,0 +1,37 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//EK//wedding//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Wedding of Evangelos & Konstantina Aliki
+X-WR-TIMEZONE:Europe/Athens
+BEGIN:VEVENT
+UID:wedding-20270820@ekwedding.github.io
+DTSTAMP:20261114T222154Z
+LAST-MODIFIED:20261114T222154Z
+SEQUENCE:29911581
+DTSTART:20270820T163000Z
+DTEND:20270821T020000Z
+SUMMARY:Wedding of Evangelos & Konstantina Aliki
+LOCATION:Domaine Braimnioti Mediterranean\, Koropi 166 72
+DESCRIPTION:Evangelos & Konstantina Aliki are getting married!\nFriday\, 
+ 20 August 2027\n\n19:30 The wedding\, in the estate's church\n21:00 Dinn
+ er\n22:00 The party\, with the Two Gents\n\nDomaine Braimnioti Mediterra
+ nean\, Koropi 166 72\nMap: https://maps.app.goo.gl/63D9LbdJddfpLr5d6\n\n
+ Kindly reply by 20 July 2027\nThe invitation: https://ekwedding.github.i
+ o/?lang=en
+URL:https://ekwedding.github.io/?lang=en
+TRANSP:OPAQUE
+STATUS:CONFIRMED
+BEGIN:VALARM
+TRIGGER;VALUE=DATE-TIME:20270720T070000Z
+ACTION:DISPLAY
+DESCRIPTION:Wedding of Evangelos & Konstantina Aliki
+END:VALARM
+BEGIN:VALARM
+TRIGGER;VALUE=DATE-TIME:20270820T070000Z
+ACTION:DISPLAY
+DESCRIPTION:Wedding of Evangelos & Konstantina Aliki
+END:VALARM
+END:VEVENT
+END:VCALENDAR

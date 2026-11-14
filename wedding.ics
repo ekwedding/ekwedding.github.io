@@ -10,24 +10,33 @@ REFRESH-INTERVAL;VALUE=DURATION:PT6H
 X-PUBLISHED-TTL:PT6H
 BEGIN:VEVENT
 UID:wedding-20270820@ekwedding.github.io
-DTSTAMP:20261104T175837Z
-LAST-MODIFIED:20261104T175837Z
-SEQUENCE:29896918
+DTSTAMP:20261114T222154Z
+LAST-MODIFIED:20261114T222154Z
+SEQUENCE:29911581
 DTSTART:20270820T163000Z
-DTEND:20270821T000000Z
+DTEND:20270821T020000Z
 SUMMARY:Γάμος Ευάγγελου & Κωνσταντίνας Αλίκ
  ης
 LOCATION:Domaine Braimnioti Mediterranean\, Κορωπί 166 72
-DESCRIPTION:19:30 Γάμος · 21:00 Δείπνο · 22:00 Πάρτι ht
- tps://ekwedding.github.io/
+DESCRIPTION:Ευάγγελος & Κωνσταντίνα Αλίκη παν
+ τρεύονται!\nΠαρασκευή 20 Αυγούστου 2027\n\n19
+ :30 Ο γάμος\, στην εκκλησία του κτήματος\n2
+ 1:00 Το δείπνο\n22:00 Το πάρτι\, με τους Two Gents\
+ n\nDomaine Braimnioti Mediterranean\, Κορωπί 166 72\nΧάρτης:
+  https://maps.app.goo.gl/63D9LbdJddfpLr5d6\n\nΠαρακαλούμε α
+ παντήστε έως 20 Ιουλίου 2027\nΗ πρόσκληση: h
+ ttps://ekwedding.github.io/?lang=el
+URL:https://ekwedding.github.io/?lang=el
+TRANSP:OPAQUE
+STATUS:CONFIRMED
 BEGIN:VALARM
-TRIGGER:-P7D
+TRIGGER;VALUE=DATE-TIME:20270720T070000Z
 ACTION:DISPLAY
 DESCRIPTION:Γάμος Ευάγγελου & Κωνσταντίνας Αλ
  ίκης
 END:VALARM
 BEGIN:VALARM
-TRIGGER:-P1D
+TRIGGER;VALUE=DATE-TIME:20270820T070000Z
 ACTION:DISPLAY
 DESCRIPTION:Γάμος Ευάγγελου & Κωνσταντίνας Αλ
  ίκης
