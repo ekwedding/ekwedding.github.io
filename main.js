@@ -394,7 +394,7 @@ const G={box:new THREE.BoxGeometry(1,1,1),cyl:new THREE.CylinderGeometry(.5,.5,1
 /* geometry is collected per material and merged: a whole room in a handful of draw calls */
 function Builder(){const parts={},o=new THREE.Object3D(),wrap=new THREE.Object3D();
   return{at(x,z,ry){wrap.position.set(x,0,z);wrap.rotation.set(0,ry||0,0);wrap.updateMatrix();return this},
-    add(geo,m,x,y,z,sx=1,sy=1,sz=1,ry=0,rx=0,rz=0){o.position.set(x,y,z);o.rotation.set(rx,ry,rz);o.scale.set(sx,sy,sz);o.updateMatrix();
+    add(geo,m,x,y,z,sx=1,sy=1,sz=1,ry=0,rx=0,rz=0,ord="XYZ"){o.position.set(x,y,z);o.rotation.set(rx,ry,rz,ord);o.scale.set(sx,sy,sz);o.updateMatrix();
       let g=geo.clone().applyMatrix4(new THREE.Matrix4().multiplyMatrices(wrap.matrix,o.matrix));if(g.index)g=g.toNonIndexed();for(const k of Object.keys(g.attributes))if(!["position","normal","uv"].includes(k))g.deleteAttribute(k);
       if(!g.attributes.uv)g.setAttribute("uv",new THREE.BufferAttribute(new Float32Array(g.attributes.position.count*2),2));(parts[m]||(parts[m]=[])).push(g);return this},
     build(scene,shadow=true,occ=null){for(const k in parts){const gm=mergeGeometries(parts[k]);if(/^(wash|wash2|wood|wood2|darkwood|stone)$/.test(k))boxUV(gm,k[0]==="w"&&k[1]==="o"?1.6:2.4);const me=new THREE.Mesh(gm,M[k]);if(occ&&/^(wash|wash2|dome|stone)$/.test(k))occ.push(me);if(scene===world){me.name=k;STATIC.push(me)}me.castShadow=shadow&&!["bulb","bulbW","flame","glass"].includes(k);me.receiveShadow=true;scene.add(me)}}}}
@@ -949,10 +949,12 @@ function lightCone(r,x,y,z,tx,tz,color=0xfff1d6,i=26){const l=new THREE.SpotLigh
 function rug(r,x,z,w,d,c1,c2){const t=canvasTex(256,256,(g,W,H)=>{g.fillStyle=c1;g.fillRect(0,0,W,H);g.strokeStyle=c2;g.lineWidth=10;g.strokeRect(14,14,W-28,H-28);g.lineWidth=3;g.strokeRect(30,30,W-60,H-60);
   for(let i=0;i<6;i++){g.beginPath();g.arc(W/2,H/2,20+i*14,0,7);g.stroke()}});const m=new THREE.Mesh(new THREE.PlaneGeometry(w,d),mat({map:t,roughness:1}));m.rotation.x=-Math.PI/2;m.position.set(x,.02,z);m.receiveShadow=true;r.scene.add(m)}
 /* the "find your seat" easel, same family as the invitation easel */
+/* three easel legs that really hold the board: two in front leaning back with it, one behind leaning in to meet it */
+function easelLegs(B,x,z,ry){for(const[lx,lz,lean]of[[.45,.16,-.12],[-.45,.16,-.12],[0,-.32,.2]]){const v=new THREE.Vector3(lx,0,lz).applyAxisAngle(UP,ry);B.add(G.box,"wood",x+v.x,.85,z+v.z,.06,1.9,.06,ry,lean,0,"YXZ")}}
 function seatEasel(r,x,z,ry,go){const t=tx(),c=new THREE.Mesh(new THREE.PlaneGeometry(1.2,1.6),mat({map:canvasTex(300,400,(g,w,h)=>{g.fillStyle="#fbfaf7";g.fillRect(0,0,w,h);g.strokeStyle="#b08a3e";g.lineWidth=4;g.strokeRect(14,14,w-28,h-28);g.fillStyle="#14273a";g.textAlign="center";
     g.font="300 40px Piazzolla, Georgia, serif";t.seatL.split(" ").reduce((y,wd,i,a)=>{g.fillText(wd,w/2,110+i*46);return y},0);g.font="600 20px Commissioner, sans-serif";g.fillStyle="#b81d5b";g.fillText("· "+t.seatBoard+" ·",w/2,330)})}));
   const off=new THREE.Vector3(0,0,-.15).applyAxisAngle(UP,ry),s2=new THREE.Vector3(.3,0,.1).applyAxisAngle(UP,ry),s3=new THREE.Vector3(-.3,0,.1).applyAxisAngle(UP,ry);
-  c.position.set(x,1.7,z);c.rotation.set(-.12,ry,0,"YXZ");r.scene.add(c);r.B.at(0,0,0);r.B.add(G.box,"wood",x+off.x,.85,z+off.z,.06,1.9,.06,ry,-.12).add(G.box,"wood",x+s2.x,.85,z+s2.z,.06,1.9,.06,ry,.15).add(G.box,"wood",x+s3.x,.85,z+s3.z,.06,1.9,.06,ry,.15);
+  c.position.set(x,1.7,z);c.rotation.set(-.12,ry,0,"YXZ");r.scene.add(c);r.B.at(0,0,0);easelLegs(r.B,x,z,ry);
   r.round.push({x,z,r:.6});r.items=(r.items||[]).concat({label:()=>tx().seatL,at:[x,2.8,z],go,fn:()=>CARDS.seat()})}
 const seatHTML=()=>{const x=tx(),g=state.guestSeat;return `${g?`<div id="stAsk"><p>${x.seatAsk}</p><p style="font-size:19px;font-weight:700;margin:6px 0 2px">${esc(g.name)}${g.note?` <small>(${esc(g.note)})</small>`:""}</p><div class="acts"><button class="btn" type="button" id="stYes">${x.seatYes}</button><button class="btn ghost" type="button" id="stNo">${x.seatNo}</button></div></div>`:""}<form id="stf" autocomplete="off" ${g?"hidden":""}><p>${x.seatP}</p><label class="f"><span>${x.voteName}</span><input id="stq" required maxlength="60" style="font-size:17px"></label><div class="acts" style="margin-top:12px"><button class="btn" type="submit">${x.seatBtn}</button></div></form><div class="seatres" id="stR" aria-live="polite"></div>`};
 /* one result: name (note, when two people share a name), table, and whoever comes with them */
@@ -1041,7 +1043,7 @@ function buildRoom(id){if(rooms[id])return rooms[id];let r;const x=tx();
         const f=new THREE.Mesh(new THREE.PlaneGeometry(.48,.48),mat(tx2?{map:tx2}:{map:canvasTex(96,96,(g,w,h)=>{g.fillStyle=["#e9d8c0","#cfe0e8","#e8cfd6","#d8e6cf"][k%4];g.fillRect(0,0,w,h);g.fillStyle="#6b6358";g.font="600 22px Commissioner, sans-serif";g.textAlign="center";g.fillText(2011+k,w/2,56)})}));
         f.material.polygonOffset=true;f.material.polygonOffsetFactor=-4;f.material.polygonOffsetUnits=-4;f.position.set(-7.86,yy,zz);f.rotation.y=Math.PI/2;r.scene.add(f);B.add(G.box,"black",-7.95,yy,zz,.04,.54,.54)}}
     /* next to the album, with room between them: the easel with the guests' fingerprint tree */
-    easelTex=canvasTex(360,432,(g,w,h)=>paintTree(g,w,h));{const e=new THREE.Mesh(new THREE.PlaneGeometry(1.25,1.5),mat({map:easelTex,roughness:.7}));e.position.set(5.7,1.72,4.1);e.rotation.set(-.12,-.5,0);r.scene.add(e);B.add(G.box,"wood",5.7,.85,3.95,.06,1.9,.06,-.5,-.12).add(G.box,"wood",6,.85,4.3,.06,1.9,.06,-.5,.15).add(G.box,"wood",5.4,.85,4.2,.06,1.9,.06,-.5,.15);lightCone(r,5.7,4.4,6,5.7,4.1,0xfff1d6,22);r.round.push({x:5.7,z:4.1,r:.6});loadPrints()}
+    easelTex=canvasTex(360,432,(g,w,h)=>paintTree(g,w,h));{const e=new THREE.Mesh(new THREE.PlaneGeometry(1.25,1.5),mat({map:easelTex,roughness:.7}));e.position.set(5.7,1.72,4.1);e.rotation.set(-.12,-.5,0,"YXZ");r.scene.add(e);easelLegs(B,5.7,4.1,-.5);lightCone(r,5.7,4.4,6,5.7,4.1,0xfff1d6,22);r.round.push({x:5.7,z:4.1,r:.6});loadPrints()}
     r.spot=[0,-3.6,1.6,0,-6.4];r.items=[{label:()=>"📷 "+tx().albumL,at:[5.4,2.7,1.5],go:[4.3,2.8],fn:()=>CARDS.album()},{label:()=>"🌳 "+tx().treeL,at:[5.7,2.9,4.1],go:[4.5,4.8],fn:()=>CARDS.easel()},{label:()=>tx().kidsL,at:[-7.6,3.9,-2.6],go:[-5.8,-2.6],fn:()=>CARDS.kids()},{label:()=>"2011 – 2026",at:[-7.6,3.9,2.1],go:[-5.6,2.6],fn:()=>CARDS.years()}];
     [[-4.2,-4.6,Math.PI,"idle"],[3.8,-4.8,Math.PI,"talk"]].forEach(([gx,gz,gy,a],i)=>guest(r.scene,i+2,gx,gz,gy,a).then(e=>e&&r.round.push({x:gx,z:gz,r:.5})));
   }else if(id==="estate"){
@@ -1059,7 +1061,7 @@ function buildRoom(id){if(rooms[id])return rooms[id];let r;const x=tx();
     /* easel + printed invitation */
     const card=new THREE.Mesh(new THREE.PlaneGeometry(1.2,1.6),mat({map:canvasTex(300,400,(g,w,h)=>{g.fillStyle="#fbfaf7";g.fillRect(0,0,w,h);g.strokeStyle="#b08a3e";g.lineWidth=4;g.strokeRect(14,14,w-28,h-28);g.fillStyle="#14273a";g.textAlign="center";
       g.font="300 34px Piazzolla, Georgia, serif";const n=CONTENT.names[lang];g.fillText(n[0],w/2,130);g.font="500 22px Piazzolla, Georgia, serif";g.fillText("&",w/2,165);g.font="300 34px Piazzolla, Georgia, serif";g.fillText(n[1],w/2,205);g.font="600 20px Commissioner, sans-serif";g.fillText("20 · 08 · 2027",w/2,270);g.fillText(x.koropi,w/2,300)})}));
-    card.position.set(5,1.7,-4.6);card.rotation.set(-.12,-.5,0);r.scene.add(card);B.add(G.box,"wood",5,.85,-4.75,.06,1.9,.06,-.5,-.12).add(G.box,"wood",4.7,.85,-4.4,.06,1.9,.06,-.5,.15).add(G.box,"wood",5.3,.85,-4.5,.06,1.9,.06,-.5,.15);
+    card.position.set(5,1.7,-4.6);card.rotation.set(-.12,-.5,0,"YXZ");r.scene.add(card);easelLegs(B,5,-4.6,-.5);
     lightCone(r,5,4.4,-2.6,5,-4.6,0xfff1d6,22);r.round.push({x:5,z:-4.6,r:.6});
     plant(B,6.8,4.5,1.2);plant(B,-6.8,4.5,1.2);
     r.spot=[4.2,-3,1.6,5,-4.6];r.items=[{label:()=>tx().menuL,at:[-1,1.7,0],go:[-1,1.9],fn:()=>CARDS.menu()}];seatEasel(r,-4.6,3,.6,[-3.5,3.9]);
@@ -1519,7 +1521,8 @@ function renderMore(){if(thanksMode){renderThanks();return}const x=tx(),v=CONTEN
   $("#mGame").addEventListener("click",()=>{$("#intro").scrollTo({top:0,behavior:reduce?"auto":"smooth"});flipCard(true)})}
 function flipCard(back){$("#inv3d").classList.toggle("flipped",back);$(".face.if").inert=back;$(".face.ib").inert=!back}
 $("#flip").addEventListener("click",()=>flipCard(true));$("#unflip").addEventListener("click",()=>flipCard(false));
-$("#pG").addEventListener("click",()=>choose("groom"));$("#pB").addEventListener("click",()=>choose("bride"));
+const goFull=()=>{const de=document.documentElement;if(matchMedia("(pointer:coarse)").matches&&de.requestFullscreen&&!document.fullscreenElement)de.requestFullscreen({navigationUI:"hide"}).catch(()=>{})};
+$("#pG").addEventListener("click",()=>{goFull();choose("groom")});$("#pB").addEventListener("click",()=>{goFull();choose("bride")});
 
 let composer=null;
 if(!mobile&&!/noao/.test(location.search)){try{composer=new EffectComposer(renderer,new THREE.WebGLRenderTarget(innerWidth,innerHeight,{type:THREE.HalfFloatType,samples:4}));composer.addPass(new RenderPass(world,camera));const ao=new GTAOPass(world,camera,innerWidth,innerHeight);ao.output=GTAOPass.OUTPUT.Default;ao.blendIntensity=.9;
@@ -1534,13 +1537,24 @@ if(window.visualViewport)visualViewport.addEventListener("resize",()=>{resize();
 setInterval(()=>{if((canvas.clientWidth+"x"+canvas.clientHeight)!==lastWH)resize()},700);
 
 let last=performance.now(),envWH="";
+/* the circles on the floor: walk onto one and what it offers opens by itself. You have to step off before the same one opens again */
+let autoAt=null,autoRoom;
+function autoSpots(){if(mode!=="play"||!P||goal||document.body.classList.contains("cardopen")||!pie.hidden||P.lock>0)return;
+  const px=P.pos.x,pz=P.pos.z,near=(x,z,r=.5)=>Math.hypot(px-x,pz-z)<r;
+  if(room!==autoRoom){autoRoom=room;autoAt=[px,pz];return}
+  if(autoAt){if(Math.hypot(px-autoAt[0],pz-autoAt[1])>1.1)autoAt=null;return}
+  const cx=innerWidth/2,cy=innerHeight*.55;
+  if(room){for(const it of room.items||[]){if(it.go&&near(it.go[0],it.go[1])){autoAt=it.go;if(it.at)P.yaw=Math.atan2(it.at[0]-px,it.at[2]-pz);it.fn();return}}return}
+  for(const id in PLACES){const[a,b]=doorFront(id,1.3);if(near(a,b,.6)){autoAt=[a,b];goPlace(id);return}}
+  for(let i=0;i<KP_AT.length;i++){const[x,z]=KP_AT[i];if(near(x,z+.9)){autoAt=[x,z+.9];const e=npcs.find(n=>n.koum===(i?"ka":"kp")&&n.scene===world);if(e)koumMenu(e,cx,cy);return}}
+  for(const b of BENCH){const x=b.x+Math.sin(b.ry)*1.1,z=b.z+Math.cos(b.ry)*1.1;if(near(x,z)){autoAt=[x,z];benchMenu(b,cx,cy);return}}}
 function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-last)/1000);last=now;tAll+=dt;
   if(mode==="intro"&&$("#intro").scrollTop>=innerHeight)return;
   /* the envelope is opening: keep the last picture, but redraw if the size changed, a resize blanks the canvas */
   if(mode==="intro"){if(now<envBusy&&envWH===lastWH)return;envWH=lastWH}
   adaptRes(dt);
   if(mode==="intro"){introT+=dt;const a=introPose(introT);camPos.copy(a.p);camLook.copy(a.l);(window.__ents||[]).forEach(e=>{e.m.position.copy(e.pos);e.m.rotation.y=e.yaw;e.mix.update(dt)})}
-  else{if(mode==="ride")updateRide(dt);else if(mode==="drive")updDrive(dt);else if(P&&mode!=="busy")updateChars(dt);updVespaHome(dt);if(room){if(roomFocusT>0&&(roomFocusT-=dt)<=0)roomZoomT=ROOM_FAR;roomZoom+=(roomZoomT-roomZoom)*Math.min(1,dt*2)}const f=followPose();
+  else{if(mode==="ride")updateRide(dt);else if(mode==="drive")updDrive(dt);else if(P&&mode!=="busy"){updateChars(dt);autoSpots()}updVespaHome(dt);if(room){if(roomFocusT>0&&(roomFocusT-=dt)<=0)roomZoomT=ROOM_FAR;roomZoom+=(roomZoomT-roomZoom)*Math.min(1,dt*2)}const f=followPose();
     if(mode==="fly"){flyT+=dt/(reduce?.01:2.6);const a=introPose(introT),e=ease(Math.min(1,flyT));camPos.lerpVectors(a.p,f.p,e);camLook.lerpVectors(a.l,f.l,e);[P,N].forEach(x=>x.mix.update(dt));if(flyT>=1){mode="play";renderObj();if(startOnVespa&&state.guestOk){startOnVespa=false;vespaObj.position.set(P.pos.x+1.4,0,P.pos.z);vespaObj.rotation.y=Math.PI;mountVespa()}}}
     else{const k=1-Math.exp(-6*dt);camPos.lerp(f.p,k);camLook.lerp(f.l,k)}}
   camera.position.copy(camPos);camera.lookAt(camLook);
