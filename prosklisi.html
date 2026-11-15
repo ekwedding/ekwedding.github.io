@@ -608,7 +608,7 @@ function pick(g,listed){const full=g.name+(g.note?` (${g.note})`:"");nm.value=g.
   /* their table, once the plan is published, and their own Wallet pass */
   if(listed){const wal=`<button type="button" class="chip wal" id="wal">${X.walletBtn}</button>`;
     /* the Wallet pass is there even before the tables are out: it says "to be announced" and fills in by itself */seatEl.innerHTML=`<div class="seatbox">${g.table?`<div class="tb">${X.seatT} ${esc(g.table)}</div>`:`<p>${X.seatSoon||""}</p>`}${g.with&&g.with.length?`<p>${X.seatWith}: ${g.with.map(esc).join(", ")}</p>`:""}${wal}<small>${X.walletNoApple||""}</small></div>`;S.table=!!g.table;
-    const w=$("#wal");if(w)w.onclick=()=>{const win=window.open("","_blank");w.disabled=true;w.textContent=X.seatWait;get("wallet="+encodeURIComponent(g.name)+"&note="+encodeURIComponent(g.note||"")).then(d=>{if(!d.link)throw 0;if(win)win.location=d.link;else location.href=d.link}).catch(()=>{if(win)win.close();note.textContent=X.walletErr}).finally(()=>{w.disabled=false;w.textContent=X.walletBtn})}}
+    const w=$("#wal");if(w)w.onclick=()=>{const win=window.open("","_blank");w.disabled=true;w.textContent=X.seatWait;get("wallet="+encodeURIComponent(g.name)+"&note="+encodeURIComponent(g.note||"")+"&lang="+lang).then(d=>{if(!d.link)throw 0;if(win)win.location=d.link;else location.href=d.link}).catch(()=>{if(win)win.close();note.textContent=X.walletErr}).finally(()=>{w.disabled=false;w.textContent=X.walletBtn})}}
   else{seatEl.innerHTML="";S.table=false}
   setName(full,listed)}
 $("#sb").addEventListener("click",search);nm.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();search()}});

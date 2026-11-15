@@ -153,7 +153,7 @@ const mapsBtns=()=>{const v=CONTENT.venue,a=(u,t)=>`<a class="btn ghost" href="$
 /* this guest's own Google Wallet pass, on every phone: the script makes it on the first tap and keeps its table up to date (no table yet: 'to be announced', then it updates itself) */
 const walletBtn=(f=state.guestSeat)=>f&&SHEET?`<button class="btn ghost" type="button" data-wal="${esc(f.name)}" data-note="${esc(f.note||"")}">${ICON.ext}${tx().walletBtn}</button>`:"";
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-wal]");if(!b)return;const x=tx(),w=window.open("","_blank"),html=b.innerHTML;b.disabled=true;b.textContent=x.seatWait;
-  fetch(SHEET+"?wallet="+encodeURIComponent(b.dataset.wal)+"&note="+encodeURIComponent(b.dataset.note)).then(r=>r.json()).then(d=>{if(!d.link)throw 0;if(w)w.location=d.link;else location.href=d.link}).catch(()=>{if(w)w.close();toast(x.walletErr,5000)}).finally(()=>{b.disabled=false;b.innerHTML=html})});
+  fetch(SHEET+"?wallet="+encodeURIComponent(b.dataset.wal)+"&note="+encodeURIComponent(b.dataset.note)+"&lang="+lang).then(r=>r.json()).then(d=>{if(!d.link)throw 0;if(w)w.location=d.link;else location.href=d.link}).catch(()=>{if(w)w.close();toast(x.walletErr,5000)}).finally(()=>{b.disabled=false;b.innerHTML=html})});
 const schedHTML=()=>`<dl class="sched">${CONTENT.schedule.map(s=>`<div><dt>${tx().sched[s[1]]}</dt><dd>${s[0]}</dd></div>`).join("")}</dl>`;
 
 const L2=o=>o[lang]||o.en;
