@@ -438,6 +438,7 @@ document.querySelectorAll("#top [data-l],#open [data-l]").forEach(b=>{b.setAttri
 const again=new URLSearchParams(location.search).has("lang")&&sessionStorage.getItem("wopened")==="1";
 
 const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+/* the same one clean start as the game: answers saved on this phone before 2026-11-15 are forgotten */try{if(localStorage.getItem("wreset")!=="2"){["wrsvp","wq2","wname","wscores","wcount"].forEach(k=>localStorage.removeItem(k));Object.keys(localStorage).filter(k=>k.startsWith("w_")).forEach(k=>localStorage.removeItem(k));localStorage.setItem("wreset","2")}}catch(e){}
 gsap.registerPlugin(ScrollTrigger,Observer);
 /* blur is the heaviest thing a phone can animate while scrolling: phones get the same motion without it */const BLUR=n=>matchMedia("(pointer: coarse)").matches?"blur(0px)":"blur("+n+"px)";
 /* the page is measured once for the phone's real screen. Opening the keyboard (or the address bar sliding) changes only the height,

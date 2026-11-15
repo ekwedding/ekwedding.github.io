@@ -37,7 +37,7 @@ const mobile=touch||Math.min(innerWidth,innerHeight)<700;
 let lang="el";{let set=false;try{const l=localStorage.getItem("wlang");if(T[l]){lang=l;set=true}}catch(e){}if(!set){const nl=(navigator.languages||[navigator.language||""]).map(x=>String(x).slice(0,2).toLowerCase()).find(x=>T[x]);if(nl)lang=nl}}
 const tx=()=>T[lang];
 /* one clean start for every phone after the test period; language and sound stay */
-try{if(localStorage.getItem("wreset")!=="1"){Object.keys(localStorage).forEach(k=>{if(k==="wq2"||k==="wname"||k==="wscores"||k==="wcount"||k.startsWith("w_"))localStorage.removeItem(k)});localStorage.setItem("wreset","1")}}catch(e){}
+/* bump RESET_V to give every phone one clean start (2026-11-15: everything played and answered so far was cleared) */const RESET_V="2";try{if(localStorage.getItem("wreset")!==RESET_V){Object.keys(localStorage).forEach(k=>{if(k==="wq2"||k==="wname"||k==="wscores"||k==="wcount"||k==="wrsvp"||k.startsWith("w_"))localStorage.removeItem(k)});localStorage.setItem("wreset",RESET_V)}}catch(e){}
 let state={done:{}};try{state=JSON.parse(localStorage.getItem("wq2")||"null")||state}catch(e){}
 const save=()=>{if(save.off)return;try{localStorage.setItem("wq2",JSON.stringify(state))}catch(e){}};
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
