@@ -130,8 +130,8 @@ function complete(q){if(state.done[q])return;state.done[q]=1;save();passBanner()
 function calText(){const x=tx();return{title:x.calTitle,loc:CONTENT.venue.name+", "+CONTENT.venue.addr,desc:CONTENT.schedule.map(s=>s[0]+" "+x.sched[s[1]]).join(" · ")+(CONTENT.demo?" ("+x.demoNote+")":"")+" "+location.href.split("?")[0]}}
 const icsEsc=s=>s.replace(/[\\;,]/g,m=>"\\"+m).replace(/\n/g,"\\n");
 /* the calendar is a subscription to one published file (wedding.ics, built by tools/make_ics.mjs): change it once and every subscriber follows */
-const ICS_URL="ekwedding.github.io/wedding.ics",gcal=()=>"https://calendar.google.com/calendar/render?cid="+encodeURIComponent("webcal://"+ICS_URL);
-function downloadICS(){if(/iPhone|iPad|Macintosh/.test(navigator.userAgent))location.href="webcal://"+ICS_URL;else window.open(gcal(),"_blank","noopener")}
+const ICS_URL=()=>"ekwedding.github.io/"+(lang==="el"?"wedding.ics":"wedding-"+lang+".ics"),gcal=()=>"https://calendar.google.com/calendar/render?cid="+encodeURIComponent("webcal://"+ICS_URL());
+function downloadICS(){if(/iPhone|iPad|Macintosh/.test(navigator.userAgent))location.href="webcal://"+ICS_URL();else window.open(gcal(),"_blank","noopener")}
 /* iPhones get both map apps; everyone else Google Maps, which opens the app if it is installed */
 const isIOS=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
 /* both albums for everyone, the one that suits this phone first */
@@ -212,13 +212,13 @@ function syncGuest(){if(!SHEET||!state.guest)return;fetch(SHEET+"?name="+encodeU
 function passBanner(){let b=$("#pass");if(!b){b=document.createElement("div");b.id="pass";document.body.appendChild(b)}b.textContent="✓ "+tx().passed;b.classList.remove("show");void b.offsetWidth;b.classList.add("show")}
 const CARDS={
   estate(tab="cal"){const x=tx();const tabs=`<div class="seg" role="tablist" style="margin:0 0 10px"><label><input type="radio" name="et" value="cal" ${tab==="cal"?"checked":""}><span>${x.tabCal}</span></label><label><input type="radio" name="et" value="rsvp" ${tab==="rsvp"?"checked":""}><span>${x.tabRsvp}</span></label></div>`;
-    const body=tab==="cal"?`<p>${x.dateP}</p>${schedHTML()}<div class="acts"><button class="btn" type="button" id="aIcs">${ICON.cal}${x.addCal}</button><a class="btn ghost" id="aG" href="${gcal()}" target="_blank" rel="noopener">${ICON.ext}${x.gcal}</a>${mapsBtns()}${walletBtn()}</div>${CONTENT.demo?`<p class="demo">${x.demoNote}</p>`:""}`
+    const body=tab==="cal"?`<p>${x.dateP}</p>${schedHTML()}<div class="acts"><button class="btn" type="button" id="aIcs">${ICON.cal}${x.addCal}</button>${mapsBtns()}${walletBtn()}</div>${CONTENT.demo?`<p class="demo">${x.demoNote}</p>`:""}`
       :`<p>${x.invBy}</p><form id="rsvp" autocomplete="off"><label class="f"><span>${x.yourName}</span><input id="nm" required maxlength="80"></label><div class="seatres" id="ptgB" aria-live="polite"></div>
       <div class="seg"><label><input type="radio" name="att" value="yes" checked><span>${x.yes}</span></label><label><input type="radio" name="att" value="no"><span>${x.no}</span></label></div>
       <div class="seatres" id="ptg" style="margin-bottom:10px"></div><div class="acts"><button class="btn" type="submit" style="flex:1">${x.send}</button></div><p class="ok" id="rOk" hidden></p></form>`;
     openCard(x.P.estate,x.dateH,tabs+body,()=>{document.querySelectorAll("input[name=et]").forEach(r=>r.addEventListener("change",()=>CARDS.estate(r.value)));
       const A=(state.ans||{}).rsvp;let pt=null;if(tab!=="cal"){const nm=$("#nm");nm.value=A?A.name:guestName()||"";pt=bindRsvp($("#rsvp"),"ptg","att",$("#rOk"),()=>nm.value);nm.addEventListener("change",()=>pt.load())}
-      if(tab==="cal"){$("#aIcs").addEventListener("click",()=>{downloadICS();complete("date")});$("#aG").addEventListener("click",()=>complete("date"))}
+      if(tab==="cal"){$("#aIcs").addEventListener("click",()=>{downloadICS();complete("date")});{const g=$("#aG");if(g)g.addEventListener("click",()=>complete("date"))}}
       else $("#rsvp").addEventListener("submit",e=>{e.preventDefault();const name=$("#nm").value.trim();if(!name)return;
         if(!pt.valid())return;const att=document.querySelector("input[name=att]:checked").value==="yes",w=pt.withs(),who=pt.info&&pt.info.listed?pt.info.name:name;saveRsvp(who,att,w,$("#rOk"));pt.sent(who,att,w);complete("date")})});cardFn=()=>CARDS.estate(tab)},
   gallery(i=0){const x=tx(),s=CONTENT.story[i];openCard(x.P.gallery+` · ${i+1}/${CONTENT.story.length}`,s.city,`<div class="ph"><img class="photo" alt="${esc(s.city)}" src="${s.src||photoURL(i)}">${s.stamp?`<span class="stamp">${s.stamp}</span>`:""}</div><p>${x.storyT[i]}</p>${s.src?"":`<p class="demo">${x.photoDemo}</p>`}
@@ -297,7 +297,7 @@ function showSimple(){const x=tx(),n=CONTENT.names[lang];$("#simple").hidden=fal
   const stops=ORDER.map(id=>{const q=questOf(id),lock=PLACES[id].final&&!agencyOpen();
     return `<li class="${state.done[q]?"done":""}"><div class="row" style="cursor:default"><span class="mark">${state.done[q]?ICON.check:""}</span><span><b>${x.Q[q][0]}</b><small>${id==="club"?x.clubName:x.P[id]}</small></span><button class="btn ${lock?"ghost":""}" type="button" data-tp="${id}" ${lock?'aria-disabled="true"':""}>${lock?x.locked:x.teleport}</button></div></li>`}).join("");
   $("#simpleB").innerHTML=`<h1>${esc(n[0])} &amp; ${esc(n[1])}</h1><p><b>${x.dateH}</b> · ${CONTENT.schedule[0][0]} · ${x.koropi}</p>
-  <section><h2>${x.Q.date[0]}</h2>${schedHTML()}<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px"><button class="btn" type="button" id="sI">${ICON.cal}${x.addCal}</button><a class="btn ghost" href="${gcal()}" target="_blank" rel="noopener">${ICON.ext}${x.gcal}</a>${mapsBtns()}</div></section>
+  <section><h2>${x.Q.date[0]}</h2>${schedHTML()}<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px"><button class="btn" type="button" id="sI">${ICON.cal}${x.addCal}</button>${mapsBtns()}</div></section>
   <section><h2>${x.koumW}</h2>${["kp","ka"].map(k=>`<p style="display:flex;gap:12px;align-items:flex-start"><img src="assets/av_${k}.jpg" alt="" style="width:56px;height:56px;border-radius:50%;object-fit:cover;flex:none"><span><b>${x[k+"Full"]}</b><br>${x[k+"P"]} <i>— ${x[k+"Sig"]}</i></span></p>`).join("")}</section>
   <section><h2>${x.seatH}</h2>${seatHTML()}</section>
   <section><h2>${x.infoH}</h2>${infoHTML(L2(CONTENT.info))}</section>
@@ -1514,7 +1514,7 @@ $("#moreHint").addEventListener("click",()=>$("#more").scrollIntoView({behavior:
 function renderThanks(){const x=tx(),c=CONTENT.thanks,m=$("#more");moreLang=lang;
   m.innerHTML=`<section><h2>${x.thanksH}</h2>${c.photos.length?`<div class="yrs">${c.photos.map(p=>`<figure><img src="${p}" alt="" loading="lazy"></figure>`).join("")}</div>`:`<p>${x.thanksSoon}</p>`}<p style="margin-top:14px">${x.thanksAlbumP}</p><div class="acts">${albumBtns()}${c.upload?`<a class="btn ghost" href="${c.upload}" target="_blank" rel="noopener">${ICON.ext}${x.thanksUp}</a>`:""}</div></section>`}
 function renderMore(){if(thanksMode){renderThanks();return}const x=tx(),v=CONTENT.venue,m=$("#more"),moreLang=lang;
-  m.innerHTML=`<section><h2>${x.moreWhen}</h2><p class="big">${x.dateH}</p>${(d=>d>1?`<p class="left">${fillIn(x.daysLeft,d)}</p>`:d===1?`<p class="left">${x.dayLeft}</p>`:"")(Math.ceil((Date.UTC(2027,7,20)-Date.parse(today))/864e5))}${schedHTML()}<p class="place"><b>${esc(v.name)}</b><br>${x.koropi} 166 72</p><div class="acts">${mapsBtns()}<button class="btn" type="button" id="mCal">${ICON.cal}${x.addCal}</button><a class="btn ghost" href="${gcal()}" target="_blank" rel="noopener">${ICON.ext}${x.gcal}</a>${walletBtn()}</div></section>
+  m.innerHTML=`<section><h2>${x.moreWhen}</h2><p class="big">${x.dateH}</p>${(d=>d>1?`<p class="left">${fillIn(x.daysLeft,d)}</p>`:d===1?`<p class="left">${x.dayLeft}</p>`:"")(Math.ceil((Date.UTC(2027,7,20)-Date.parse(today))/864e5))}${schedHTML()}<p class="place"><b>${esc(v.name)}</b><br>${x.koropi} 166 72</p><div class="acts">${mapsBtns()}<button class="btn" type="button" id="mCal">${ICON.cal}${x.addCal}</button>${walletBtn()}</div></section>
   <section><h2>${x.infoH}</h2>${infoHTML(L2(CONTENT.info))}</section>
   <section><h2>${x.tabRsvp}</h2><p>${x.invBy}</p><form id="mRsvp" autocomplete="off"><label class="f"><span>${x.yourName}</span><input id="mN" required maxlength="80" autocomplete="name"></label><div class="seatres" id="ptmB" aria-live="polite"></div>
     <div class="seg"><label><input type="radio" name="matt" value="yes" checked><span>${x.yes}</span></label><label><input type="radio" name="matt" value="no"><span>${x.no}</span></label></div>

@@ -644,9 +644,9 @@ if(mine&&mine.name){nm.value=mine.name;search()}
 {const d=Math.ceil((Date.UTC(2027,7,20)-Date.now())/864e5),t=d>1?fill(I.dl,d):d===1?I.dl1:"";$("#left").textContent=t;const pd=$("#pickDays");if(pd)pd.textContent=t}
 {const v=CONTENT.venue,t=X.calTitle,g="https://calendar.google.com/calendar/render?action=TEMPLATE&text="+encodeURIComponent(t)+"&dates="+CONTENT.startUTC+"/"+CONTENT.endUTC+"&location="+encodeURIComponent(v.name+", "+X.koropi+" 166 72")+"&details="+encodeURIComponent(location.origin+"/"),
   ar='<svg viewBox="0 0 16 16"><path d="M5 11L11 5M6 5h5v5"/></svg>',a=(h,txt,dl)=>`<a href="${h}" ${dl?"download":'target="_blank" rel="noopener"'}><span>${txt}</span>${ar}</a>`;
-  const ics=lang==="el"?"wedding.ics":"wedding-"+lang+".ics";
-  $("#pa").innerHTML=a(v.maps,I.gmaps)+a(v.apple,I.appleMaps)+(isIOS?`<a href="${ics}"><span>${I.icalIOS}</span>${ar}</a>`:"")+`<a id="gcalA" href="${g}" target="_blank" rel="noopener"><span>${X.gcal}</span>${ar}</a>`;
-  fetch("calinfo.json").then(r=>r.json()).then(j=>{if(j[lang])$("#gcalA").href=g.replace(/&details=[^&]*/,"&details="+encodeURIComponent(j[lang]))}).catch(()=>{});
+  /* one calendar button: a subscription, so any change we make reaches their calendar by itself. iPhone/Mac open their Calendar, everyone else Google Calendar */
+  const ics="ekwedding.github.io/"+(lang==="el"?"wedding.ics":"wedding-"+lang+".ics"),apple=isIOS||/Macintosh/.test(navigator.userAgent),sub=apple?"webcal://"+ics:"https://calendar.google.com/calendar/render?cid="+encodeURIComponent("webcal://"+ics);
+  $("#pa").innerHTML=a(v.maps,I.gmaps)+a(v.apple,I.appleMaps)+`<a href="${sub}" ${apple?"":'target="_blank" rel="noopener"'}><span>${I.cal}</span>${ar}</a>`;
   /* after the wedding: thanks and the photo albums, right under the names */
   const day=new URLSearchParams(location.search).get("date")||new Date().toISOString().slice(0,10);
   if(day>=CONTENT.thanksFrom){const c=CONTENT.thanks,t=$("#thx");t.hidden=false;$("#thxH").textContent=X.thanksH;$("#thxP").textContent=X.thanksLead;
