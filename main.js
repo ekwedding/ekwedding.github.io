@@ -12,7 +12,7 @@ import {OutputPass} from "three/addons/postprocessing/OutputPass.js";
 import {UnrealBloomPass} from "three/addons/postprocessing/UnrealBloomPass.js";
 import {RGBELoader} from "three/addons/loaders/RGBELoader.js";
 import {MeshoptDecoder} from "three/addons/libs/meshopt_decoder.module.js";
-import {CONTENT,T} from "./strings.js?v=20261114c";
+import {CONTENT,T} from "./strings.js?v=20261116a";
 
 const $=s=>document.querySelector(s);
 const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -20,7 +20,7 @@ const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
 const today=new URLSearchParams(location.search).get("date")||new Date().toISOString().slice(0,10),rsvpClosed=today>CONTENT.rsvpBy,thanksMode=today>=CONTENT.thanksFrom;
 const touch=matchMedia("(pointer: coarse)").matches;if(touch)document.body.classList.add("touch");
 const mobile=touch||Math.min(innerWidth,innerHeight)<700;
-let lang="el";try{const l=localStorage.getItem("wlang");if(T[l])lang=l}catch(e){}
+let lang="el";{let set=false;try{const l=localStorage.getItem("wlang");if(T[l]){lang=l;set=true}}catch(e){}if(!set){const nl=(navigator.languages||[navigator.language||""]).map(x=>String(x).slice(0,2).toLowerCase()).find(x=>T[x]);if(nl)lang=nl}}
 const tx=()=>T[lang];
 /* one clean start for every phone after the test period; language and sound stay */
 try{if(localStorage.getItem("wreset")!=="1"){Object.keys(localStorage).forEach(k=>{if(k==="wq2"||k==="wname"||k==="wscores"||k==="wcount"||k.startsWith("w_"))localStorage.removeItem(k)});localStorage.setItem("wreset","1")}}catch(e){}
@@ -102,7 +102,7 @@ function renderList(){
 function renderObj(){const x=tx(),narrow=innerWidth<560,o=$("#obj");
   if(room){const q=questOf(room.id);if(q&&room.id!=="den"&&!PLACES[room.id].final||q==="honey"){o.innerHTML=state.done[q]?`<span class="qd">✓</span> ${x.questDone}`:`<b>Quest:</b> ${x.Q[q][1]} ${x.questToPass}`;return}o.innerHTML=`<b>${x.guide[room.id]}</b>${narrow?"":" · "+x.exitHint}`;return}
   const id=nextPlace();o.innerHTML=id?(narrow?`${x.nextStop}: <b>${x.P[id]}</b> ${x.nextGo}`:`${x.nextStop}: <b>${x.Q[questOf(id)][0]}</b> · ${x.P[id]} ${x.nextGo}`):state.quiz>=2?(state.quiz===2&&!state.secret?x.objPaws:x.objEnd):x.honeyDone}
-$("#obj").addEventListener("click",()=>{if(mode!=="play")return;if(room){if(room.id==="den"||state.done[questOf(room.id)]){const id=nextPlace();if(id&&id!==room.id)goPlace(id)}else walkTo(room.spot[0],room.spot[1]);return}const id=nextPlace();if(id)goPlace(id);else if(state.quiz===2&&!state.secret)quizWinCard()});
+$("#obj").addEventListener("click",()=>{if(mode==="drive"&&!room){const id=nextPlace();if(id)driveTo(id);return}if(mode!=="play")return;if(room){if(room.id==="den"||state.done[questOf(room.id)]){const id=nextPlace();if(id&&id!==room.id)goPlace(id)}else walkTo(room.spot[0],room.spot[1]);return}const id=nextPlace();if(id)goPlace(id);else if(state.quiz===2&&!state.secret)quizWinCard()});
 function panel(sel,open){const p=$(sel);open=open==null?p.classList.contains("shut"):open;p.classList.toggle("shut",!open);
   const b=sel==="#list"?$("#bList"):$("#bVespa");b.setAttribute("aria-expanded",String(open));if(open)panel(sel==="#list"?"#dest":"#list",false)}
 $("#bList").addEventListener("click",()=>panel("#list"));
@@ -1240,7 +1240,7 @@ function buildDen(){const r=roomBase("den",{floor:plankTex("#8a5f42","#7d553a"),
   B.add(G.cyl,"darkwood",6.7,1.05,-5.4,.42,.06,.42).add(G.cyl,"black",6.7,.52,-5.4,.05,1.04,.05).add(G.cyl,"black",6.7,.03,-5.4,.3,.05,.3).add(G.cyl,"glass",6.62,1.12,-5.3,.13,.05,.13).add(G.cyl,"glass",6.8,1.18,-5.55,.05,.18,.05).add(G.cyl,"glass",6.55,1.18,-5.6,.05,.18,.05);r.round.push({x:6.7,z:-5.4,r:.45});
   /* a little aside from the smokers, its own table with the tablet of the proposal */
   B.add(G.cyl,"darkwood",6.1,.76,-2.3,.5,.05,.5).add(G.cyl,"black",6.1,.38,-2.3,.05,.76,.05).add(G.cyl,"black",6.1,.03,-2.3,.32,.05,.32).add(new RoundedBoxGeometry(.62,.03,.44,2,.012),"black",6.1,.81,-2.3);const tab=new THREE.Mesh(new THREE.PlaneGeometry(.56,.38),new THREE.MeshBasicMaterial({color:0x9ad0ff}));tab.rotation.x=-Math.PI/2;tab.position.set(6.1,.83,-2.3);r.scene.add(tab);r.round.push({x:6.1,z:-2.3,r:.55});
-  r.items=[{label:()=>"💍 "+tx().bachB,at:[-7.6,1.3,-3],go:[-6.1,-3],fn:()=>CARDS.bach("bride")},{label:()=>"🥂 "+tx().bachG,at:[-7.6,1.3,.6],go:[-6.1,.6],fn:()=>CARDS.bach("groom")},{label:()=>"📖 "+tx().vipShelf,at:[-5.5,3.5,-6],go:[-5.5,-4.7],fn:()=>CARDS.den()},{label:()=>"🎵 "+tx().clubTracks,at:[5.2,1.3,4.9],go:[4.6,3.6],fn:()=>CARDS.club(true)},{label:()=>"🎮 "+tx().tvL,at:[0,4.75,-6.3],go:[0,-3.6],fn:()=>CARDS.yt(CONTENT.tvVideo,"Fortnite")},{label:()=>"▶ "+tx().tabletL,at:[6.1,1.6,-2.3],go:[4.9,-2.3],fn:()=>CONTENT.proposal?CARDS.proposal():CARDS.yt(CONTENT.tabletVideo,tx().tabletH)}];
+  r.items=[{label:()=>"💍 "+tx().bachB,at:[-7.6,1.3,-3],go:[-6.1,-3],fn:()=>CARDS.bach("bride")},{label:()=>"🥂 "+tx().bachG,at:[-7.6,1.3,.6],go:[-6.1,.6],fn:()=>CARDS.bach("groom")},{label:()=>"📖 "+tx().vipShelf,at:[-5.5,3.5,-6],go:[-5.5,-4.7],fn:()=>CARDS.den()},{label:()=>"🎵 "+tx().clubTracks,at:[5.2,1.3,4.9],go:[4.6,3.6],fn:()=>CARDS.club(true)},{label:()=>"▶ "+tx().tabletL,at:[6.1,1.6,-2.3],go:[4.9,-2.3],fn:()=>CONTENT.proposal?CARDS.proposal():CARDS.yt(CONTENT.tabletVideo,tx().tabletH)}];
   let tvT=0;r.anim=dt=>{tt+=dt;if((tvT-=dt)<0){tvT=.25;drawTV()}glow.intensity=8+Math.sin(tt*5)*2;smoke.forEach(p=>{p.t+=dt;const a=(p.t%4)/4;p.m.position.set(6+Math.sin(p.t)*.4,1.7+a*2.4,-4.6+Math.cos(p.t*.7)*.4);p.m.material.opacity=.35*(1-a);p.m.scale.setScalar(.6+a*1.6)})};
   return r}
 
@@ -1362,11 +1362,11 @@ function goPlaza(){if(room){exitRoom(goPlaza);return}walkTo(0,6.5)}
 /* "Isaiah, dance": on entering the chapel the priest leads the couple around in a circle while the hymn plays */
 function chapelKoum(r){if(r.koum)return;r.koum=[];[["kp",-1.7,-.6,.9],["ka",1.7,-.6,-.9]].forEach(([k,x,z,y])=>koumbaros(r.scene,k,x,z,y).then(e=>{if(e){r.koum.push(e);if(r.dance)play(e,"walk",.2)}}))}
 function startIsaiah(){const r=room;if(!r||r.id!=="chapel")return;chapelKoum(r);if(!priest){r.wantDance=1;r.shown=1;return}r.wantDance=0;r.dance={t:0};r.shown=1;goal=null;
-  singHymn();say(tx().isaiah,7000);[P,N,...(r.koum||[])].forEach(e=>{e.lock=999;play(e,"walk",.2)});play(priest,"walk",.2)}
+  document.body.classList.add("isaiah");singHymn();say(tx().isaiah,7000);[P,N,...(r.koum||[])].forEach(e=>{e.lock=999;play(e,"walk",.2)});play(priest,"walk",.2)}
 function updIsaiah(dt){const r=room,d=r&&r.dance;if(!d)return;d.t+=dt;const LAPS=2,SP=.75,a=Math.min(d.t*SP,LAPS*Math.PI*2),C=[0,-1.9],R=1.25;
   [[priest,a+1.1],[P,a],[N,a-.75],...(r.koum||[]).map((e,i)=>[e,a-1.6-i*.8])].forEach(([e,th])=>{if(!e)return;e.pos.set(C[0]+Math.sin(th)*R,0,C[1]+Math.cos(th)*R);e.yaw=Math.atan2(Math.cos(th),-Math.sin(th));e.m.position.copy(e.pos);e.m.rotation.y=e.yaw});
   if(a>=LAPS*Math.PI*2){r.dance=null;priest.pos.set(0,0,-3.9);priest.m.position.copy(priest.pos);priest.m.rotation.y=0;play(priest,"idle",.4);[P,N].forEach(e=>{e.lock=0;play(e,"idle",.3)});(r.koum||[]).forEach(e=>{e.lock=0;e.pos.set(e.home.x,0,e.home.z);e.yaw=e.home.yaw;play(e,"idle",.3)});r.shown=0;
-    if(!state.done.bless)walkTo(r.spot[0],r.spot[1])}}
+    document.body.classList.remove("isaiah");renderObj();if(!state.done.bless)walkTo(r.spot[0],r.spot[1])}}
 function blessing(){const x=tx();if(priest){play(priest,"bless",.3);priest.lock=6}[P,N].forEach(e=>{e.yaw=Math.atan2(0-e.pos.x,-3.9-e.pos.z)});
   singHymn();mood("love",15);
   say(x.priestSays,6000)}
@@ -1695,7 +1695,7 @@ function quizWinCard(){const x=tx();openCard("· · ·",x.qzWinH,`<p>${x.qzWin}<
 function quizCard(){const x=tx(),got=state.qa||{};if(state.quiz===3){openCard(x.qzW,x.qzH,`<p>${x.qzFail}</p>`);return}state.quiz=1;save();
   const body=`<p class="qwarn">${x.qzOnce}</p><p>${x.qzP}</p><ol class="qz">${x.qz.map((q,i)=>`<li><b>${q[0]}</b><div class="qa">${q[1].map((a,j)=>`<button type="button" class="chip${got[i]===j?" ok":""}" data-q="${i}" data-a="${j}">${a}</button>`).join("")}</div><small class="qr" id="qr${i}">${got[i]!=null?x.qzOk:""}</small></li>`).join("")}</ol><p class="qscore" id="qsc"></p>`;
   openCard(x.qzW,x.qzH,body,()=>{const upd=()=>{const n=Object.keys(got).length;$("#qsc").textContent=`${n}/${x.qz.length} ${x.qzOf}`;
-      if(n===x.qz.length&&!state.hint){/* the hint shows once, for 16 seconds, never again */state.quiz=2;state.hint=1;save();showPaws();renderObj();setTimeout(()=>{quizWinCard();setTimeout(()=>{if($("#qgo"))closeCard()},16000)},900)}};
+      if(n===x.qz.length&&!state.hint){/* the hint shows once, for 23 seconds, never again */state.quiz=2;state.hint=1;save();showPaws();renderObj();setTimeout(()=>{quizWinCard();setTimeout(()=>{if($("#qgo"))closeCard()},23000)},900)}};
     upd();$("#cardB").querySelectorAll("[data-q]").forEach(b=>b.addEventListener("click",()=>{const i=+b.dataset.q,j=+b.dataset.a;if(got[i]!=null)return;
       if(x.qz[i][2]===j){got[i]=j;state.qa=got;save();b.classList.add("ok");$("#qr"+i).textContent=x.qzOk;upd()}else{/* one chance only: a wrong answer ends the test for good */b.classList.add("no");$("#qr"+i).textContent=x.qzNo;state.quiz=3;save();$("#cardB").querySelectorAll("[data-q]").forEach(c=>c.disabled=true);$("#qsc").textContent=x.qzFail}}))})}
 setInterval(()=>{if(!state.quiz&&state.fin&&Date.now()-state.fin>4000&&mode==="play"&&!room&&ORDER.every(k=>state.done[questOf(k)])&&!document.body.classList.contains("cardopen"))quizCard()},1500);

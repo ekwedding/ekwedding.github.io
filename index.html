@@ -384,12 +384,12 @@ footer p{margin:0;font:italic 300 26px var(--didot)}footer .s i{font:400 .55em v
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
 <script type="module">
-import {CONTENT,T} from "./strings.js?v=20261114c";
+import {CONTENT,T} from "./strings.js?v=20261116a";
 /* ---------- language: from the link, the guest's last choice, or the phone ---------- */
 const LANGS=["el","en","de","ro"];
 let lang=new URLSearchParams(location.search).get("lang");
 if(!LANGS.includes(lang)){try{lang=localStorage.getItem("wlang")}catch(e){}}
-if(!LANGS.includes(lang))lang="el";
+if(!LANGS.includes(lang)){const nl=(navigator.languages||[navigator.language||""]).map(x=>String(x).slice(0,2).toLowerCase()).find(x=>LANGS.includes(x));lang=nl||"el"}
 document.documentElement.lang=lang;const X=T[lang];
 const I={
  el:{icalIOS:"Ημερολόγιο iPhone",needBoth:"Παρακαλώ, θα χρειαστώ όνομα και επίθετο.",wishFrom:"Με αγάπη, {n}",tg:"Μαζί μας θα είναι και οι Two Gents.",enterBtn:"Περάστε",pickH:"Πώς θέλεις να δεις την πρόσκληση;",gK:"Ο γαμπρός προτείνει",gT:"Με το παιχνίδι",gP:"Περπάτα στο νησί μας και βρες εκεί την πρόσκληση, το τραπέζι σου και μερικές εκπλήξεις.",bK:"Η νύφη προτείνει",bT:"Χωρίς παιχνίδι",bP:"Δες την πρόσκληση απλά, κυλώντας προς τα κάτω.",pickNote:"Το παιχνίδι είναι εδώ, όποτε θελήσεις.",isYou:"Είσαι εσύ;",yesMe:"Ναι, εγώ είμαι",notMe:"Όχι",needSur:"Γράψε το επίθετό σου, ή όνομα και επίθετο.",fullFirst:"Γράψε όνομα και επίθετο, για να σε βρούμε.",find:"Αναζήτηση",change:"Αλλαγή",goOn:"Συνέχεια ως «{n}»",nameFirst:"Γράψε το όνομά σου και πάτα Αναζήτηση.",wishOk:"Η ευχή σου στάλθηκε. Σε ευχαριστούμε!",appleMaps:"Apple Maps",gmaps:"Google Maps",iban:"IBAN",dl:"Μένουν {n} μέρες",dl1:"Μένει 1 μέρα",openSub:"Σας προσκαλούμε στον γάμο μας",openBtn:"Άνοιξε την πρόσκληση",playBtn:"Παίξε το παιχνίδι",gameS:"Παιχνίδι",over:"Μαζί με τις οικογένειές μας",c:["Εμείς","Η μέρα","Πρόγραμμα","Απάντηση"],wday:"Παρασκευή",month:"Αυγούστου",
@@ -428,7 +428,7 @@ document.querySelectorAll("#top [data-l],#open [data-l]").forEach(b=>{b.setAttri
 const again=new URLSearchParams(location.search).has("lang")&&sessionStorage.getItem("wopened")==="1";
 
 const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
-gsap.registerPlugin(ScrollTrigger,Observer);
+gsap.registerPlugin(ScrollTrigger,Observer);ScrollTrigger.config({ignoreMobileResize:true});
 /* split headings into letters, words kept whole so lines break naturally */
 document.querySelectorAll(".split").forEach(el=>{const words=el.textContent.split(/(\s+)/);el.textContent="";words.forEach(w=>{if(/^\s+$/.test(w)){el.append(" ");return}const wd=document.createElement("span");wd.style.display="inline-block";wd.style.whiteSpace="nowrap";[...w].forEach(c=>{const o=document.createElement("span");o.className="ch";const i=document.createElement("span");i.textContent=c;o.append(i);wd.append(o)});el.append(wd)});el.setAttribute("aria-label",words.join(""))});
 const chars=el=>el.querySelectorAll(".ch>span");

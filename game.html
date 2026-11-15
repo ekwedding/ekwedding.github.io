@@ -413,6 +413,7 @@ body[data-direct] .face li::before{transition:transform .9s cubic-bezier(.16,1,.
 body[data-direct] .face .pk,body[data-direct] #picks>*{opacity:0;transform:translateY(18px);transition:opacity .8s,transform .8s cubic-bezier(.16,1,.3,1)}
 body[data-direct] .face .pk.on,body[data-direct] #picks>.on{opacity:1;transform:none}
 @media (prefers-reduced-motion:reduce){body[data-direct] .gcard,body[data-direct] .gmarq div,body[data-direct] .face *{animation:none!important;transition:none!important}body[data-direct] .face li,body[data-direct] .face .pk,body[data-direct] #picks>*{opacity:1;transform:none}}
+body.isaiah #obj{opacity:0;pointer-events:none;transition:opacity .4s}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 </head>
@@ -505,7 +506,7 @@ body[data-direct] .face .pk.on,body[data-direct] #picks>.on{opacity:1;transform:
 <div id="simple" hidden><div class="wrap" id="simpleB"></div></div>
 <noscript><div style="padding:24px;font:18px system-ui">Ευάγγελος & Κωνσταντίνα Αλίκη · 20 Αυγούστου 2027 · Κορωπί. Ενεργοποίησε τη JavaScript για την πρόσκληση.</div></noscript>
 <audio id="music" src="assets/music/tosa_kalokairia.m4a" loop preload="none"></audio>
-<script type="module" src="main.js?v=20261115b"></script>
+<script type="module" src="main.js?v=20261116a"></script>
 <script>/* old phones: no import maps, no modules -> show a plain message with the essentials */
 if(!(HTMLScriptElement.supports&&HTMLScriptElement.supports("importmap"))){document.getElementById("intro").hidden=true;var s=document.getElementById("simple");s.hidden=false;
 document.getElementById("simpleB").innerHTML='<h1>Ευάγγελος &amp; Κωνσταντίνα Αλίκη</h1><p><b>Παρασκευή 20 Αυγούστου 2027</b> · 19:00 · Κορωπί</p><p>19:00 Υποδοχή · 19:30 Τελετή · 21:00 Δείπνο · 23:30 Πάρτι</p><p>Για το παιχνίδι άνοιξε το link σε πιο νέο κινητό ή υπολογιστή.</p>'}</script>
