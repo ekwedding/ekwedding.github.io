@@ -1103,12 +1103,13 @@ function buildRoom(id){if(rooms[id])return rooms[id];let r;const x=tx();
     guest(r.scene,1,-2.2,-5.2,0,"idle");
   }else if(id==="agency"){
     r=roomBase(id,{floor:canvasTex(256,256,(g,w,h)=>{for(let y=0;y<4;y++)for(let x2=0;x2<4;x2++){g.fillStyle=(x2+y)%2?"#e9eef2":"#3f78b5";g.fillRect(x2*64,y*64,64,64)}},[6,5]),wall:0xfaf8f4,trim:0x1f5fae,hemi:.8,keyI:.9});const B=r.B;
-    CONTENT.honey.forEach((k,i)=>{const c=canvasTex(512,680,(g,w,h)=>{const P={namerica:["#f6b26b","#3b5f8a","#22303f"],samerica:["#ffcf6a","#2e8a6e","#6b5a3e"],oceania:["#8fd3f0","#1f7fb8","#ffffff"]}[k];
+    CONTENT.honey.forEach((k,i)=>{const c=canvasTex(512,680,(g,w,h)=>{const P={namerica:["#f6b26b","#3b5f8a","#22303f"],samerica:["#ffcf6a","#2e8a6e","#6b5a3e"],oceania:["#8fd3f0","#1f7fb8","#ffffff"],asia:["#f6c7a8","#5b6f8f","#b8323a"]}[k]||["#dfe8ee","#7d8ea0","#33414f"];
       const gr=g.createLinearGradient(0,0,0,h*.7);gr.addColorStop(0,P[0]);gr.addColorStop(1,"#fff2dc");g.fillStyle=gr;g.fillRect(0,0,w,h);const tri=(a,b,c2,col)=>{g.fillStyle=col;g.beginPath();g.moveTo(...a);g.lineTo(...b);g.lineTo(...c2);g.fill()};
       if(k==="namerica"){tri([0,h*.66],[150,h*.3],[300,h*.66],P[1]);tri([200,h*.66],[360,h*.36],[512,h*.66],P[1]);g.fillStyle=P[2];for(let j=0;j<7;j++){const bh=60+((j*37)%90);g.fillRect(30+j*66,h*.66-bh,48,bh)}g.fillRect(0,h*.66,w,h*.34)}
       else if(k==="samerica"){tri([0,h*.66],[120,h*.28],[260,h*.66],P[1]);tri([180,h*.66],[330,h*.22],[512,h*.66],"#3f7a55");g.fillStyle=P[2];for(let j=0;j<5;j++)g.fillRect(140+j*14,h*.5+j*22,240-j*28,18);g.fillStyle=P[1];g.fillRect(0,h*.66,w,h*.34)}
       else if(k==="oceania"){g.fillStyle="#ffd36a";g.beginPath();g.arc(400,h*.2,46,0,7);g.fill();g.fillStyle=P[1];g.fillRect(0,h*.6,w,h*.4);g.fillStyle=P[2];for(let j=0;j<4;j++){g.beginPath();g.moveTo(120+j*70,h*.6);g.quadraticCurveTo(150+j*70,h*.38-j*8,200+j*70,h*.6);g.fill()}}
-      else{g.fillStyle="#9cc6e0";g.fillRect(0,h*.62,w,h*.38);tri([20,h*.62],[130,h*.36],[230,h*.62],P[1]);tri([260,h*.62],[400,h*.3],[500,h*.62],"#ffffff");g.fillStyle=P[2];g.beginPath();g.ellipse(256,h*.6,34,58,0,0,7);g.fill();g.fillStyle="#fff";g.beginPath();g.ellipse(256,h*.62,22,42,0,0,7);g.fill();g.fillStyle="#f2a33a";tri([248,h*.53],[264,h*.53],[256,h*.56],"#f2a33a")}
+      else{/* Asia: a snow-capped mountain, a red sun and a pagoda by the water */g.fillStyle=P[2];g.beginPath();g.arc(370,h*.2,48,0,7);g.fill();tri([40,h*.62],[256,h*.24],[472,h*.62],P[1]);tri([196,h*.33],[256,h*.24],[316,h*.33],"#ffffff");g.fillStyle="#7fb3c8";g.fillRect(0,h*.62,w,h*.38);
+        g.fillStyle=P[2];for(let j=0;j<3;j++){const y=h*.5+j*30,ww=110-j*24;g.fillRect(80-ww/2,y,ww,10);g.fillRect(80-ww/2+12,y+10,ww-24,20)}g.fillRect(76,h*.44,8,26)}
       g.fillStyle="#14273a";g.font="500 54px Piazzolla, Georgia, serif";g.textAlign="center";g.fillText(x.opt[k],w/2,h-60)});
       const px=-5.4+i*3.6,m=new THREE.Mesh(new THREE.PlaneGeometry(2.4,3.2),mat({map:c}));m.position.set(px,2.6,-6.43);r.scene.add(m);B.add(G.box,"black",px,2.6,-6.47,2.5,3.3,.04);lightCone(r,px,4.5,-4.6,px,-6.4,0xfff4e0,20)});
     /* a big wrapped present for gifts: tap the present, its banner or the green mark */
