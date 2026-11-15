@@ -88,9 +88,11 @@ body.tdark #top{color:var(--ivory);background:linear-gradient(var(--wine) 55%,rg
 .names .amp{display:block;font:400 clamp(40px,10vw,70px)/1 var(--caps);color:var(--wine);margin:.12em 0 .1em}
 .names .b{display:block;font-size:.8em}
 .hero .when{margin-top:26px;font:500 13px var(--sans);letter-spacing:.3em;text-transform:uppercase;color:var(--wine)}
-.cue{position:absolute;left:50%;bottom:76px;width:1px;height:46px;background:var(--line);overflow:hidden}
-.cue::after{content:"";position:absolute;left:0;top:-50%;width:1px;height:50%;background:var(--wine);animation:cue 2.2s cubic-bezier(.6,0,.2,1) infinite}
-@keyframes cue{to{top:110%}}
+/* the scroll hint: a small oval with a dot that slides down, on every screen, quiet */
+.cue{position:fixed;left:50%;bottom:calc(86px + env(safe-area-inset-bottom));z-index:21;width:17px;height:27px;margin-left:-8.5px;border:1.4px solid currentColor;border-radius:9px;color:var(--wine);opacity:.45;pointer-events:none;transition:opacity .5s,color .6s}
+.cue::after{content:"";position:absolute;left:50%;top:5px;width:3px;height:6px;margin-left:-1.5px;border-radius:2px;background:currentColor;animation:cue 1.9s cubic-bezier(.6,0,.2,1) infinite}
+@keyframes cue{0%{transform:translateY(0);opacity:0}25%{opacity:1}70%{transform:translateY(9px);opacity:0}100%{transform:translateY(9px);opacity:0}}
+body.cdark .cue{color:var(--ivory)}body.locked .cue,.cue.off{opacity:0}
 
 /* ---------- a running line of the names in script ---------- */
 .run{overflow:hidden;white-space:nowrap;padding:18px 0 6px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
@@ -110,17 +112,19 @@ body.tdark #top{color:var(--ivory);background:linear-gradient(var(--wine) 55%,rg
 .date .sprig.l{left:calc(50% - 64px)}.date .sprig.r{right:calc(50% - 64px)}
 
 /* ---------- the road here: a horizontal journey ---------- */
-.road{position:relative;height:100svh;overflow:hidden;background:var(--paper)}
-.road h2{position:absolute;top:calc(74px + env(safe-area-inset-top));left:22px;right:22px;margin:0;font:400 clamp(30px,8vw,52px)/1.05 var(--didot)}
+.road{position:relative;background:var(--paper);padding:calc(74px + env(safe-area-inset-top)) 0 14vh;overflow:hidden}
+.road h2{margin:0 22px 9vh;font:400 clamp(30px,8vw,52px)/1.05 var(--didot)}
 .road h2 em{font:400 1.2em var(--script);color:var(--wine);font-style:normal}
-.track{position:absolute;left:0;top:0;height:100%;display:flex;align-items:center;padding:0 12vw;will-change:transform}
-.track svg.path{position:absolute;left:0;top:50%;height:120px;margin-top:-60px;overflow:visible}
-.stop{position:relative;flex:none;width:92vw;max-width:520px;padding-top:120px;padding-right:24px}
-.stop .dot{position:absolute;left:0;top:50%;margin-top:-62px;width:18px;height:18px;border-radius:50%;background:var(--paper);border:1px solid var(--wine)}
+.track{position:relative;padding:0 5vw;--step:min(11vw,90px)}
+.track svg.path{position:absolute;left:0;top:0;overflow:visible;pointer-events:none}
+.track .tip{position:absolute;left:0;top:0;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:var(--wine);box-shadow:0 0 0 6px rgba(122,30,42,.12);pointer-events:none;opacity:0}
+.stop{position:relative;width:calc(min(90vw,560px) - var(--i) * var(--step));margin:0 0 13vh calc(var(--i) * var(--step));padding:0 0 0 34px}
+.stop:last-child{margin-bottom:0}
+.stop .dot{position:absolute;left:0;top:2px;width:18px;height:18px;border-radius:50%;background:var(--paper);border:1px solid var(--wine);z-index:1}
 .stop .dot::after{content:"";position:absolute;inset:4px;border-radius:50%;background:var(--wine)}
-.stop.last .dot{width:26px;height:26px;margin-top:-66px;background:var(--wine)}
+.stop.last .dot{width:26px;height:26px;left:-4px;top:-2px;background:var(--wine)}
 .stop .n{font:500 12px var(--sans);letter-spacing:.3em;color:var(--wine)}
-.stop b{display:block;font:400 clamp(40px,11.5vw,80px)/1 var(--didot);margin:8px 0 6px;letter-spacing:-.01em;white-space:nowrap}
+.stop b{display:block;font:400 clamp(32px,9vw,72px)/1 var(--didot);margin:10px 0 8px;letter-spacing:-.01em;overflow-wrap:anywhere}
 .stop p{margin:0;color:var(--soft);max-width:30ch;font-size:18px;line-height:1.5}
 
 /* ---------- the day ---------- */
@@ -260,6 +264,7 @@ footer p{margin:0;font:italic 300 26px var(--didot)}footer .s i{font:400 .55em v
 </div>
 
 <header id="top"><span class="mono">E K</span><span style="position:relative;display:inline-flex"><a class="gpill" href="game.html"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="7" width="19" height="11" rx="4"/><path d="M7.5 10.5v4M5.5 12.5h4"/><circle cx="15.5" cy="11.5" r=".6"/><circle cx="18" cy="13.5" r=".6"/></svg><span data-i="gameS"></span></a><span class="gtip" id="gtip" data-i="pickNote"></span></span><nav class="langs" aria-label="Language"><button data-l="el">EL</button><button data-l="en">EN</button><button data-l="de">DE</button><button data-l="ro">RO</button></nav></header>
+<i class="cue" aria-hidden="true"></i>
 <nav id="chap"><div class="names"><a href="#hero" data-c="0" data-i="c0"></a><a href="#date" data-c="1" data-i="c1"></a><a href="#day" data-c="2" data-i="c2"></a><a href="#rsvp" data-c="3" data-i="c3"></a></div><div class="bar"><i></i></div></nav>
 
 <main>
@@ -269,7 +274,6 @@ footer p{margin:0;font:italic 300 26px var(--didot)}footer .s i{font:400 .55em v
     <h2 class="names"><span class="a split" data-i="n0"></span><span class="amp hx">&amp;</span><span class="b split" data-i="n1"></span></h2>
     <div class="when hx"><span>20 · 08 · 2027 · </span><span data-i="town"></span></div>
   </div>
-  <i class="cue" aria-hidden="true"></i>
 </section>
 <section class="gift" id="thx" hidden>
   <h2 id="thxH"></h2>
@@ -294,12 +298,12 @@ footer p{margin:0;font:italic 300 26px var(--didot)}footer .s i{font:400 .55em v
 <section class="road" id="road">
   <h2 data-ih="roadH"></h2>
   <div class="track">
-    <svg class="path" aria-hidden="true"><path d="" fill="none" stroke="#1f3b2d" stroke-width="1.2" stroke-dasharray="2 7" stroke-linecap="round"/></svg>
-    <div class="stop"><i class="dot"></i><span class="n">01</span><b data-i="city0"></b><p data-i="road0"></p></div>
-    <div class="stop"><i class="dot"></i><span class="n">02</span><b data-i="city1"></b><p data-i="road1"></p></div>
-    <div class="stop"><i class="dot"></i><span class="n">03</span><b data-i="city2"></b><p data-i="road2"></p></div>
-    <div class="stop"><i class="dot"></i><span class="n">04</span><b data-i="city3"></b><p data-i="road3"></p></div>
-    <div class="stop last"><i class="dot"></i><span class="n">05</span><b data-i="city4"></b><p data-i="road4"></p></div>
+    <svg class="path" aria-hidden="true"><path d="" fill="none" stroke="#1f3b2d" stroke-width="1.4" stroke-dasharray="2 7" stroke-linecap="round"/></svg><i class="tip" aria-hidden="true"></i>
+    <div class="stop" style="--i:0"><i class="dot"></i><span class="n">01</span><b data-i="city0"></b><p data-i="road0"></p></div>
+    <div class="stop" style="--i:1"><i class="dot"></i><span class="n">02</span><b data-i="city1"></b><p data-i="road1"></p></div>
+    <div class="stop" style="--i:2"><i class="dot"></i><span class="n">03</span><b data-i="city2"></b><p data-i="road2"></p></div>
+    <div class="stop" style="--i:3"><i class="dot"></i><span class="n">04</span><b data-i="city3"></b><p data-i="road3"></p></div>
+    <div class="stop last" style="--i:4"><i class="dot"></i><span class="n">05</span><b data-i="city4"></b><p data-i="road4"></p></div>
   </div>
 </section>
 
@@ -384,7 +388,7 @@ footer p{margin:0;font:italic 300 26px var(--didot)}footer .s i{font:400 .55em v
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
 <script type="module">
-import {CONTENT,T} from "./strings.js?v=20261116a";
+import {CONTENT,T} from "./strings.js?v=20261118a";
 /* ---------- language: from the link, the guest's last choice, or the phone ---------- */
 const LANGS=["el","en","de","ro"];
 let lang=new URLSearchParams(location.search).get("lang");
@@ -459,7 +463,7 @@ document.getElementById("optB").addEventListener("click",()=>{try{sessionStorage
 
 /* ---------- smooth scroll ---------- */
 const lenis=new Lenis({duration:1.15,smoothWheel:true,syncTouch:false});
-lenis.on("scroll",ScrollTrigger.update);gsap.ticker.add(t=>lenis.raf(t*1000));gsap.ticker.lagSmoothing(0);
+lenis.on("scroll",ScrollTrigger.update);{const cue=document.querySelector(".cue"),end=()=>cue.classList.toggle("off",scrollY+innerHeight>document.documentElement.scrollHeight-60);lenis.on("scroll",end);addEventListener("scroll",end,{passive:true})}gsap.ticker.add(t=>lenis.raf(t*1000));gsap.ticker.lagSmoothing(0);
 document.querySelectorAll('#chap a').forEach(a=>a.addEventListener("click",e=>{e.preventDefault();if(window.__roadFree)window.__roadFree();window.__jump=true;lenis.scrollTo(a.getAttribute("href"),{duration:1.6,onComplete:()=>{window.__jump=false}});setTimeout(()=>{window.__jump=false},2400)}));
 
 /* ---------- hero ---------- */
@@ -491,32 +495,17 @@ dt.from(".date .dd",{scale:2.6,opacity:0,filter:"blur(14px)",ease:"power2.out",d
   .to({},{duration:.35});
 
 
-/* ---------- the road: scroll down, travel sideways ---------- */
-{const track=document.querySelector(".track"),path=document.querySelector(".track svg.path path"),svg=path.parentNode;
- const layout=()=>{const stops=[...track.querySelectorAll(".stop")],r0=svg.getBoundingClientRect(),x0=track.getBoundingClientRect().left;svg.setAttribute("width",track.scrollWidth);
-   const pts=stops.map(s=>{const d=s.querySelector(".dot").getBoundingClientRect();return[d.left-x0+d.width/2,d.top-r0.top+d.height/2]});
-   let d=`M${pts[0][0]} ${pts[0][1]}`;for(let i=1;i<pts.length;i++){const[a1,b1]=pts[i-1],[a2,b2]=pts[i],m=(a1+a2)/2,k=i%2?-46:46;d+=` C${m} ${b1+k} ${m} ${b2+k} ${a2} ${b2}`}path.setAttribute("d",d)};
- layout();addEventListener("resize",layout);
- const dist=()=>track.scrollWidth-innerWidth;
- const stopsAt=()=>[...track.querySelectorAll(".stop")].map(s=>Math.min(1,Math.max(0,(s.offsetLeft-innerWidth*.08)/dist())));
- const rt=gsap.timeline({scrollTrigger:{trigger:".road",start:"top top",end:()=>"+="+dist()*1.7,scrub:.6,pin:true,invalidateOnRefresh:true,
-   onEnter:()=>roadIn(0),onEnterBack:()=>roadIn(stopsAt().length-1)}});
- /* one city per swipe: while the road is on screen, a swipe or a wheel turn moves exactly one city, however hard it is */
- let rIdx=0,rBusy=false,rOn=false;const rst=()=>rt.scrollTrigger,yAt=i=>{const t=rst();return t.start+stopsAt()[i]*(t.end-t.start)};
- const rGo=i=>{rBusy=true;rIdx=i;lenis.scrollTo(yAt(i),{duration:1.15,force:true,lock:true,easing:t=>1-Math.pow(1-t,3),onComplete:()=>setTimeout(()=>{rBusy=false},280)})};
- const rOut=down=>{rOn=false;rObs.disable();lenis.start();rBusy=true;const t=rst();lenis.scrollTo(down?t.end+2:t.start-2,{duration:.9,force:true,onComplete:()=>{rBusy=false}})};
- const offRoad=()=>{const t=rst(),y=lenis.scroll;return y<t.start-60||y>t.end+60};
-  const rObs=Observer.create({target:window,type:"wheel,touch",wheelSpeed:-1,tolerance:14,preventDefault:true,
-   onUp:()=>{if(!rOn||rBusy)return;if(offRoad()){window.__roadFree();return}const n=stopsAt().length-1;rIdx<n?rGo(rIdx+1):rOut(true)},
-   onDown:()=>{if(!rOn||rBusy)return;if(offRoad()){window.__roadFree();return}rIdx>0?rGo(rIdx-1):rOut(false)}});rObs.disable();
- function roadIn(i){if(rOn||rBusy||window.__jump)return;rOn=true;lenis.stop();rObs.enable();rGo(i)}
- window.__roadFree=()=>{if(rOn){rOn=false;rObs.disable();lenis.start()}};
- rt.to(track,{x:()=>-dist(),ease:"none"},0);
- const L=()=>path.getTotalLength();gsap.set(path,{attr:{"stroke-dasharray":"2 7"}});
- /* the dotted road appears behind the guest as they travel */
- const mask=document.createElementNS("http://www.w3.org/2000/svg","clipPath");mask.id="rc";const rr=document.createElementNS("http://www.w3.org/2000/svg","rect");rr.setAttribute("x",0);rr.setAttribute("y",-200);rr.setAttribute("height",600);rr.setAttribute("width",0);mask.append(rr);svg.append(mask);path.setAttribute("clip-path","url(#rc)");
- rt.to(rr,{attr:{width:()=>track.scrollWidth},ease:"none"},0);
- track.querySelectorAll(".stop").forEach((s,i)=>{gsap.from(s.querySelectorAll("b,.n,p,.dot"),{opacity:0,y:40,stagger:.08,ease:E,duration:1,scrollTrigger:{trigger:s,containerAnimation:rt,start:"left 78%",toggleActions:"play none none reverse"}})});}
+/* ---------- the road: five cities stepping down and to the right; the dotted line draws itself as you scroll down ---------- */
+{const track=document.querySelector(".track"),path=track.querySelector("svg.path path"),svg=path.parentNode,tip=track.querySelector(".tip");let S=[];
+ const layout=()=>{const stops=[...track.querySelectorAll(".stop")],T=track.getBoundingClientRect();svg.setAttribute("width",T.width);svg.setAttribute("height",T.height);
+   const pts=stops.map(s=>{const d=s.querySelector(".dot").getBoundingClientRect();return[d.left-T.left+d.width/2,d.top-T.top+d.height/2]});
+   let d=`M${pts[0][0]} ${pts[0][1]}`;for(let i=1;i<pts.length;i++){const[a1,b1]=pts[i-1],[a2,b2]=pts[i],dx=a2-a1,dy=b2-b1;d+=` C${a1+dx*.15} ${b1+dy*.4} ${a2-dx*.15} ${b2-dy*.4} ${a2} ${b2}`}path.setAttribute("d",d);
+   const L=path.getTotalLength();S=[];for(let k=0;k<=240;k++){const q=path.getPointAtLength(L*k/240);S.push([q.x,q.y])}};
+ layout();addEventListener("resize",()=>{layout();ScrollTrigger.refresh()});if(document.fonts)document.fonts.ready.then(()=>{layout();ScrollTrigger.refresh()});
+ const mask=document.createElementNS("http://www.w3.org/2000/svg","clipPath");mask.id="rc";const rr=document.createElementNS("http://www.w3.org/2000/svg","rect");rr.setAttribute("x",-50);rr.setAttribute("y",-50);rr.setAttribute("width",4000);rr.setAttribute("height",0);mask.append(rr);svg.append(mask);path.setAttribute("clip-path","url(#rc)");
+ const draw=p=>{const H=track.offsetHeight*p;rr.setAttribute("height",H+50);let b=S[0]||[0,0];for(const q of S){if(q[1]<=H)b=q;else break}tip.style.transform=`translate(${b[0]}px,${b[1]}px)`;tip.style.opacity=p>.002&&p<.995?1:0};
+ ScrollTrigger.create({trigger:track,start:"top 72%",end:"bottom 72%",scrub:.5,onUpdate:st=>draw(st.progress),onRefresh:st=>draw(st.progress)});
+ track.querySelectorAll(".stop").forEach(s=>{gsap.from(s.querySelectorAll("b,.n,p,.dot"),{opacity:0,y:34,stagger:.08,ease:E,duration:1,scrollTrigger:{trigger:s,start:"top 82%",toggleActions:"play none none reverse"}})});}
 gsap.from(".road h2",{opacity:0,y:30,duration:1.2,ease:E,scrollTrigger:{trigger:".road",start:"top 70%"}});
 
 /* ---------- the day: a spine that fills, drawings that draw themselves ---------- */

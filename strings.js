@@ -25,7 +25,7 @@ export const CONTENT={
   /* dinner menu at the estate. PLACEHOLDERS */
   menu:{el:[["Ορεκτικά","Ποικιλία με τυριά, ντάκοι, φάβα (DEMO)"],["Σαλάτα","Χωριάτικη με κρίθινο παξιμάδι (DEMO)"],["Κυρίως","Μοσχαράκι ή λαβράκι (DEMO)"],["Γλυκό","Γαμήλια τούρτα (DEMO)"]],en:[["Starters","Cheeses, dakos, fava (DEMO)"],["Salad","Greek salad with barley rusk (DEMO)"],["Main","Veal or sea bass (DEMO)"],["Dessert","Wedding cake (DEMO)"]]},
   drinks:["oldfashioned", "negroni", "margarita", "espresso", "daiquiri", "whiskysour", "martini", "aperol", "mojito", "manhattan"],
-  honey:["namerica","samerica","oceania","antarctica"],      /* continents we have not been to yet */
+  honey:["namerica","samerica","asia","oceania"],      /* continents we have not been to yet */
   backend:{projectId:"",apiKey:""},
   /* Google Apps Script web-app URL (tools/sheets/Code.gs); empty = answers stay on the phone */
   sheet:"https://script.google.com/macros/s/AKfycbyXsQxEqpwThf_YAv5o1yZVHXoVl8OiKRJQw1J4kpEOkjMKFUAl4oHK2LMycmeP4wcG3w/exec",                                    /* Firestore; empty = demo, answers stay on the device */
@@ -64,7 +64,7 @@ el:{when:"Παρασκευή",koropi:"Κορωπί",playG:"Παίξε ως",play
  danceH:"Η πίστα είναι δική σας",danceP:"Οι φίλοι μας ήδη χορεύουν.",danceBtn:"Χόρεψε!",
  wishH:"Στείλε μας ευχές",wishP:"Γράψε μας ό,τι θέλεις. Θα τις διαβάσουμε μετά τον γάμο.",wishText:"Η ευχή σου",
  honeyH:"Πού να πάμε ταξίδι του μέλιτος;",honeyP:"Η ψήφος σου μένει κρυφή μέχρι τον γάμο. Φαίνεται μόνο πόσοι ψήφισαν.",voted:"ψήφισαν",vote:"Ψήφισε",honeyDone:"Η ψήφος σου μετρήθηκε. Τα αποτελέσματα στο πάρτι!",
- opt:{namerica:"Βόρεια Αμερική",samerica:"Νότια Αμερική",oceania:"Ωκεανία",antarctica:"Ανταρκτική"},demoNote:"Δοκιμαστικά στοιχεία, θα αλλάξουν.",photoDemo:"Η φωτογραφία θα μπει σύντομα.",calTitle:"Γάμος Ευάγγελου & Κωνσταντίνας Αλίκης",back:"Πίσω στο παιχνίδι",music:"Μουσική"},
+ opt:{namerica:"Βόρεια Αμερική",samerica:"Νότια Αμερική",oceania:"Ωκεανία",asia:"Ασία"},demoNote:"Δοκιμαστικά στοιχεία, θα αλλάξουν.",photoDemo:"Η φωτογραφία θα μπει σύντομα.",calTitle:"Γάμος Ευάγγελου & Κωνσταντίνας Αλίκης",back:"Πίσω στο παιχνίδι",music:"Μουσική"},
 en:{when:"Friday",koropi:"Koropi",playG:"Play as",playB:"Play as",loading:"Loading…",stops:"Stops",stopsH:"Your stops",tapGo:"Tap a stop to go there",simple:"Simple version",vespaH:"Where to?",
  go:"Go",done:"Done",locked:"Closed",close:"Close",exit:"Exit",hint:"Tap the ground or a label to walk. Drag to turn the camera.",
  next:"Next",nextStop:"Next stop",allDone:"You did them all. The travel agency is open!",lockedMsg:"The travel agency opens once you finish every other stop.",
@@ -79,7 +79,7 @@ en:{when:"Friday",koropi:"Koropi",playG:"Play as",playB:"Play as",loading:"Loadi
  danceH:"The dance floor is yours",danceP:"Our friends are already dancing.",danceBtn:"Dance!",
  wishH:"Send us your wishes",wishP:"Write whatever you like. We'll read them after the wedding.",wishText:"Your wish",
  honeyH:"Where should we go on honeymoon?",honeyP:"Your vote stays secret until the wedding. Only the number of voters is shown.",voted:"voted",vote:"Vote",honeyDone:"Your vote counts. Results at the party!",
- opt:{namerica:"North America",samerica:"South America",oceania:"Oceania",antarctica:"Antarctica"},demoNote:"Demo details, will change.",photoDemo:"The photo is coming soon.",calTitle:"Wedding of Evangelos & Konstantina Aliki",back:"Back to the game",music:"Music"},
+ opt:{namerica:"North America",samerica:"South America",oceania:"Oceania",asia:"Asia"},demoNote:"Demo details, will change.",photoDemo:"The photo is coming soon.",calTitle:"Wedding of Evangelos & Konstantina Aliki",back:"Back to the game",music:"Music"},
 de:{when:"Freitag",koropi:"Koropi",playG:"Spiele als",playB:"Spiele als",loading:"Lädt…",stops:"Stationen",stopsH:"Deine Stationen",tapGo:"Tippe auf eine Station, um hinzugehen",simple:"Einfache Version",vespaH:"Wohin?",
  go:"Los",done:"Erledigt",locked:"Geschlossen",close:"Schließen",exit:"Ausgang",hint:"Tippe auf den Boden oder ein Schild, um zu gehen. Ziehen dreht die Kamera.",
  next:"Weiter",nextStop:"Nächste Station",allDone:"Alles erledigt. Das Reisebüro hat geöffnet!",lockedMsg:"Das Reisebüro öffnet, wenn alle anderen Stationen erledigt sind.",
@@ -94,7 +94,7 @@ de:{when:"Freitag",koropi:"Koropi",playG:"Spiele als",playB:"Spiele als",loading
  danceH:"Die Tanzfläche gehört euch",danceP:"Unsere Freunde tanzen schon.",danceBtn:"Tanzen!",
  wishH:"Schick uns deine Wünsche",wishP:"Schreib, was du möchtest. Wir lesen alles nach der Hochzeit.",wishText:"Dein Wunsch",
  honeyH:"Wohin sollen wir in die Flitterwochen?",honeyP:"Deine Stimme bleibt bis zur Hochzeit geheim. Nur die Zahl der Stimmen ist sichtbar.",voted:"haben abgestimmt",vote:"Abstimmen",honeyDone:"Deine Stimme zählt. Ergebnis auf der Party!",
- opt:{namerica:"Nordamerika",samerica:"Südamerika",oceania:"Ozeanien",antarctica:"Antarktis"},demoNote:"Testdaten, ändern sich noch.",photoDemo:"Das Foto kommt bald.",calTitle:"Hochzeit von Evangelos & Konstantina Aliki",back:"Zurück zum Spiel",music:"Musik"},
+ opt:{namerica:"Nordamerika",samerica:"Südamerika",oceania:"Ozeanien",asia:"Asien"},demoNote:"Testdaten, ändern sich noch.",photoDemo:"Das Foto kommt bald.",calTitle:"Hochzeit von Evangelos & Konstantina Aliki",back:"Zurück zum Spiel",music:"Musik"},
 ro:{when:"Vineri",koropi:"Koropi",playG:"Joacă ca",playB:"Joacă ca",loading:"Se încarcă…",stops:"Opriri",stopsH:"Opririle tale",tapGo:"Atinge o oprire ca să mergi acolo",simple:"Versiunea simplă",vespaH:"Unde mergem?",
  go:"Mergi",done:"Gata",locked:"Închis",close:"Închide",exit:"Ieșire",hint:"Atinge solul sau o etichetă ca să mergi. Trage ca să rotești camera.",
  next:"Următor",nextStop:"Următoarea oprire",allDone:"Le-ai făcut pe toate. Agenția de turism s-a deschis!",lockedMsg:"Agenția se deschide după ce termini toate celelalte opriri.",
@@ -109,7 +109,7 @@ ro:{when:"Vineri",koropi:"Koropi",playG:"Joacă ca",playB:"Joacă ca",loading:"S
  danceH:"Ringul e al vostru",danceP:"Prietenii noștri dansează deja.",danceBtn:"Dansează!",
  wishH:"Trimite-ne urări",wishP:"Scrie ce vrei. Le citim după nuntă.",wishText:"Urarea ta",
  honeyH:"Unde să mergem în luna de miere?",honeyP:"Votul tău rămâne secret până la nuntă. Se vede doar câți au votat.",voted:"au votat",vote:"Votează",honeyDone:"Votul tău contează. Rezultatele la petrecere!",
- opt:{namerica:"America de Nord",samerica:"America de Sud",oceania:"Oceania",antarctica:"Antarctica"},demoNote:"Date de test, se vor schimba.",photoDemo:"Fotografia vine în curând.",calTitle:"Nunta lui Evangelos & Konstantina Aliki",back:"Înapoi la joc",music:"Muzică"}
+ opt:{namerica:"America de Nord",samerica:"America de Sud",oceania:"Oceania",asia:"Asia"},demoNote:"Date de test, se vor schimba.",photoDemo:"Fotografia vine în curând.",calTitle:"Nunta lui Evangelos & Konstantina Aliki",back:"Înapoi la joc",music:"Muzică"}
 };
 
 
@@ -214,11 +214,11 @@ for(const l in MORE4)Object.assign(T[l],MORE4[l]);
 for(const l of ["de","ro"])for(const k in T.en)if(!(k in T[l]))T[l][k]=T.en[k];
 const MORE5={
 el:{albumL:"Άλμπουμ γάμου",albumH:"Το άλμπουμ του γάμου μας",albumP:"Βγάλατε φωτογραφίες; Ανεβάστε τες εδώ, όλοι μαζί σε ένα άλμπουμ. Θέλουμε να ζήσουμε ξανά τη μέρα μας και μέσα από τα δικά σας μάτια. Κάθε στιγμή που θα μοιραστείτε είναι για εμάς ένα δώρο.",albumBtn:"Άνοιγμα άλμπουμ",
-  honeyPick:"Διάλεξε ήπειρο. Σε Ευρώπη, Ασία και Αφρική έχουμε ήδη πάει!",
+  honeyPick:"Διάλεξε ήπειρο. Σε Ευρώπη και Αφρική έχουμε ήδη πάει!",
   drinksH:"Τι να πίνουμε στον γάμο;",drinksP:"Διάλεξε τα κοκτέιλ που θέλεις στον γάμο. Μπορείς πολλά. Τα 2 με τις περισσότερες ψήφους θα σερβίρονται στο μπαρ.",drinksSent:"Σημειώθηκε, στην υγειά μας!",
   dr:{oldfashioned:"Old Fashioned",negroni:"Negroni",margarita:"Margarita",espresso:"Espresso Martini",daiquiri:"Daiquiri",whiskysour:"Whiskey Sour",martini:"Dry Martini",aperol:"Aperol Spritz",mojito:"Mojito",manhattan:"Manhattan"},menuL:"Μενού",menuH:"Τι θα φάμε",info:"Πληροφορίες"},
 en:{albumL:"Wedding album",albumH:"Our wedding album",albumP:"Took photos? Upload them here, all together in one album. We want to live our day again through your eyes. Every moment you share is a gift to us.",albumBtn:"Open the album",
-  honeyPick:"Pick a continent. We've already been to Europe, Asia and Africa!",
+  honeyPick:"Pick a continent. We've already been to Europe and Africa!",
   drinksH:"What should we drink at the wedding?",drinksP:"Pick the cocktails you want at the wedding. You can pick several. The 2 with the most votes will be served at the bar.",drinksSent:"Noted, cheers!",
   dr:{oldfashioned:"Old Fashioned",negroni:"Negroni",margarita:"Margarita",espresso:"Espresso Martini",daiquiri:"Daiquiri",whiskysour:"Whiskey Sour",martini:"Dry Martini",aperol:"Aperol Spritz",mojito:"Mojito",manhattan:"Manhattan"},menuL:"Menu",menuH:"What we'll eat",info:"Info"}};
 for(const l in MORE5)Object.assign(T[l],MORE5[l]);
@@ -289,7 +289,7 @@ Object.assign(T.ro,{nameH:"Cum te numești?",nameP:"Scrie-ți numele complet aș
 Object.assign(T.de,{clubName:"Beachclub",teleport:"Hinbeamen",giftH:"Möchtet ihr uns etwas schenken?",giftP:"Eure Anwesenheit ist das größte Geschenk. Wenn ihr möchtet, geht auch:",holder:"Kontoinhaber",copied:"Kopiert!",openRev:"Revolut öffnen",irisP:"Mit IRIS auf dem Handy bezahlen",
   infoH:"Gut zu wissen",yourAns:"Deine Antwort",attY:"Ich komme",attN:"Ich kann nicht",persons:"Personen",change:"Ändern",vipH:"Nur für unsere Leute",vipIdeaH:"Was sollen wir nach der Hochzeit machen?",vipIdeaP:"Schreib uns Ideen, Vorschläge oder alles, was du uns sagen möchtest.",vipSent:"Angekommen, danke!",
   albumL:"Hochzeitsalbum",albumH:"Unser Hochzeitsalbum",albumP:"Ihr habt Fotos gemacht? Ladet sie hier hoch, alle zusammen in einem Album. Wir wollen unseren Tag durch eure Augen noch einmal erleben. Jeder Moment, den ihr teilt, ist ein Geschenk für uns.",albumBtn:"Album öffnen",
-  honeyPick:"Wähle einen Kontinent. In Europa, Asien und Afrika waren wir schon!",drinksH:"Was trinken wir auf der Hochzeit?",drinksP:"Wähle die Cocktails, die du auf der Hochzeit möchtest. Mehrere sind möglich. Die 2 mit den meisten Stimmen gibt es an der Bar.",drinksSent:"Notiert, Prost!",
+  honeyPick:"Wähle einen Kontinent. In Europa und Afrika waren wir schon!",drinksH:"Was trinken wir auf der Hochzeit?",drinksP:"Wähle die Cocktails, die du auf der Hochzeit möchtest. Mehrere sind möglich. Die 2 mit den meisten Stimmen gibt es an der Bar.",drinksSent:"Notiert, Prost!",
   menuH:"Was wir essen",villaBtn:"Die Villa auf Booking ansehen",tabletL:"Der Antrag",tabletH:"Der Heiratsantrag",boardH:"Rangliste",kidsL:"Diese Kinder…",kidsH:"Diese Kinder heiraten!!",yearsH:"Ein Jahr, ein Foto",yearsSoon:"Fotos folgen bald.",
   arcadeP:"Wähle ein Spiel. Gib deinen Namen ein und sieh, auf welchem Platz du landest.",username:"Spielername",board:"Rangliste",noScores:"Noch keine Punkte. Sei der Erste!",youLose:"Verloren!",gameOver:"Spiel vorbei",
   kpFull:"Athanasios (Thanos) Papacharalampos",kaFull:"Dimitra Boulala"});
@@ -297,11 +297,11 @@ T.de.guide.arcade=T.de.arcadeP;
 Object.assign(T.ro,{clubName:"Beach club",giftH:"Vreți să ne faceți un cadou?",giftP:"Prezența voastră este cel mai mare cadou. Dacă vreți, puteți și:",holder:"Titularul contului",copied:"Copiat!",openRev:"Deschide Revolut",irisP:"Plătește cu IRIS de pe telefon",
   infoH:"Bine de știut",yourAns:"Răspunsul tău",attY:"Vin",attN:"Nu pot veni",persons:"persoane",change:"Schimbă",vipH:"Doar pentru ai noștri",vipIdeaH:"Ce să facem după nuntă?",vipIdeaP:"Scrie-ne idei, sugestii sau orice vrei să ne spui.",vipSent:"Am primit, mulțumim!",
   albumL:"Albumul nunții",albumH:"Albumul nostru de nuntă",albumP:"Ați făcut poze? Încărcați-le aici, toate împreună într-un singur album. Vrem să ne retrăim ziua prin ochii voștri. Fiecare moment pe care îl împărtășiți este un cadou pentru noi.",albumBtn:"Deschide albumul",
-  honeyPick:"Alege un continent. În Europa, Asia și Africa am fost deja!",drinksH:"Ce bem la nuntă?",drinksP:"Alege cocktailurile pe care le vrei la nuntă. Poți alege mai multe. Cele 2 cu cele mai multe voturi vor fi servite la bar.",drinksSent:"Notat, noroc!",
+  honeyPick:"Alege un continent. În Europa și Africa am fost deja!",drinksH:"Ce bem la nuntă?",drinksP:"Alege cocktailurile pe care le vrei la nuntă. Poți alege mai multe. Cele 2 cu cele mai multe voturi vor fi servite la bar.",drinksSent:"Notat, noroc!",
   menuH:"Ce vom mânca",villaBtn:"Vezi vila pe Booking",tabletL:"Cererea",tabletH:"Cererea în căsătorie",boardH:"Clasament",kidsL:"Copiii aceștia…",kidsH:"Copiii aceștia se căsătoresc!!",yearsH:"Un an, o fotografie",yearsSoon:"Fotografiile vin în curând.",
   arcadeP:"Alege un joc. Scrie-ți numele și vezi pe ce loc ești.",username:"Numele jucătorului",board:"Clasament",noScores:"Încă niciun scor. Fii primul!",youLose:"Ai pierdut!",gameOver:"Joc terminat",
   tabCal:"Calendar",kpFull:"Athanasios (Thanos) Papacharalampos",kaFull:"Dimitra Boulala"});
-T.ro.guide.arcade=T.ro.arcadeP;T.ro.opt.oceania="Oceania";T.ro.opt.antarctica="Antarctica";
+T.ro.guide.arcade=T.ro.arcadeP;T.ro.opt.oceania="Oceania";T.ro.opt.asia="Asia";
 /* end of the quiz: the hidden room, or the arcade next to the club */
 T.el.qzWin+=" Διαφορετικά, δίπλα στο club θα βρεις τα παιχνίδια Arcade και μπορείς να πας και στη Γκαρνταρόμπα να μας αλλάξεις ρούχα. Καλή διασκέδαση!";T.el.qzFail+=" Δίπλα στο club σε περιμένουν τα παιχνίδια Arcade. Καλή διασκέδαση!";
 T.en.qzWin+=" Otherwise, the Arcade games are right next to the club, and you can also go to the Wardrobe and change our clothes. Have fun!";T.en.qzFail+=" The Arcade games are waiting for you next to the club. Have fun!";

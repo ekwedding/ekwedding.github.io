@@ -12,7 +12,7 @@ import {OutputPass} from "three/addons/postprocessing/OutputPass.js";
 import {UnrealBloomPass} from "three/addons/postprocessing/UnrealBloomPass.js";
 import {RGBELoader} from "three/addons/loaders/RGBELoader.js";
 import {MeshoptDecoder} from "three/addons/libs/meshopt_decoder.module.js";
-import {CONTENT,T} from "./strings.js?v=20261116a";
+import {CONTENT,T} from "./strings.js?v=20261118a";
 
 const $=s=>document.querySelector(s);
 const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -93,7 +93,7 @@ function renderUI(){
 }
 function renderList(){
   const x=tx(),main5=ORDER.filter(id=>!PLACES[id].final),n5=main5.filter(id=>state.done[questOf(id)]).length;$("#prog").innerHTML=`<b>${n5}/5</b>`+main5.map(id=>`<i class="${state.done[questOf(id)]?"on":""}"></i>`).join("")+`<span class="p6">+${state.done.honey?'<i class="on"></i>':`<svg class="lk ${agencyOpen()?"open":""}" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="${agencyOpen()?"M8 11V8a4 4 0 0 1 7.5-2":"M8 11V8a4 4 0 0 1 8 0v3"}"/></svg>`}1</span>`;
-  $("#listBack").textContent="← "+x.backPlaza;$("#listH").textContent=`${x.stopsH} · ${n5}/5 ${x.tasksOf}`;
+  {const a=$("#listInv");if(a){a.querySelector("span").textContent={el:"Επιστροφή στην πρόσκληση",en:"Back to the invitation",de:"Zurück zur Einladung",ro:"Înapoi la invitație"}[lang]||"Επιστροφή στην πρόσκληση";a.href="index.html?lang="+lang}}$("#listH").textContent=`${x.stopsH} · ${n5}/5 ${x.tasksOf}`;
   $("#listOl").innerHTML=""+ORDER.map(id=>{const q=questOf(id),d=state.done[q],lock=PLACES[id].final&&!agencyOpen();
     return `<li class="${d?"done":""}${PLACES[id].final?" final":""}"><button class="row" type="button" data-go="${id}" ${lock?'aria-disabled="true"':""}><span class="mark">${d?ICON.check:""}</span><span><b>${id==="club"?x.clubName:x.P[id]} – ${x.Q[q][0]}</b><small>${lock?x.lock6:x.Q[q][1]}</small></span><span class="go">${d?x.done:lock?x.locked:x.go}</span></button></li>`}).join("");
   $("#destUl").innerHTML=ORDER.map(id=>{const lock=PLACES[id].final&&!agencyOpen();return `<li><button class="row" type="button" data-ride="${id}" ${lock?'aria-disabled="true"':""}><span class="mark">${state.done[questOf(id)]?ICON.check:""}</span><span><b>${x.P[id]}</b><small>${x.Q[questOf(id)][0]}</small></span><span class="go">${lock?x.locked:"→"}</span></button></li>`}).join("");
@@ -106,7 +106,6 @@ $("#obj").addEventListener("click",()=>{if(mode==="drive"&&!room){const id=nextP
 function panel(sel,open){const p=$(sel);open=open==null?p.classList.contains("shut"):open;p.classList.toggle("shut",!open);
   const b=sel==="#list"?$("#bList"):$("#bVespa");b.setAttribute("aria-expanded",String(open));if(open)panel(sel==="#list"?"#dest":"#list",false)}
 $("#bList").addEventListener("click",()=>panel("#list"));
-$("#listBack").addEventListener("click",()=>{panel("#list",false);goPlaza()});
 $("#bVespa").addEventListener("click",()=>{if(mode==="play"||mode==="drive")panel("#dest")});
 $("#listOl").addEventListener("click",e=>{const b=e.target.closest("[data-go]");if(!b)return;const id=b.dataset.go;if(id==="plaza"){panel("#list",false);goPlaza();return}
   if(PLACES[id].final&&!agencyOpen()){toast(tx().lockedMsg);return}panel("#list",false);goPlace(id)});
@@ -283,10 +282,10 @@ const CARDS={
 };
 /* the honeymoon: three favourite countries in each continent; the couple picks the dates by the best season */
 const HONEY_TOP={
- el:{pick:"Και πού ακριβώς;",when:"Πότε; Θα το διαλέξει το ζευγάρι, ανάλογα με την καλύτερη εποχή για εκεί.",namerica:["Μεξικό","ΗΠΑ · Χαβάη","Καναδάς"],samerica:["Βραζιλία","Αργεντινή","Περού"],oceania:["Νέα Ζηλανδία","Αυστραλία","Φίτζι"],antarctica:["Χερσόνησος της Ανταρκτικής","Νήσοι Νότιες Σέτλαντ","Νότια Γεωργία"]},
- en:{pick:"And where exactly?",when:"When? The couple will choose, by the best season to go.",namerica:["Mexico","USA · Hawaii","Canada"],samerica:["Brazil","Argentina","Peru"],oceania:["New Zealand","Australia","Fiji"],antarctica:["Antarctic Peninsula","South Shetland Islands","South Georgia"]},
- de:{pick:"Und wohin genau?",when:"Wann? Das entscheidet das Brautpaar, je nach bester Reisezeit.",namerica:["Mexiko","USA · Hawaii","Kanada"],samerica:["Brasilien","Argentinien","Peru"],oceania:["Neuseeland","Australien","Fidschi"],antarctica:["Antarktische Halbinsel","Südliche Shetlandinseln","Südgeorgien"]},
- ro:{pick:"Și unde anume?",when:"Când? Alege mirii, după cel mai bun sezon de mers acolo.",namerica:["Mexic","SUA · Hawaii","Canada"],samerica:["Brazilia","Argentina","Peru"],oceania:["Noua Zeelandă","Australia","Fiji"],antarctica:["Peninsula Antarctică","Insulele Shetland de Sud","Georgia de Sud"]}};
+ el:{pick:"Και πού ακριβώς;",when:"Πότε; Θα το διαλέξει το ζευγάρι, ανάλογα με την καλύτερη εποχή για εκεί.",namerica:["Μεξικό","ΗΠΑ · Χαβάη"],samerica:["Βραζιλία","Αργεντινή","Περού"],asia:["Κίνα","Ιαπωνία"],oceania:["Νέα Ζηλανδία","Αυστραλία","Φίτζι"]},
+ en:{pick:"And where exactly?",when:"When? The couple will choose, by the best season to go.",namerica:["Mexico","USA · Hawaii"],samerica:["Brazil","Argentina","Peru"],asia:["China","Japan"],oceania:["New Zealand","Australia","Fiji"]},
+ de:{pick:"Und wohin genau?",when:"Wann? Das entscheidet das Brautpaar, je nach bester Reisezeit.",namerica:["Mexiko","USA · Hawaii"],samerica:["Brasilien","Argentinien","Peru"],asia:["China","Japan"],oceania:["Neuseeland","Australien","Fidschi"]},
+ ro:{pick:"Și unde anume?",when:"Când? Alege mirii, după cel mai bun sezon de mers acolo.",namerica:["Mexic","SUA · Hawaii"],samerica:["Brazilia","Argentina","Peru"],asia:["China","Japonia"],oceania:["Noua Zeelandă","Australia","Fiji"]}};
 /* drawn placeholder photo: a postcard of the city until the couple adds real pictures */
 const photoCache={};
 function photoURL(i){if(photoCache[i])return photoCache[i];const c=document.createElement("canvas");c.width=800;c.height=600;const g=c.getContext("2d");
@@ -1103,7 +1102,7 @@ function buildRoom(id){if(rooms[id])return rooms[id];let r;const x=tx();
     guest(r.scene,1,-2.2,-5.2,0,"idle");
   }else if(id==="agency"){
     r=roomBase(id,{floor:canvasTex(256,256,(g,w,h)=>{for(let y=0;y<4;y++)for(let x2=0;x2<4;x2++){g.fillStyle=(x2+y)%2?"#e9eef2":"#3f78b5";g.fillRect(x2*64,y*64,64,64)}},[6,5]),wall:0xfaf8f4,trim:0x1f5fae,hemi:.8,keyI:.9});const B=r.B;
-    CONTENT.honey.forEach((k,i)=>{const c=canvasTex(512,680,(g,w,h)=>{const P={namerica:["#f6b26b","#3b5f8a","#22303f"],samerica:["#ffcf6a","#2e8a6e","#6b5a3e"],oceania:["#8fd3f0","#1f7fb8","#ffffff"],antarctica:["#cfe6f5","#eaf4fb","#14212c"]}[k];
+    CONTENT.honey.forEach((k,i)=>{const c=canvasTex(512,680,(g,w,h)=>{const P={namerica:["#f6b26b","#3b5f8a","#22303f"],samerica:["#ffcf6a","#2e8a6e","#6b5a3e"],oceania:["#8fd3f0","#1f7fb8","#ffffff"]}[k];
       const gr=g.createLinearGradient(0,0,0,h*.7);gr.addColorStop(0,P[0]);gr.addColorStop(1,"#fff2dc");g.fillStyle=gr;g.fillRect(0,0,w,h);const tri=(a,b,c2,col)=>{g.fillStyle=col;g.beginPath();g.moveTo(...a);g.lineTo(...b);g.lineTo(...c2);g.fill()};
       if(k==="namerica"){tri([0,h*.66],[150,h*.3],[300,h*.66],P[1]);tri([200,h*.66],[360,h*.36],[512,h*.66],P[1]);g.fillStyle=P[2];for(let j=0;j<7;j++){const bh=60+((j*37)%90);g.fillRect(30+j*66,h*.66-bh,48,bh)}g.fillRect(0,h*.66,w,h*.34)}
       else if(k==="samerica"){tri([0,h*.66],[120,h*.28],[260,h*.66],P[1]);tri([180,h*.66],[330,h*.22],[512,h*.66],"#3f7a55");g.fillStyle=P[2];for(let j=0;j<5;j++)g.fillRect(140+j*14,h*.5+j*22,240-j*28,18);g.fillStyle=P[1];g.fillRect(0,h*.66,w,h*.34)}
@@ -1737,6 +1736,6 @@ if(document.body.dataset.direct){const env=$("#env"),inv=$("#inv");$("#intro").a
     let sx=null,sk=0;car.addEventListener("touchstart",e=>{sx=e.touches[0].clientX;sk=mark()},{passive:true});
     car.addEventListener("touchend",e=>{if(sx==null)return;const dx=e.changedTouches[0].clientX-sx;sx=null;if(sk===cards.length-1&&dx<-30)setTimeout(()=>goK(0),60)},{passive:true});
     let wl=0;car.addEventListener("wheel",e=>{if(Math.abs(e.deltaX)<Math.abs(e.deltaY)||e.deltaX<=0)return;if(car.scrollLeft+car.clientWidth>=car.scrollWidth-2&&Date.now()-wl>900){wl=Date.now();goK(0)}},{passive:true});
-    [...dots.children].forEach((d,k)=>d.addEventListener("click",()=>goK(k)))}}inv.style.setProperty("--s","1");env.classList.add("tap","open","done");flipCard(true);(document.fonts?Promise.race([document.fonts.ready,new Promise(r=>setTimeout(r,1200))]):Promise.resolve()).then(()=>document.body.classList.add("gready"));
+    [...dots.children].forEach((d,k)=>d.addEventListener("click",()=>goK(k)))}}inv.style.setProperty("--s","1");env.classList.add("tap","open","done");flipCard(true);(document.fonts?Promise.race([document.fonts.ready,new Promise(r=>setTimeout(r,1200))]):Promise.resolve()).then(()=>document.body.classList.add("gready"));{const sc=document.querySelector(".ib .in"),cue=document.querySelector(".cue");if(sc&&cue){const end=()=>cue.classList.toggle("off",sc.scrollTop+sc.clientHeight>sc.scrollHeight-60);sc.addEventListener("scroll",end,{passive:true});end()}}
   const bl=document.querySelector("#backInv span");if(bl)bl.textContent={el:"Πρόσκληση",en:"Invitation",de:"Einladung",ro:"Invitație"}[lang]||"Πρόσκληση";
   document.querySelectorAll(".langs button").forEach(b=>b.addEventListener("click",()=>{if(bl)bl.textContent={el:"Πρόσκληση",en:"Invitation",de:"Einladung",ro:"Invitație"}[lang]}))}

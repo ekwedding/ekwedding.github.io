@@ -193,6 +193,7 @@ body.ride #joy{display:block!important}
 #prog .p6{display:inline-flex;align-items:center;gap:2px;margin-left:4px;font-size:13px;font-weight:700}#prog .p6 .lk{margin-left:0}
 #prog .lk{width:14px;height:14px;stroke:var(--ink2);fill:none;stroke-width:2.2;margin-left:2px}#prog .lk.open{stroke:var(--bloom)}
 #list .back{display:inline-flex;align-items:center;min-height:40px;padding:0 12px;margin:0 0 8px 2px;border-radius:20px;background:var(--paper2);font-size:14px;font-weight:600;color:var(--sea)}
+#list .invback{display:flex;align-items:center;justify-content:center;gap:8px;min-height:54px;margin:0 0 14px;border-radius:16px;background:#1f3b2d;color:#f5ece0;text-decoration:none;font:600 16px Commissioner,system-ui,sans-serif;letter-spacing:.01em;box-shadow:0 6px 16px rgba(21,41,31,.25)}#list .invback:active{transform:scale(.98)}
 #list li.final{border-top:1px dashed var(--line);margin-top:4px;padding-top:4px}
 #obj{position:absolute;left:50%;top:calc(70px + env(safe-area-inset-top));transform:translateX(-50%);background:rgba(20,39,58,.86);color:#fff;border-radius:12px;padding:9px 15px;font-size:15px;font-weight:500;
   max-width:calc(100vw - 24px);text-align:center;pointer-events:none;transition:opacity .3s}
@@ -403,6 +404,11 @@ body[data-direct] .gdots i{width:6px;height:6px;border-radius:50%;background:rgb
 body[data-direct] .gdots i.on{width:20px;border-radius:3px;background:#d9b46a}
 body[data-direct]:not(.gready) .ib .in{visibility:hidden}
 .vlive{display:flex;align-items:center;margin:4px 0 12px;font-size:16px;font-weight:600;color:#14273a}.vlive:empty{display:none}.vlive .ldot{width:8px;height:8px;border-radius:50%;background:#2f9e6b;margin-right:8px;flex:none;animation:lpulse 1.6s ease-in-out infinite}@keyframes lpulse{50%{opacity:.25}}@media (prefers-reduced-motion:reduce){.vlive .ldot{animation:none}}
+/* the scroll hint: a small oval with a dot sliding down, only on the first page, quiet */
+.cue{position:fixed;left:50%;bottom:calc(72px + env(safe-area-inset-bottom));z-index:13;width:17px;height:27px;margin-left:-8.5px;border:1.4px solid currentColor;border-radius:9px;color:#f5ece0;opacity:.5;pointer-events:none;transition:opacity .5s;display:none}
+.cue::after{content:"";position:absolute;left:50%;top:5px;width:3px;height:6px;margin-left:-1.5px;border-radius:2px;background:currentColor;animation:cue 1.9s cubic-bezier(.6,0,.2,1) infinite}
+@keyframes cue{0%{transform:translateY(0);opacity:0}25%{opacity:1}70%{transform:translateY(9px);opacity:0}100%{transform:translateY(9px);opacity:0}}
+body[data-direct].gready .cue{display:block}body.play .cue,.cue.off{opacity:0!important}@media (prefers-reduced-motion:reduce){.cue::after{animation:none}}
 @keyframes gin{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
 @keyframes gcr{from{opacity:0;transform:scale(.9);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
 body[data-direct].gready .gcrest{animation:gcr 1.6s cubic-bezier(.16,1,.3,1) both}
@@ -442,6 +448,7 @@ body.isaiah #obj{opacity:0;pointer-events:none;transition:opacity .4s}
   <text textLength="104" lengthAdjust="spacingAndGlyphs" x="150" y="298.6" text-anchor="middle" style="fill:var(--bg);letter-spacing:0.12em;font:600 11px 'GFS Didot',Georgia,serif">FÜR IMMER WIR</text></g></symbol></defs></svg>
 <canvas id="gl" aria-label="Μια πλατεία στη Μύκονο"></canvas><div id="vig"></div>
 
+<i class="cue" aria-hidden="true"></i>
 <a id="backInv" href="index.html">‹ <span>Πρόσκληση</span></a>
 <div id="intro" class="ui">
   <div class="ifirst"><div class="env" id="env">
@@ -494,7 +501,7 @@ body.isaiah #obj{opacity:0;pointer-events:none;transition:opacity .4s}
   </div>
   <div id="obj" role="status" aria-live="polite"></div>
   <div id="labels"></div>
-  <nav id="list" class="panel shut" aria-label="Στάσεις"><button type="button" id="listBack" class="back"></button><h2 id="listH">Οι στάσεις σου</h2><ol id="listOl"></ol>
+  <nav id="list" class="panel shut" aria-label="Στάσεις"><a id="listInv" class="invback" href="index.html">‹ <span>Επιστροφή στην πρόσκληση</span></a><h2 id="listH">Οι στάσεις σου</h2><ol id="listOl"></ol>
     <div class="foot"><span class="demo" style="margin:0" data-t="tapGo">Πάτα μια στάση για να πας εκεί</span><button type="button" id="bSimple" data-t="simple">Απλή έκδοση</button></div><span style="display:flex;justify-content:center;gap:18px;margin:14px auto 0"><button type="button" id="bAdmin" style="font-size:11px;opacity:.35;background:none;border:0;color:inherit">admin</button><button type="button" id="bReset" style="font-size:11px;opacity:.35;background:none;border:0;color:inherit">reset</button></span></nav>
   <nav id="dest" class="panel shut" aria-label="Vespa"><h2 data-t="vespaH">Πού πάμε;</h2><ul id="destUl"></ul></nav>
   <section id="card" class="panel shut" role="dialog" aria-modal="false" aria-labelledby="cardH">
@@ -509,7 +516,7 @@ body.isaiah #obj{opacity:0;pointer-events:none;transition:opacity .4s}
 <noscript><div style="padding:24px;font:18px system-ui">Ευάγγελος & Κωνσταντίνα Αλίκη · 20 Αυγούστου 2027 · Κορωπί. Ενεργοποίησε τη JavaScript για την πρόσκληση.</div></noscript>
 <audio id="music" src="assets/music/tosa_kalokairia.m4a" loop preload="none"></audio>
 <script>setTimeout(()=>document.body.classList.add("gready"),6000)</script>
-<script type="module" src="main.js?v=20261117a"></script>
+<script type="module" src="main.js?v=20261118a"></script>
 <script>/* old phones: no import maps, no modules -> show a plain message with the essentials */
 if(!(HTMLScriptElement.supports&&HTMLScriptElement.supports("importmap"))){document.getElementById("intro").hidden=true;var s=document.getElementById("simple");s.hidden=false;
 document.getElementById("simpleB").innerHTML='<h1>Ευάγγελος &amp; Κωνσταντίνα Αλίκη</h1><p><b>Παρασκευή 20 Αυγούστου 2027</b> · 19:00 · Κορωπί</p><p>19:00 Υποδοχή · 19:30 Τελετή · 21:00 Δείπνο · 23:30 Πάρτι</p><p>Για το παιχνίδι άνοιξε το link σε πιο νέο κινητό ή υπολογιστή.</p>'}</script>
