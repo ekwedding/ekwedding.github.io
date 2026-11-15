@@ -2,7 +2,7 @@
 <html lang="el">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-visual">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#1f3b2d">
 <title>Ευάγγελος & Κωνσταντίνα Αλίκη · 20 Αυγούστου 2027</title>
 <meta name="description" content="Σας προσκαλούμε στον γάμο μας · Παρασκευή 20 Αυγούστου 2027 · Κορωπί">
@@ -432,7 +432,12 @@ document.querySelectorAll("#top [data-l],#open [data-l]").forEach(b=>{b.setAttri
 const again=new URLSearchParams(location.search).has("lang")&&sessionStorage.getItem("wopened")==="1";
 
 const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
-gsap.registerPlugin(ScrollTrigger,Observer);ScrollTrigger.config({ignoreMobileResize:true});/* every reveal plays on the way down and goes back to its first look on the way up, so it plays again next time */ScrollTrigger.defaults({toggleActions:"play none none reverse"});
+gsap.registerPlugin(ScrollTrigger,Observer);
+/* the page is measured once for the phone's real screen. Opening the keyboard (or the address bar sliding) changes only the height,
+   and must never re-measure the page: that is what threw the guest to another section while typing. Only a new width (turning the phone) does. */
+window.__vw=innerWidth;window.__vh=innerHeight;ScrollTrigger.config({ignoreMobileResize:true,autoRefreshEvents:"visibilitychange,DOMContentLoaded,load"});
+const typing=()=>{const a=document.activeElement;return !!a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)};
+addEventListener("resize",()=>{if(Math.abs(innerWidth-window.__vw)<2)return;window.__vw=innerWidth;window.__vh=innerHeight;ScrollTrigger.refresh()});/* every reveal plays on the way down and goes back to its first look on the way up, so it plays again next time */ScrollTrigger.defaults({toggleActions:"play none none reverse"});
 /* split headings into letters, words kept whole so lines break naturally */
 document.querySelectorAll(".split").forEach(el=>{const words=el.textContent.split(/(\s+)/);el.textContent="";words.forEach(w=>{if(/^\s+$/.test(w)){el.append(" ");return}const wd=document.createElement("span");wd.style.display="inline-block";wd.style.whiteSpace="nowrap";[...w].forEach(c=>{const o=document.createElement("span");o.className="ch";const i=document.createElement("span");i.textContent=c;o.append(i);wd.append(o)});el.append(wd)});el.setAttribute("aria-label",words.join(""))});
 const chars=el=>el.querySelectorAll(".ch>span");
@@ -463,7 +468,10 @@ document.getElementById("optB").addEventListener("click",()=>{try{sessionStorage
 
 /* ---------- smooth scroll ---------- */
 const lenis=new Lenis({duration:1.15,smoothWheel:true,syncTouch:false});
-lenis.on("scroll",ScrollTrigger.update);/* when the page grows or shrinks (words, fonts, photos arriving), every trigger is measured again */{let rz=0,last=0;new ResizeObserver(()=>{const h=document.documentElement.scrollHeight;if(Math.abs(h-last)<4)return;last=h;clearTimeout(rz);rz=setTimeout(()=>ScrollTrigger.refresh(),250)}).observe(document.body)}{/* the scroll oval reads the colour under it on every move, so it never disappears into a dark or a light section */
+lenis.on("scroll",ScrollTrigger.update);/* the field being typed in stays where the guest can see it, just above the keyboard; nothing else moves */
+const fitField=()=>{const el=document.activeElement;if(!el||!/^(INPUT|TEXTAREA)$/.test(el.tagName))return;const vv=window.visualViewport,H=vv?vv.height:innerHeight,r=el.getBoundingClientRect();if(r.top<70||r.bottom>H-16)lenis.scrollTo(scrollY+r.top-Math.max(80,H*.28),{immediate:true,force:true})};
+document.addEventListener("focusin",e=>{if(/^(INPUT|TEXTAREA)$/.test(e.target.tagName)){setTimeout(fitField,320);setTimeout(fitField,700)}});
+if(window.visualViewport)visualViewport.addEventListener("resize",()=>setTimeout(fitField,60));addEventListener("resize",()=>setTimeout(fitField,60));/* when the page grows or shrinks (words, fonts, photos arriving), every trigger is measured again */{let rz=0,last=0;new ResizeObserver(()=>{if(typing())return;const h=document.documentElement.scrollHeight;if(Math.abs(h-last)<4)return;last=h;clearTimeout(rz);rz=setTimeout(()=>ScrollTrigger.refresh(),250)}).observe(document.body)}{/* the scroll oval reads the colour under it on every move, so it never disappears into a dark or a light section */
  const cue=document.querySelector(".cue");let q=0;const lum=c=>{const m=c.match(/[\d.]+/g);if(!m||m.length<3||(m.length>3&&+m[3]<.5))return null;return(.2126*m[0]+.7152*m[1]+.0722*m[2])/255};
  const look=()=>{q=0;cue.classList.toggle("off",scrollY+innerHeight>document.documentElement.scrollHeight-60);const r=cue.getBoundingClientRect();let L=null;
    for(const e of document.elementsFromPoint(r.left+r.width/2,r.top+r.height/2)){if(e===cue)continue;if(e.tagName==="IMG"||e.tagName==="VIDEO"||e.tagName==="CANVAS"){L=.3;break}const cs=getComputedStyle(e);if(cs.backgroundImage&&cs.backgroundImage!=="none"&&!/gradient/.test(cs.backgroundImage)){L=.3;break}const v=lum(cs.backgroundColor);if(v!=null){L=v;break}}
@@ -489,7 +497,7 @@ gsap.to(".hero>div",{yPercent:-18,opacity:.15,ease:"none",scrollTrigger:{trigger
 
 /* ---------- the date: pinned while the oval draws and the numbers settle ---------- */
 document.querySelectorAll(".date ellipse").forEach(e=>{const L=e.getTotalLength();if(!e.classList.contains("e2")){e.style.strokeDasharray=L;e.style.strokeDashoffset=L}});
-const dt=gsap.timeline({scrollTrigger:{trigger:".date",start:"top top",end:"+=170%",scrub:1,pin:true}});
+const dt=gsap.timeline({scrollTrigger:{trigger:".date",start:"top top",end:()=>"+="+Math.round(window.__vh*1.7),scrub:1,pin:true}});
 dt.from(".date .dd",{scale:2.6,opacity:0,filter:"blur(14px)",ease:"power2.out",duration:1})
   .to(".date .e1,.date .e3",{strokeDashoffset:0,ease:"none",duration:1.1},0.15)
   .from(".date .e2",{opacity:0,duration:.6},.5)
@@ -506,7 +514,7 @@ dt.from(".date .dd",{scale:2.6,opacity:0,filter:"blur(14px)",ease:"power2.out",d
    const pts=stops.map(s=>{const d=s.querySelector(".dot").getBoundingClientRect();return[d.left-T.left+d.width/2,d.top-T.top+d.height/2]});
    let d=`M${pts[0][0]} ${pts[0][1]}`;for(let i=1;i<pts.length;i++){const[a1,b1]=pts[i-1],[a2,b2]=pts[i],dx=a2-a1,dy=b2-b1;d+=` C${a1+dx*.15} ${b1+dy*.4} ${a2-dx*.15} ${b2-dy*.4} ${a2} ${b2}`}path.setAttribute("d",d);
    const L=path.getTotalLength();S=[];for(let k=0;k<=240;k++){const q=path.getPointAtLength(L*k/240);S.push([q.x,q.y])}};
- layout();addEventListener("resize",()=>{layout();ScrollTrigger.refresh()});if(document.fonts)document.fonts.ready.then(()=>{layout();ScrollTrigger.refresh()});
+ layout();addEventListener("resize",()=>{if(!typing())layout()});if(document.fonts)document.fonts.ready.then(()=>{layout();ScrollTrigger.refresh()});
  const mask=document.createElementNS("http://www.w3.org/2000/svg","clipPath");mask.id="rc";const rr=document.createElementNS("http://www.w3.org/2000/svg","rect");rr.setAttribute("x",-50);rr.setAttribute("y",-50);rr.setAttribute("width",4000);rr.setAttribute("height",0);mask.append(rr);svg.append(mask);path.setAttribute("clip-path","url(#rc)");
  const draw=p=>{const H=track.offsetHeight*p;rr.setAttribute("height",H+50);let b=S[0]||[0,0];for(const q of S){if(q[1]<=H)b=q;else break}tip.style.transform=`translate(${b[0]}px,${b[1]}px)`;tip.style.opacity=p>.002&&p<.995?1:0};
  ScrollTrigger.create({trigger:track,start:"top 72%",end:"bottom 72%",scrub:.5,onUpdate:st=>draw(st.progress),onRefresh:st=>draw(st.progress)});

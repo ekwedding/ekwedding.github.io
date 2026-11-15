@@ -328,7 +328,7 @@ chant.preload=secretSong.preload=clubSong.preload="none";secretSong.loop=clubSon
 const CLUB_TRACKS=[["Καμπάνες","assets/music/kabanes.m4a"],["Where Is My Husband!","assets/music/raye_husband.m4a"],["Τόσα Καλοκαίρια","assets/music/tosa_kalokairia.m4a"],["Aicha","assets/music/aicha.m4a"],["Φανάρια","assets/music/fanaria.m4a"],["Innerbloom","assets/music/innerbloom.m4a"]];
 let clubTrack=1,denTrack=5,soundOn=false,actx=null,chanting=false,atSecret=false;
 const denSong=new Audio();denSong.loop=true;denSong.preload="none";const ALL=[music,chant,secretSong,clubSong,denSong];
-const SEG=new Map([[secretSong,[93,1e9]]]);music.loop=secretSong.loop=false;
+const SEG=new Map([[secretSong,[93,1e9]]]);/* the plaza song never ends: it loops, and if the phone stops it by itself while the guest is still in the plaza with sound on, it comes back */music.loop=true;secretSong.loop=false;music.addEventListener("ended",()=>{music.currentTime=0;if(soundOn&&soundscapeWant()===music)music.play().catch(()=>{})});setInterval(()=>{if(soundOn&&!document.hidden&&soundscapeWant()===music&&music.paused&&!music.muted)music.play().catch(()=>{})},4000);
 SEG.forEach(([a,b],el)=>{el.addEventListener("timeupdate",()=>{const end=Math.min(b,(el.duration||1e9)-.35);if(el.currentTime>=end)el.currentTime=a});el.addEventListener("ended",()=>{el.currentTime=a;el.play().catch(()=>{})})});
 let denGain=null;function denLevel(v){if(!actx||actx.state!=="running")return;try{if(!denGain){denGain=actx.createGain();actx.createMediaElementSource(denSong).connect(denGain).connect(actx.destination)}denSong.volume=1;denGain.gain.value=v}catch(e){}}
 function soundscape(){const want=soundscapeWant();
