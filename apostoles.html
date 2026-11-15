@@ -25,16 +25,17 @@ input{width:100%;font:inherit;font-size:17px;padding:13px 14px;border:0;border-r
 .r .n b{font-weight:600}.r .n small{display:block;opacity:.7;font-size:13px}
 .t{display:flex;gap:6px}.t button{min-width:92px;min-height:40px;padding:0 10px;border-radius:999px;border:1px solid var(--line);background:none;color:var(--iv);font:600 12px Ysabeau,sans-serif;letter-spacing:.04em}
 .t button.on{background:var(--gold);border-color:var(--gold);color:#1f2a20}
+.t .rep{display:inline-flex;align-items:center;justify-content:center;min-width:92px;min-height:40px;padding:0 10px;border-radius:999px;border:1px dashed var(--line);color:var(--iv);opacity:.6;font:600 12px Ysabeau,sans-serif;letter-spacing:.04em}.t .rep.on{opacity:1;border-style:solid;background:#3f7a55;border-color:#3f7a55;color:#fff}.t{flex-wrap:wrap}
 .wa{grid-column:1/-1;display:flex;gap:6px;flex-wrap:wrap}.wa a{font-size:13px;color:var(--gold);text-decoration:none;border:1px dashed rgba(217,180,106,.6);border-radius:999px;padding:6px 12px}
 #login{max-width:420px}button.go{margin-top:10px;width:100%;min-height:48px;border-radius:12px;border:0;background:var(--gold);color:#1f2a20;font:600 15px Ysabeau,sans-serif}
 .err{color:#f2b8ad}.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--iv);color:var(--g);padding:10px 16px;border-radius:999px;font-weight:600;opacity:0;transition:opacity .3s}.toast.on{opacity:1}
 </style></head><body><main>
-<h1>Αποστολές</h1><p class="muted">Σημείωσε σε ποιον έστειλες save the date και πρόσκληση. Ό,τι πατάς γράφεται αμέσως στο Sheet (στήλες «Save the date» και «Πρόσκληση» στους Καλεσμένους).</p>
+<h1>Αποστολές</h1><p class="muted">Σημείωσε σε ποιον έστειλες save the date και πρόσκληση. Ό,τι πατάς γράφεται αμέσως στο Sheet (στήλες «Save the date», «Πρόσκληση» και «Απάντησε» στους Καλεσμένους. Το «Απάντησε» τσεκάρεται μόνο του όταν ο καλεσμένος απαντήσει στην πρόσκληση).</p>
 <div id="login" hidden><form id="lf"><input id="code" type="password" autocomplete="off" autocapitalize="off" placeholder="Κωδικός"><button class="go">Είσοδος</button></form><p class="err" id="le"></p></div>
 <div id="app" hidden>
- <div class="stats"><div><b id="sS">0</b><small>Save the date στάλθηκαν</small></div><div><b id="sI">0</b><small>Προσκλήσεις στάλθηκαν</small></div></div>
+ <div class="stats"><div><b id="sS">0</b><small>Save the date στάλθηκαν</small></div><div><b id="sI">0</b><small>Προσκλήσεις στάλθηκαν</small></div><div><b id="sR">0</b><small>Απάντησαν</small></div></div>
  <input id="q" placeholder="Γράψε όνομα…" autocomplete="off">
- <div class="chips" id="f"><button data-f="all" class="on">Όλοι</button><button data-f="nostd">Χωρίς save the date</button><button data-f="noinv">Χωρίς πρόσκληση</button><button data-f="phone">Με τηλέφωνο</button></div>
+ <div class="chips" id="f"><button data-f="all" class="on">Όλοι</button><button data-f="nostd">Χωρίς save the date</button><button data-f="noinv">Χωρίς πρόσκληση</button><button data-f="norep">Δεν απάντησαν</button><button data-f="phone">Με τηλέφωνο</button></div>
  <div id="list"></div></div>
 <div class="toast" id="toast"></div>
 </main><script>
@@ -49,10 +50,10 @@ const MSG={std:n=>`Γεια σου ${n}! Κράτα την ημερομηνία:
 const tel=p=>{let d=String(p||"").replace(/[^\d+]/g,"");if(!d)return"";if(d.startsWith("+"))d=d.slice(1);else if(d.startsWith("00"))d=d.slice(2);else if(/^69\d{8}$/.test(d)||/^2\d{9}$/.test(d))d="30"+d;return d.length>=10?d:""};
 function load(){fetch(API+"?send="+encodeURIComponent(code)).then(r=>r.json()).then(d=>{if(d.denied){sessionStorage.removeItem("send");$("#login").hidden=false;$("#app").hidden=true;$("#le").textContent=code?"Λάθος κωδικός.":"";return}
   sessionStorage.setItem("send",code);$("#login").hidden=true;$("#app").hidden=false;D=d.people||[];draw()}).catch(()=>toast("Δεν φορτώθηκε, δοκίμασε ξανά"))}
-function draw(){const q=fold($("#q").value.trim());$("#sS").textContent=D.filter(p=>p.std).length+" / "+D.length;$("#sI").textContent=D.filter(p=>p.inv).length+" / "+D.length;
-  const L=D.filter(p=>(!q||fold(p.name+" "+p.call+" "+p.note+" "+p.group+" "+p.sub).includes(q))&&(flt==="all"||(flt==="nostd"&&!p.std)||(flt==="noinv"&&!p.inv)||(flt==="phone"&&tel(p.phone))));
+function draw(){const q=fold($("#q").value.trim());$("#sS").textContent=D.filter(p=>p.std).length+" / "+D.length;$("#sI").textContent=D.filter(p=>p.inv).length+" / "+D.length;$("#sR").textContent=D.filter(p=>p.rep).length+" / "+D.length;
+  const L=D.filter(p=>(!q||fold(p.name+" "+p.call+" "+p.note+" "+p.group+" "+p.sub).includes(q))&&(flt==="all"||(flt==="nostd"&&!p.std)||(flt==="noinv"&&!p.inv)||(flt==="norep"&&p.inv&&!p.rep)||(flt==="phone"&&tel(p.phone))));
   $("#list").innerHTML=L.map(p=>{const i=D.indexOf(p),t=tel(p.phone),hi=esc(p.call||p.name.split(" ")[0]);return`<div class="r"><div class="n"><b>${esc(p.name)}</b><small>${esc([p.note,p.sub||p.group].filter(Boolean).join(" · "))}</small></div>
-   <div class="t"><button data-i="${i}" data-k="std" class="${p.std?"on":""}">${p.std?"✓ ":""}Save the date</button><button data-i="${i}" data-k="inv" class="${p.inv?"on":""}">${p.inv?"✓ ":""}Πρόσκληση</button></div>
+   <div class="t"><button data-i="${i}" data-k="std" class="${p.std?"on":""}">${p.std?"✓ ":""}Save the date</button><button data-i="${i}" data-k="inv" class="${p.inv?"on":""}">${p.inv?"✓ ":""}Πρόσκληση</button><span class="rep${p.rep?" on":""}" title="Τσεκάρεται μόνο του όταν απαντήσει στην πρόσκληση">${p.rep?"✓ ":""}Απάντησε</span></div>
    ${t?`<div class="wa"><a href="https://wa.me/${t}?text=${encodeURIComponent(MSG.std(hi))}" target="_blank" rel="noopener" data-i="${i}" data-k="std">WhatsApp: save the date</a><a href="https://wa.me/${t}?text=${encodeURIComponent(MSG.inv(hi))}" target="_blank" rel="noopener" data-i="${i}" data-k="inv">WhatsApp: πρόσκληση</a></div>`:""}</div>`}).join("")||'<p class="muted">Κανείς.</p>';
   $("#list").querySelectorAll("button[data-k]").forEach(b=>b.onclick=()=>set(D[+b.dataset.i],b.dataset.k,!D[+b.dataset.i][b.dataset.k]));
   $("#list").querySelectorAll("a[data-k]").forEach(a=>a.addEventListener("click",()=>{const p=D[+a.dataset.i];if(!p[a.dataset.k])set(p,a.dataset.k,true)}))}
