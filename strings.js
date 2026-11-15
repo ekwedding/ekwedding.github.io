@@ -427,10 +427,10 @@ Object.assign(T.en,{savePh:"Save to photos",saveIos:"In the window that opens, t
 Object.assign(T.de,{savePh:"In Fotos sichern",saveIos:"Tippe im Fenster, das sich öffnet, auf „Bild sichern“, dann landet es in deinen Fotos.",saveHold:"Halte das Foto gedrückt und wähle „In Fotos sichern“.",saveDroid:"Gespeichert. Du findest es in deiner Galerie im Album Downloads."});
 Object.assign(T.ro,{savePh:"Salvează în poze",saveIos:"În fereastra care se deschide, atinge „Salvează imaginea” și ajunge în Poze.",saveHold:"Ține apăsat pe poză și alege „Salvează în Poze”.",saveDroid:"Salvată. O găsești în Galerie, în albumul Descărcări."});
 /* the photo booth buttons and the note under the seat result */
-Object.assign(T.el,{saveMob:"Αποθήκευση στο κινητό σου",camAgain:"Τράβα ξανά",walletNoApple:"Δυστυχώς δεν είναι διαθέσιμο για Apple Wallet."});
-Object.assign(T.en,{saveMob:"Save to your phone",camAgain:"Take another",walletNoApple:"Unfortunately this is not available for Apple Wallet."});
-Object.assign(T.de,{saveMob:"Auf deinem Handy speichern",camAgain:"Noch eins",walletNoApple:"Für Apple Wallet ist das leider nicht verfügbar."});
-Object.assign(T.ro,{saveMob:"Salvează pe telefonul tău",camAgain:"Mai fă una",walletNoApple:"Din păcate, nu este disponibil pentru Apple Wallet."});
+Object.assign(T.el,{saveMob:"Αποθήκευση στο κινητό σου",camAgain:"Τράβα ξανά",walletNoApple:"Για Google Wallet. Στο iPhone ανοίγει στον browser, γιατί δεν υπάρχει για Apple Wallet."});
+Object.assign(T.en,{saveMob:"Save to your phone",camAgain:"Take another",walletNoApple:"For Google Wallet. On an iPhone it opens in the browser, as it is not available for Apple Wallet."});
+Object.assign(T.de,{saveMob:"Auf deinem Handy speichern",camAgain:"Noch eins",walletNoApple:"Für Google Wallet. Auf dem iPhone öffnet es sich im Browser, für Apple Wallet gibt es das nicht."});
+Object.assign(T.ro,{saveMob:"Salvează pe telefonul tău",camAgain:"Mai fă una",walletNoApple:"Pentru Google Wallet. Pe iPhone se deschide în browser, nu este disponibil pentru Apple Wallet."});
 /* the button under the bride's bachelor details */
 T.el.bachOpen="Δες τη βίλα στο Booking";T.en.bachOpen="See the villa on Booking";T.de.bachOpen="Villa auf Booking ansehen";T.ro.bachOpen="Vezi vila pe Booking";
 /* the starry opening */
