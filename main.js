@@ -26,7 +26,7 @@ import {OutputPass} from "three/addons/postprocessing/OutputPass.js";
 import {UnrealBloomPass} from "three/addons/postprocessing/UnrealBloomPass.js";
 import {RGBELoader} from "three/addons/loaders/RGBELoader.js";
 import {MeshoptDecoder} from "three/addons/libs/meshopt_decoder.module.js";
-import {CONTENT,T} from "./strings.js?v=20261119a";
+import {CONTENT,T} from "./strings.js?v=20261119b";
 
 const $=s=>document.querySelector(s);
 const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -185,7 +185,7 @@ function bindRsvp(form,id,radio,okEl,nameEl){if(form._p){form._p.load(true);retu
     /* nobody to bring: the couple only invited this guest, so the choice does not show */
     if(!P.limit){P.open=false;box.innerHTML="";return}
     const sug=P.sug.filter(n=>!P.no[norm0(n)]&&!P.with.some(w=>norm0(w)===norm0(n))),full=P.with.length>=P.limit;
-    box.innerHTML=`<div class="seg" style="margin:0"><label><input type="radio" name="${id}P" value="a" ${P.open?"":"checked"}><span>${X.ptAlone}</span></label><label><input type="radio" name="${id}P" value="w" ${P.open?"checked":""}><span>${X.ptWith}</span></label></div>`+(P.open?`<div class="ptl">${P.with.map((n,i)=>`<button class="btn ghost sm" type="button" data-x="${i}" aria-label="${esc(X.ptDel+" "+n)}">${esc(n)} ✕</button>`).join("")}</div>${full?`<p>${X.ptMax}</p>`:sug.length?`<p><b>${esc(fillIn(X.ptSuggest,sug[0]))}</b></p><div class="acts"><button class="btn" type="button" id="${id}SY">${X.ptYes}</button><button class="btn ghost" type="button" id="${id}SN">${X.ptOther}</button></div>`:`<label class="f" style="margin-bottom:6px"><span>${X.ptNameL}</span><input id="${id}I" maxlength="80" autocomplete="off"></label><div class="acts"><button class="btn ghost" type="button" id="${id}A">${X.ptAdd}</button></div><div id="${id}R" class="seatres" aria-live="polite"></div>`}<p class="ok" id="${id}E" hidden></p>`:"");
+    box.innerHTML=`<div class="seg" style="margin:0"><label><input type="radio" name="${id}P" value="a" ${P.open?"":"checked"}><span>${X.ptAlone}</span></label><label><input type="radio" name="${id}P" value="w" ${P.open?"checked":""}><span>${X.ptWith}</span></label></div>`+(P.open?`<div class="ptl">${P.with.map((n,i)=>`<button class="btn ghost sm" type="button" data-x="${i}" aria-label="${esc(X.ptDel+" "+n)}">${esc(n)} ✕</button>`).join("")}</div>${full?`<p>${X.ptMax}</p>`:sug.length?`<p><b>${esc(fillIn(X.ptSuggest,sug[0]))}</b></p><div class="acts"><button class="btn" type="button" id="${id}SY">${X.ptYes}</button><button class="btn ghost" type="button" id="${id}SN">${X.ptOther}</button></div>`:`<label class="f" style="margin-bottom:6px"><span>${P.with.length?X.ptNameMore:X.ptNameL}</span><input id="${id}I" maxlength="80" autocomplete="off"></label><div class="acts"><button class="btn ghost" type="button" id="${id}A">${X.ptAdd}</button></div><div id="${id}R" class="seatres" aria-live="polite"></div>`}<p class="ok" id="${id}E" hidden></p>`:"");
     box.querySelectorAll(`input[name=${id}P]`).forEach(r=>r.addEventListener("change",()=>{P.open=r.value==="w"&&r.checked;if(P.open)P.no={};draw();if(P.open)P.load()}));
     box.querySelectorAll("[data-x]").forEach(b=>b.onclick=()=>{const n=P.with[+b.dataset.x];P.with.splice(+b.dataset.x,1);P.no[norm0(n)]=1;draw()});
     if(P.open&&sug.length&&!full){$("#"+id+"SY").onclick=()=>{P.with.push(sug[0]);draw()};$("#"+id+"SN").onclick=()=>{P.no[norm0(sug[0])]=1;draw()}}

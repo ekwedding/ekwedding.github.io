@@ -394,7 +394,7 @@ footer p{margin:0;font:italic 300 26px var(--didot)}footer .s i{font:400 .55em v
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
 <script type="module">
-import {CONTENT,T} from "./strings.js?v=20261119a";
+import {CONTENT,T} from "./strings.js?v=20261119b";
 /* ---------- language: from the link, the guest's last choice, or the phone ---------- */
 const LANGS=["el","en","de","ro"];
 let lang=new URLSearchParams(location.search).get("lang");
@@ -628,7 +628,7 @@ function draw(){if(!att()||closed||!S.limit){party.innerHTML="";S.open=S.open&&a
   party.innerHTML=`<div class="seg"><input type="radio" name="p" id="p1" ${S.open?"":"checked"}><label for="p1">${X.ptAlone}</label><input type="radio" name="p" id="p2" ${S.open?"checked":""}><label for="p2">${X.ptWith}</label></div>`+
    (S.open?`<div class="chips">${S.with.map((n,i)=>`<button type="button" class="chip on" data-x="${i}" aria-label="${esc(X.ptDel+" "+n)}">${esc(n)} ×</button>`).join("")}</div>`+
     (full?`<p class="dim">${X.ptMax}</p>`:sug.length?`<p>${esc(fill(X.ptSuggest,sug[0]))}</p><div class="chips"><button type="button" class="chip on" id="sy">${X.ptYes}</button><button type="button" class="chip" id="sn">${X.ptOther}</button></div>`
-     :`<label><span class="lbl">${X.ptNameL}</span><input type="text" id="cn" maxlength="80" autocomplete="off"></label><div class="chips"><button type="button" class="chip" id="ca">${X.ptAdd}</button></div><div id="cr"></div>`):"");
+     :`<label><span class="lbl">${S.with.length?X.ptNameMore:X.ptNameL}</span><input type="text" id="cn" maxlength="80" autocomplete="off"></label><div class="chips"><button type="button" class="chip" id="ca">${X.ptAdd}</button></div><div id="cr"></div>`):"");
   $("#p1").onchange=()=>{S.open=false;draw()};$("#p2").onchange=()=>{S.open=true;S.no={};draw()};
   party.querySelectorAll("[data-x]").forEach(b=>b.onclick=()=>{const n=S.with.splice(+b.dataset.x,1)[0];S.no[norm(n)]=1;draw()});
   if(S.open&&!full&&sug.length){$("#sy").onclick=()=>{S.with.push(sug[0]);draw()};$("#sn").onclick=()=>{S.no[norm(sug[0])]=1;draw()}}
