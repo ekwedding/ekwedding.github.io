@@ -30,7 +30,9 @@ form.code{margin-top:18px;display:grid;gap:10px}form.code input{font:inherit;fon
 #app{display:none;height:100%;grid-template-rows:auto auto 1fr}#app.on{display:grid}
 header{display:flex;align-items:center;gap:14px;padding:12px 16px;border-bottom:1px solid var(--line)}header .crest{width:44px}header h2{margin:0;font:italic 300 24px Piazzolla,serif;flex:1}header small{display:block;font:600 11px Ysabeau,sans-serif;letter-spacing:.2em;text-transform:uppercase;opacity:.75;font-style:normal}
 .stats{display:flex;gap:10px;overflow-x:auto;padding:12px 16px 0}.stats div{flex:none;min-width:120px;border:1px solid var(--line);border-radius:14px;padding:8px 12px}.stats b{font:italic 300 26px Piazzolla,serif;color:var(--gold)}.stats small{display:block;opacity:.8;font-size:13px}
-nav.tabs{display:flex;gap:8px;overflow-x:auto;padding:12px 16px}nav.tabs button{flex:none;min-height:42px;padding:0 16px;border-radius:999px;border:1px solid var(--line);background:none;color:var(--iv);font:600 13px Ysabeau,sans-serif;cursor:pointer}nav.tabs button.on{background:var(--iv);color:var(--g)}
+nav.tabs{display:flex;gap:8px;overflow-x:auto;padding:12px 16px}
+.pub{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:12px 16px 0;padding:14px 16px;border-radius:18px;border:1px solid rgba(217,180,106,.55);background:rgba(217,180,106,.08)}.pub[hidden]{display:none}.pub b{display:block;font-size:16px}.pub small{display:block;opacity:.75;font-size:13px;margin-top:3px}
+#pubB{flex:none;min-height:46px;padding:0 20px;border-radius:999px;border:0;background:var(--gold);color:#1f3b2d;font:700 15px inherit;font-family:inherit;cursor:pointer}#pubB:disabled{opacity:.6}.pubm{margin:6px 18px 0;font-size:14px;min-height:0}.pubm:empty{display:none}nav.tabs button{flex:none;min-height:42px;padding:0 16px;border-radius:999px;border:1px solid var(--line);background:none;color:var(--iv);font:600 13px Ysabeau,sans-serif;cursor:pointer}nav.tabs button.on{background:var(--iv);color:var(--g)}
 main{min-height:0;position:relative}main iframe{border:0;width:100%;height:100%;display:block;background:var(--g)}
 .files{padding:16px;display:grid;gap:12px;max-width:640px}.tile{display:grid;grid-template-columns:1fr 18px;align-items:center;gap:12px;padding:16px 18px;border-radius:18px;border:1px solid var(--line);color:var(--iv);text-decoration:none;background:rgba(245,236,224,.04)}.tile b{font:italic 300 22px Piazzolla,serif;display:block}.tile small{opacity:.8}
 </style></head><body><svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><symbol id="dog" viewBox="0 0 100 100"><g>
@@ -56,7 +58,8 @@ main{min-height:0;position:relative}main iframe{border:0;width:100%;height:100%;
 </div></section>
 <section id="app">
  <header><svg class="crest" viewBox="0 0 300 340" aria-hidden="true"><use href="#crest"/></svg><h2 id="hT"></h2><button class="btn ghost" id="out" type="button">Έξοδος</button></header>
- <div><div class="stats" id="stats"></div><nav class="tabs" id="tabs"></nav></div>
+ <div><div class="stats" id="stats"></div><div class="pub" id="pub" hidden><div><b>Τραπέζια για τους καλεσμένους</b><small id="pubWhen"></small></div><button type="button" id="pubB">Κοινοποίηση</button></div><p class="pubm" id="pubMsg" aria-live="polite"></p>
+<nav class="tabs" id="tabs"></nav></div>
  <main id="view"></main>
 </section>
 <script>
@@ -71,6 +74,10 @@ function login(r,c){$("#err").textContent="Έλεγχος…";fetch(API+"?bo="+e
 const ar='<svg viewBox="0 0 16 16"><path d="M5 11L11 5M6 5h5v5"/></svg>';
 function show(){$("#gate").hidden=true;$("#app").classList.add("on");const c=D.role==="couple";$("#hT").innerHTML=(c?"Για εμάς":"Για την event planner")+"<small>Back office · γάμος 20.08.2027</small>";
   if(c&&D.stats){const s=D.stats;$("#stats").innerHTML=[["Μέρες",s.days],["Καλεσμένοι",s.guests],["Έρχονται",s.yes],["Δεν έρχονται",s.no],["Save the date",s.std+" / "+s.guests],["Προσκλήσεις",s.inv+" / "+s.guests]].map(([k,v])=>`<div><b>${v}</b><small>${k}</small></div>`).join("")}else $("#stats").innerHTML="";
+  /* the share button: tables reach the site and the Wallet passes only when the two of you press it */
+  const pw=t=>t?"Τελευταία κοινοποίηση: "+new Date(t).toLocaleString("el-GR",{day:"numeric",month:"long",hour:"2-digit",minute:"2-digit"}):"Δεν έχουν κοινοποιηθεί ακόμα. Οι αλλαγές στο πλάνο μένουν πρόχειρες μέχρι να πατήσετε Κοινοποίηση.";
+  $("#pub").hidden=!c;if(c){$("#pubWhen").textContent=pw(D.lastPublish);$("#pubB").onclick=()=>{if(!confirm("Κοινοποίηση τραπεζιών;\n\nΤο πλάνο όπως είναι τώρα θα φανεί στο site και θα πάει στις κάρτες Google Wallet των καλεσμένων (με ειδοποίηση σε όσους άλλαξε τραπέζι)."))return;const b=$("#pubB");b.disabled=true;b.textContent="Κοινοποίηση…";$("#pubMsg").textContent="";
+    fetch(API,{method:"POST",body:JSON.stringify({plan:D.plan,action:"publish"})}).then(x=>x.json()).then(r=>{if(!r||!r.ok)throw 0;D.lastPublish=r.at;$("#pubWhen").textContent=pw(r.at);$("#pubMsg").textContent="Έγινε. "+r.seated+" άτομα έχουν τραπέζι στο site. Οι κάρτες Wallet ενημερώνονται μέσα σε 1–2 λεπτά.";if($("#view iframe"))$("#view iframe").contentWindow.location.reload()}).catch(()=>{$("#pubMsg").textContent="Δεν έγινε η κοινοποίηση. Δοκίμασε ξανά."}).finally(()=>{b.disabled=false;b.textContent="Κοινοποίηση"})}}
   const T=c?[["plan","Πλάνο τραπεζιών"],["send","Αποστολές"],["door","Είσοδος"],["files","Αρχεία"]]:[["door","Είσοδος, τραπέζια, θέσεις"],["files","Αρχεία"]];
   $("#tabs").innerHTML=T.map(([k,t],i)=>`<button type="button" data-v="${k}" class="${i?"":"on"}">${t}</button>`).join("");
   $("#tabs").querySelectorAll("button").forEach(b=>b.onclick=()=>{$("#tabs").querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));view(b.dataset.v)});view(T[0][0])}
