@@ -409,6 +409,7 @@ body[data-direct]:not(.gready) .ib .in{visibility:hidden}
 .cue::after{content:"";position:absolute;left:50%;top:5px;width:3px;height:6px;margin-left:-1.5px;border-radius:2px;background:currentColor;animation:cue 1.9s cubic-bezier(.6,0,.2,1) infinite}
 @keyframes cue{0%{transform:translateY(0);opacity:0}25%{opacity:1}70%{transform:translateY(9px);opacity:0}100%{transform:translateY(9px);opacity:0}}
 body[data-direct].gready .cue{display:block}body.play .cue,.cue.off{opacity:0!important}@media (prefers-reduced-motion:reduce){.cue::after{animation:none}}
+.calbox{margin-top:18px;padding-top:16px;border-top:1px solid rgba(20,39,58,.14)}.calbox>.acts:first-child{margin-top:0}
 @keyframes gin{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
 @keyframes gcr{from{opacity:0;transform:scale(.9);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
 body[data-direct].gready .gcrest{animation:gcr 1.6s cubic-bezier(.16,1,.3,1) both}
@@ -516,7 +517,7 @@ body.isaiah #obj{opacity:0;pointer-events:none;transition:opacity .4s}
 <noscript><div style="padding:24px;font:18px system-ui">Ευάγγελος & Κωνσταντίνα Αλίκη · 20 Αυγούστου 2027 · Κορωπί. Ενεργοποίησε τη JavaScript για την πρόσκληση.</div></noscript>
 <audio id="music" src="assets/music/tosa_kalokairia.m4a" loop preload="none"></audio>
 <script>setTimeout(()=>document.body.classList.add("gready"),6000)</script>
-<script type="module" src="main.js?v=20261118a"></script>
+<script type="module" src="main.js?v=20261118b"></script>
 <script>/* old phones: no import maps, no modules -> show a plain message with the essentials */
 if(!(HTMLScriptElement.supports&&HTMLScriptElement.supports("importmap"))){document.getElementById("intro").hidden=true;var s=document.getElementById("simple");s.hidden=false;
 document.getElementById("simpleB").innerHTML='<h1>Ευάγγελος &amp; Κωνσταντίνα Αλίκη</h1><p><b>Παρασκευή 20 Αυγούστου 2027</b> · 19:00 · Κορωπί</p><p>19:00 Υποδοχή · 19:30 Τελετή · 21:00 Δείπνο · 23:30 Πάρτι</p><p>Για το παιχνίδι άνοιξε το link σε πιο νέο κινητό ή υπολογιστή.</p>'}</script>

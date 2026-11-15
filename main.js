@@ -215,16 +215,17 @@ function liveVotes(id,kind,seed){const paint=n=>{const e=$("#"+id);if(e&&Number.
 function syncGuest(){if(!SHEET||!state.guest)return;fetch(SHEET+"?name="+encodeURIComponent(state.guest)).then(r=>r.json()).then(applyGuest).catch(()=>{})}
 function passBanner(){let b=$("#pass");if(!b){b=document.createElement("div");b.id="pass";document.body.appendChild(b)}b.textContent="✓ "+tx().passed;b.classList.remove("show");void b.offsetWidth;b.classList.add("show")}
 const CARDS={
-  estate(tab="cal"){const x=tx();const tabs=`<div class="seg" role="tablist" style="margin:0 0 10px"><label><input type="radio" name="et" value="cal" ${tab==="cal"?"checked":""}><span>${x.tabCal}</span></label><label><input type="radio" name="et" value="rsvp" ${tab==="rsvp"?"checked":""}><span>${x.tabRsvp}</span></label></div>`;
-    const body=tab==="cal"?`<p>${x.dateP}</p>${schedHTML()}<div class="acts"><button class="btn" type="button" id="aIcs">${ICON.cal}${x.addCal}</button>${mapsBtns()}${walletBtn()}</div>${CONTENT.demo?`<p class="demo">${x.demoNote}</p>`:""}`
-      :`<p>${x.invBy}</p><form id="rsvp" autocomplete="off"><label class="f"><span>${x.yourName}</span><input id="nm" required maxlength="80"></label><div class="seatres" id="ptgB" aria-live="polite"></div>
+  /* the estate: first the question, will you come; under it, always, the button for the calendar */
+  estate(){const x=tx();
+    const body=`<p>${x.invBy}</p><form id="rsvp" autocomplete="off"><label class="f"><span>${x.yourName}</span><input id="nm" required maxlength="80"></label><div class="seatres" id="ptgB" aria-live="polite"></div>
       <div class="seg"><label><input type="radio" name="att" value="yes" checked><span>${x.yes}</span></label><label><input type="radio" name="att" value="no"><span>${x.no}</span></label></div>
-      <div class="seatres" id="ptg" style="margin-bottom:10px"></div><div class="acts"><button class="btn" type="submit" style="flex:1">${x.send}</button></div><p class="ok" id="rOk" hidden></p></form>`;
-    openCard(x.P.estate,x.dateH,tabs+body,()=>{document.querySelectorAll("input[name=et]").forEach(r=>r.addEventListener("change",()=>CARDS.estate(r.value)));
-      const A=(state.ans||{}).rsvp;let pt=null;if(tab!=="cal"){const nm=$("#nm");nm.value=A?A.name:guestName()||"";pt=bindRsvp($("#rsvp"),"ptg","att",$("#rOk"),()=>nm.value);nm.addEventListener("change",()=>pt.load())}
-      if(tab==="cal"){$("#aIcs").addEventListener("click",()=>{downloadICS();complete("date")});{const g=$("#aG");if(g)g.addEventListener("click",()=>complete("date"))}}
-      else $("#rsvp").addEventListener("submit",e=>{e.preventDefault();const name=$("#nm").value.trim();if(!name)return;
-        if(!pt.valid())return;const att=document.querySelector("input[name=att]:checked").value==="yes",w=pt.withs(),who=pt.info&&pt.info.listed?pt.info.name:name;saveRsvp(who,att,w,$("#rOk"));pt.sent(who,att,w);complete("date")})});cardFn=()=>CARDS.estate(tab)},
+      <div class="seatres" id="ptg" style="margin-bottom:10px"></div><div class="acts"><button class="btn" type="submit" style="flex:1">${x.send}</button></div><p class="ok" id="rOk" hidden></p></form>
+      <div class="calbox"><div class="acts"><button class="btn ghost" type="button" id="aIcs" style="flex:1">${ICON.cal}${x.addCal}</button></div><p>${x.dateP}</p>${schedHTML()}<div class="acts">${mapsBtns()}${walletBtn()}</div>${CONTENT.demo?`<p class="demo">${x.demoNote}</p>`:""}</div>`;
+    openCard(x.P.estate,x.dateH,body,()=>{
+      const A=(state.ans||{}).rsvp,nm=$("#nm");nm.value=A?A.name:guestName()||"";const pt=bindRsvp($("#rsvp"),"ptg","att",$("#rOk"),()=>nm.value);nm.addEventListener("change",()=>pt.load());
+      $("#aIcs").addEventListener("click",()=>{downloadICS();complete("date")});{const g=$("#aG");if(g)g.addEventListener("click",()=>complete("date"))}
+      $("#rsvp").addEventListener("submit",e=>{e.preventDefault();const name=nm.value.trim();if(!name)return;
+        if(!pt.valid())return;const att=document.querySelector("input[name=att]:checked").value==="yes",w=pt.withs(),who=pt.info&&pt.info.listed?pt.info.name:name;saveRsvp(who,att,w,$("#rOk"));pt.sent(who,att,w);complete("date")})});cardFn=()=>CARDS.estate()},
   gallery(i=0){const x=tx(),s=CONTENT.story[i];openCard(x.P.gallery+` · ${i+1}/${CONTENT.story.length}`,s.city,`<div class="ph"><img class="photo" alt="${esc(s.city)}" src="${s.src||photoURL(i)}">${s.stamp?`<span class="stamp">${s.stamp}</span>`:""}</div><p>${x.storyT[i]}</p>${s.src?"":`<p class="demo">${x.photoDemo}</p>`}
     <div class="pnav"><button class="btn ghost" type="button" id="pPrev" ${i?"":"disabled"}>←</button><span>${i+1} / ${CONTENT.story.length}</span><button class="btn" type="button" id="pNext">${i<CONTENT.story.length-1?x.next+" →":x.close}</button></div>`,()=>{
       $("#pPrev").addEventListener("click",()=>CARDS.gallery(i-1));$("#pNext").addEventListener("click",()=>{if(i<CONTENT.story.length-1)CARDS.gallery(i+1);else{complete("story");closeCard()}});
