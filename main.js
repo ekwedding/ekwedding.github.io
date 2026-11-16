@@ -26,7 +26,7 @@ import {OutputPass} from "three/addons/postprocessing/OutputPass.js";
 import {UnrealBloomPass} from "three/addons/postprocessing/UnrealBloomPass.js";
 import {RGBELoader} from "three/addons/loaders/RGBELoader.js";
 import {MeshoptDecoder} from "three/addons/libs/meshopt_decoder.module.js";
-import {CONTENT,T} from "./strings.js?v=20261119c";
+import {CONTENT,T} from "./strings.js?v=20261116q";
 
 const $=s=>document.querySelector(s);
 const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -136,7 +136,7 @@ let cardStop=null;
 function closeCard(){if(nameGate)return;if(cardStop){cardStop();cardStop=null}const yf=$("#cardB iframe,#cardB video.prop");if(yf){const wasYt=yf.tagName==="IFRAME";yf.remove();if(wasYt)setTimeout(soundscape,50)}$("#card").classList.add("shut");document.body.classList.remove("cardopen");if(room)roomZoomT=ROOM_FAR;if(posing)endPose();cardFn=null;if(P&&P.lock>=59&&P.lock<=60.5&&selfieCam>0){selfieCam=0;[P,N].forEach(e=>e.lock=0)}}
 $("#cardX").addEventListener("click",closeCard);
 addEventListener("keydown",e=>{if(e.key==="Escape"){closeCard();panel("#list",false);panel("#dest",false)}});
-function complete(q){if(state.done[q])return;state.done[q]=1;save();passBanner();mood("fun",14);mood("love",8);renderList();renderObj();renderLabels();if(navigator.vibrate)navigator.vibrate(25);
+function complete(q){if(state.done[q])return;state.done[q]=1;save();passBanner();chime();mood("fun",14);mood("love",8);renderList();renderObj();renderLabels();if(navigator.vibrate)navigator.vibrate(25);
   const id=ORDER.find(k=>questOf(k)===q);if(!PLACES[id].final&&agencyOpen())setTimeout(()=>toast(tx().allDone,6000),900);
   if(ORDER.every(k=>state.done[questOf(k)]))setTimeout(()=>{const x=tx();state.fin=Date.now();save();openCard("· · ·",x.finaleH,`<p>${x.finaleP}</p><div class="acts"><button class="btn" type="button" id="fin">${x.finaleBtn}</button></div>`,()=>$("#fin").addEventListener("click",closeCard));for(let k=0;k<14;k++)setTimeout(()=>P&&heart(room?room.scene:world,P.pos.clone().setY(2.2)),k*220)},2200)}
 
@@ -224,7 +224,7 @@ function applyGuest(d){const a=state.ans=state.ans||{};voteCount=d.total||voteCo
   const pg=d.progress;if(pg&&typeof pg==="object"){(pg.done||[]).forEach(k=>state.done[k]=1);if((pg.quiz||0)>(state.quiz||0))state.quiz=pg.quiz;if(pg.hint)state.hint=1;if(pg.secret)state.secret=1;if(pg.fin&&!state.fin)state.fin=pg.fin;state.qa=Object.assign({},pg.qa||{},state.qa||{});if(pg.honeyC!=null&&a.honeyC==null)a.honeyC=pg.honeyC}
   if(d.drinks&&!(a.drinks||[]).length)a.drinks=String(d.drinks).split(",").map(t=>t.trim()).filter(Boolean);
   if(d.best&&typeof d.best==="object"){const L=scoresLocal(),me=state.guest;Object.entries(d.best).forEach(([g,v])=>{if(!L.some(s=>s.name===me&&s.game===g&&s.score>=v))L.push({name:me,game:g,score:+v,t:Date.now()})});try{localStorage.setItem("wscores",JSON.stringify(L.slice(-300)))}catch(e){}}
-  save();progSent="";try{renderList();renderObj();renderLabels();if(state.quiz===2)showPaws()}catch(e){}
+  quizFix();save();progSent="";try{renderList();renderObj();renderLabels();if(state.quiz===2)showPaws()}catch(e){}
   ["#mRsvp","#rsvp"].forEach(f=>{if($(f)&&$(f)._p)$(f)._p.load(true)});["#mWo","#wOk"].forEach(o=>{if($(o))showWish($(o))})}
 /* how many have voted right now: read from the sheet every few seconds while the card is open */
 const VOTES_N={el:n=>n===1?"1 ψήφος μέχρι τώρα":n+" ψήφοι μέχρι τώρα",en:n=>n===1?"1 vote so far":n+" votes so far",de:n=>n===1?"1 Stimme bisher":n+" Stimmen bisher",ro:n=>n===1?"1 vot până acum":n+(n>0&&(n%100===0||n%100>=20)?" de voturi":" voturi")+" până acum"};
@@ -379,6 +379,10 @@ document.addEventListener("visibilitychange",()=>{document.hidden?soundAway():so
 /* closing the browser ends the music for good and the next visit starts it from the top; some phones keep timers alive in the background, so hidden always means silent */
 addEventListener("pagehide",()=>{soundAway();ALL.forEach(a=>{try{a.currentTime=0}catch(e){}})});setInterval(()=>{if(document.hidden&&ALL.some(a=>!a.paused))soundAway()},1000);try{localStorage.removeItem("wsound")}catch(e){}
 $("#bSnd").addEventListener("click",()=>setSound(!soundOn));
+/* quest done: one short bright "ding", 0.3 s; silent where the guest turned sound off */
+function chime(){if(zoneOn[zone()]===false)return;if(!actx){try{actx=new AudioContext()}catch(e){return}}actx.resume&&actx.resume();const t0=actx.currentTime+.03,out=actx.createGain();out.gain.value=.9;out.connect(actx.destination);
+  [[1319,0,.28]].forEach(([f,t,d])=>[[f,"triangle",.06],[f*2,"sine",.018]].forEach(([fr,ty,v])=>{const o=actx.createOscillator(),g=actx.createGain();o.type=ty;o.frequency.value=fr;
+    g.gain.setValueAtTime(.0001,t0+t);g.gain.exponentialRampToValueAtTime(v,t0+t+.012);g.gain.exponentialRampToValueAtTime(.0001,t0+t+d);o.connect(g).connect(out);o.start(t0+t);o.stop(t0+t+d+.02)}))}
 function bell(){if(zoneOn[zone()]===false)return;if(!actx){try{actx=new AudioContext()}catch(e){return}}actx.resume&&actx.resume();[0,.9,1.8].forEach((t,i)=>{const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=[392,330,262][i];g.gain.setValueAtTime(.0001,actx.currentTime+t);g.gain.exponentialRampToValueAtTime(.045,actx.currentTime+t+.02);g.gain.exponentialRampToValueAtTime(.0001,actx.currentTime+t+2.4);o.connect(g).connect(actx.destination);o.start(actx.currentTime+t);o.stop(actx.currentTime+t+2.5)})}
 
 /* ================= 3D ================= */
@@ -1715,15 +1719,25 @@ function showPaws(){if(paws)return;const pts=findPath(gridNow(),new THREE.Vector
     for(let t=.4;t<L;t+=.55){side=-side;const c=a.clone().addScaledVector(dir,t).addScaledVector(r,side*.09);
       [[0,0,.055],[-.045,.06,.02],[0,.075,.02],[.045,.06,.02]].forEach(([x,z,rr])=>{const g=new THREE.CircleGeometry(rr,10).rotateX(-Math.PI/2).translate(x,0,z).rotateY(yaw).translate(c.x,.025,c.z);gs.push(g.toNonIndexed())})}}
   paws=new THREE.Mesh(mergeGeometries(gs),new THREE.MeshBasicMaterial({color:0x8a5a3c,transparent:true,opacity:.75,depthWrite:false}));world.add(paws)}
-if(state.quiz===2)setTimeout(()=>{try{showPaws()}catch(e){}},3000);
+quizFix();if(state.quiz===2)setTimeout(()=>{try{showPaws()}catch(e){}},3000);
 /* the way to the hidden room: shows once by itself, for 23 seconds, and can never be opened again */
 function quizWinCard(){const x=tx();openCard("· · ·",x.qzWinH,`<p>${x.qzWin}</p><div class="acts"><button class="btn" type="button" id="qgo">${x.qzGo}</button></div>`,()=>$("#qgo").addEventListener("click",closeCard))}
-function quizCard(){const x=tx(),got=state.qa||{};if(state.quiz===3){openCard(x.qzW,x.qzH,`<p>${x.qzFail}</p>`);return}state.quiz=1;save();
-  const body=`<p class="qwarn">${x.qzOnce}</p><p>${x.qzP}</p><ol class="qz">${x.qz.map((q,i)=>`<li><b>${q[0]}</b><div class="qa">${q[1].map((a,j)=>`<button type="button" class="chip${got[i]===j?" ok":""}" data-q="${i}" data-a="${j}">${a}</button>`).join("")}</div><small class="qr" id="qr${i}">${got[i]!=null?x.qzOk:""}</small></li>`).join("")}</ol><p class="qscore" id="qsc"></p>`;
-  openCard(x.qzW,x.qzH,body,()=>{const upd=()=>{const n=Object.keys(got).length;$("#qsc").textContent=`${n}/${x.qz.length} ${x.qzOf}`;
-      if(n===x.qz.length&&!state.hint){/* the hint shows once, for 23 seconds, never again */state.quiz=2;state.hint=1;save();showPaws();renderObj();setTimeout(()=>{quizWinCard();setTimeout(()=>{if($("#qgo"))closeCard()},23000)},900)}};
-    upd();$("#cardB").querySelectorAll("[data-q]").forEach(b=>b.addEventListener("click",()=>{const i=+b.dataset.q,j=+b.dataset.a;if(got[i]!=null)return;
-      if(x.qz[i][2]===j){got[i]=j;state.qa=got;save();b.classList.add("ok");$("#qr"+i).textContent=x.qzOk;upd()}else{/* one chance only: a wrong answer ends the test for good */b.classList.add("no");$("#qr"+i).textContent=x.qzNo;state.quiz=3;save();$("#cardB").querySelectorAll("[data-q]").forEach(c=>c.disabled=true);$("#qsc").textContent=x.qzFail}}))})}
+/* all five get an answer, one tap each; only at the end the guest sees which were right and which wrong (never the right answer) */
+const qzRight=(x,got)=>x.qz.filter((q,i)=>got[i]===q[2]).length;
+function quizList(x,got,end){return`<ol class="qz">${x.qz.map((q,i)=>`<li><b>${q[0]}</b><div class="qa">${q[1].map((a,j)=>`<button type="button" class="chip${got[i]===j?(end?(j===q[2]?" ok":" no"):" pick"):""}" data-q="${i}" data-a="${j}"${end||got[i]!=null?" disabled":""}>${a}</button>`).join("")}</div><small class="qr">${end&&got[i]!=null?(got[i]===q[2]?x.qzOk:x.qzNo):""}</small></li>`).join("")}</ol>`}
+function quizCard(){const x=tx(),got=state.qa||{},N=x.qz.length;
+  if(state.quiz===3){openCard(x.qzW,x.qzH,Object.keys(got).length>=N?`${quizList(x,got,1)}<p class="qscore">${qzRight(x,got)}/${N} ${x.qzOf}</p><p>${x.qzFail}</p>`:`<p>${x.qzFail}</p>`);return}
+  state.quiz=1;save();
+  openCard(x.qzW,x.qzH,`<p class="qwarn">${x.qzOnce}</p><p>${x.qzP}</p>${quizList(x,got,0)}<p class="qscore" id="qsc"></p><p id="qend"></p>`,()=>{
+    const B=$("#cardB"),done=()=>{const n=Object.keys(got).length;$("#qsc").textContent=`${n}/${N} ${x.qzAns}`;if(n<N)return;
+      const r=qzRight(x,got);B.querySelector(".qz").outerHTML=quizList(x,got,1);$("#qsc").textContent=`${r}/${N} ${x.qzOf}`;
+      if(r===N){if(!state.hint){/* the hint shows once, for 23 seconds, never again */state.quiz=2;state.hint=1;save();showPaws();renderObj();setTimeout(()=>{quizWinCard();setTimeout(()=>{if($("#qgo"))closeCard()},23000)},2200)}}
+      else{state.quiz=3;save();$("#qend").textContent=x.qzFail}};
+    done();
+    B.querySelectorAll("[data-q]").forEach(b=>b.addEventListener("click",()=>{const i=+b.dataset.q,j=+b.dataset.a;if(got[i]!=null)return;got[i]=j;state.qa=got;save();
+      B.querySelectorAll(`[data-q="${i}"]`).forEach(c=>c.disabled=true);b.classList.add("pick");done()}))})}
+/* until 2026-11-16 the first wrong answer ended the quiz; those guests get to answer all five, once */
+function quizFix(){if(state.quiz===3&&Object.keys(state.qa||{}).length<5){delete state.quiz;state.qa={};save()}}
 setInterval(()=>{if(!state.quiz&&state.fin&&Date.now()-state.fin>4000&&mode==="play"&&!room&&ORDER.every(k=>state.done[questOf(k)])&&!document.body.classList.contains("cardopen"))quizCard()},1500);
 /* admin: marks every quest done, finale already seen */
 /* admin and reset open only with the code, once per visit */
